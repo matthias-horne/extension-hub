@@ -1,4 +1,4 @@
-type IconName = 'search' | 'arrow' | 'back' | 'moon' | 'sun' | 'close' | 'github' | 'chevron' | 'star' | 'download' | 'file' | 'book' | 'external' | 'copy' | 'check';
+type IconName = 'search' | 'arrow' | 'back' | 'moon' | 'sun' | 'close' | 'github' | 'chevron' | 'star' | 'download' | 'file' | 'book' | 'external' | 'copy' | 'check' | 'package';
 
 export function Icon({ name }: { name: IconName }) {
   if (name === 'github') return (
@@ -20,6 +20,7 @@ export function Icon({ name }: { name: IconName }) {
       {name === 'star' && <path d="m12 3 2.8 5.7 6.3.9-4.5 4.4 1.1 6.2-5.7-3-5.7 3 1.1-6.2-4.5-4.4 6.3-.9L12 3Z" />}
       {name === 'download' && <path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4" />}
       {name === 'file' && <><path d="M14 3H6v18h12V7l-4-4Z" /><path d="M14 3v5h4M9 12h6M9 16h6" /></>}
+      {name === 'package' && <><path d="m12 3 9 5v8l-9 5-9-5V8l9-5Zm0 10v8M3 8l9 5 9-5M7.5 5.5l9 5" /></>}
     </svg>
   );
 }

@@ -16,6 +16,35 @@ export interface CompatibilityInfo {
   testedWith?: Record<string, unknown>;
 }
 
+export interface ExtensionArtifact {
+  type: 'helm-chart';
+  deployment: 'extension' | 'admission-runtime' | 'admission-virtual';
+  reference: string;
+}
+
+interface OCIRepository {
+  ref?: string;
+  repository?: string;
+  tag?: string;
+  digest?: string;
+}
+
+interface HelmDeployment {
+  helm?: { ociRepository?: OCIRepository };
+}
+
+interface ExtensionManifest {
+  apiVersion: string;
+  kind: string;
+  metadata: { name: string };
+  spec?: {
+    deployment?: {
+      extension?: HelmDeployment;
+      admission?: { runtimeCluster?: HelmDeployment; virtualCluster?: HelmDeployment };
+    };
+  };
+}
+
 export interface Extension {
   id: string;
   title: string;
@@ -29,6 +58,7 @@ export interface Extension {
   manifestRegistry?: string;
   manifest: string;
   manifestUrl: string;
+  artifacts: ExtensionArtifact[];
   github?: GitHubInfo;
   compatibility?: Record<string, CompatibilityInfo>;
 }
@@ -40,12 +70,34 @@ interface RegistryEntry {
   repository: string;
   tags?: string[];
   manifestRegistry?: string;
-  extension?: { apiVersion: string; kind: string; metadata: { name: string }; spec: object };
+  extension?: ExtensionManifest;
   github?: GitHubInfo;
   compatibility?: Record<string, CompatibilityInfo>;
 }
 
 export const DEFAULT_EXTENSIONS_URL = 'https://raw.githubusercontent.com/matthias-horne/extension-hub/pages/extensions/';
+
+function helmReference(repository?: OCIRepository): string | undefined {
+  if (typeof repository?.ref === 'string' && repository.ref.trim()) return repository.ref;
+  if (typeof repository?.repository !== 'string' || !repository.repository.trim()) return undefined;
+  // Gardener gives a full reference precedence over repository fields, and a digest precedence over a tag.
+  if (typeof repository.digest === 'string' && repository.digest.trim()) return repository.repository + '@' + repository.digest;
+  if (typeof repository.tag === 'string' && repository.tag.trim()) return repository.repository + ':' + repository.tag;
+  return undefined;
+}
+
+function extensionArtifacts(manifest?: ExtensionManifest): ExtensionArtifact[] {
+  const deployment = manifest?.spec?.deployment;
+  const charts: { deployment: ExtensionArtifact['deployment']; chart?: HelmDeployment }[] = [
+    { deployment: 'extension', chart: deployment?.extension },
+    { deployment: 'admission-runtime', chart: deployment?.admission?.runtimeCluster },
+    { deployment: 'admission-virtual', chart: deployment?.admission?.virtualCluster },
+  ];
+  return charts.flatMap(({ deployment, chart }) => {
+    const reference = helmReference(chart?.helm?.ociRepository);
+    return reference ? [{ type: 'helm-chart' as const, deployment, reference }] : [];
+  });
+}
 
 export function parseExtension(definition: string, path: string, siteBase = '/'): Extension {
   const entry: RegistryEntry = parse(definition);
@@ -80,6 +132,7 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
     manifestRegistry: entry.manifestRegistry,
     manifest,
     manifestUrl: 'data:application/yaml;charset=utf-8,' + encodeURIComponent(manifest),
+    artifacts: extensionArtifacts(entry.extension),
     github: entry.github,
     compatibility: entry.compatibility,
   };

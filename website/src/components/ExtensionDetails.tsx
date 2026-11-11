@@ -5,11 +5,13 @@ import remarkGfm from 'remark-gfm';
 import type { Extension } from '../data/extensions';
 import { Icon } from './Icon';
 import { ExtensionCompatibility } from './ExtensionCompatibility';
+import { ExtensionArtifacts } from './ExtensionArtifacts';
 
 const dateFormatter = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' });
 const detailTabs = [
   { id: 'overview', label: 'Overview', icon: 'book' },
   { id: 'manifest', label: 'extension.yaml', icon: 'file' },
+  { id: 'artifacts', label: 'Artifacts', icon: 'package' },
   { id: 'compatibility', label: 'Compatibility', icon: 'check' },
 ] as const;
 
@@ -95,11 +97,6 @@ export default function ExtensionDetails({ extension, onCategory }: {
             </div>
           </div>
 
-          {extension.manifestRegistry && <div className="details-registry">
-            <h2>Manifest registry</h2>
-            <code>{extension.manifestRegistry}</code>
-          </div>}
-
           <a className="details-support" href={extension.repository + '/issues'} target="_blank" rel="noopener noreferrer">Report an issue<Icon name="external" /></a>
         </aside>
 
@@ -155,6 +152,10 @@ export default function ExtensionDetails({ extension, onCategory }: {
               <span className="sr-only" role="status">{copyStatus === 'copied' ? 'YAML copied to clipboard.' : ''}</span>
               <pre className="manifest-code" tabIndex={0} aria-label={extension.title + ' YAML definition'}><code>{extension.manifest}</code></pre>
             </div>
+          </section>
+
+          <section className="details-panel" id="artifacts-panel" role="tabpanel" aria-labelledby="artifacts-tab" tabIndex={0} hidden={activeTab !== 'artifacts'}>
+            <ExtensionArtifacts artifacts={extension.artifacts} manifestRegistry={extension.manifestRegistry} />
           </section>
 
           <section className="details-panel compatibility-panel" id="compatibility-panel" role="tabpanel" aria-labelledby="compatibility-tab" tabIndex={0} hidden={activeTab !== 'compatibility'}>

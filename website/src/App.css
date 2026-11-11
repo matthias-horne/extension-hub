@@ -140,12 +140,11 @@ dialog::backdrop { background: rgb(0 0 0 / 65%); backdrop-filter: blur(6px); }
 .metadata-stars a { display: inline-flex; align-items: center; gap: 6px; color: var(--brand); }
 .metadata-stars svg { width: 13px; height: 13px; }
 .metadata-note { margin: 10px 0 0; color: var(--text-subtle); font-size: 12px; line-height: 20px; }
-.details-categories, .details-registry { margin-top: 26px; }
+.details-categories { margin-top: 26px; }
 .details-sidebar h2 { margin: 0 0 10px; color: var(--text-subtle); font-size: 11px; line-height: 18px; font-weight: 500; letter-spacing: .8px; text-transform: uppercase; }
 .details-categories .extension-tags { margin: 0; }
 .details-categories .extension-tag { padding: 4px 9px; font-size: 11px; }
 .details-categories .extension-tag:hover { background: var(--button-bg); }
-.details-registry code { display: block; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--card-bg); color: var(--text-muted); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11px; line-height: 19px; overflow-wrap: anywhere; }
 .details-support { display: flex; align-items: center; justify-content: space-between; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--text-muted); font-size: 12px; line-height: 20px; }
 .details-support:hover { color: var(--brand); }
 .details-support svg { width: 13px; height: 13px; }
@@ -164,7 +163,7 @@ dialog::backdrop { background: rgb(0 0 0 / 65%); backdrop-filter: blur(6px); }
 .details-panel-heading svg { width: 14px; height: 14px; }
 .details-panel-heading > a { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; flex-shrink: 0; }
 .details-panel-heading > a:hover { color: var(--brand); }
-.readme-content, .readme-fallback, .readme-loading, .details-manifest, .details-compatibility { padding: 28px 32px 32px; }
+.readme-content, .readme-fallback, .readme-loading, .details-manifest, .details-artifacts, .details-compatibility { padding: 28px 32px 32px; }
 .readme-content { color: var(--text-muted); font-size: 14px; line-height: 25px; overflow-wrap: anywhere; }
 .readme-content > :first-child { margin-top: 0; }
 .readme-content > :last-child { margin-bottom: 0; }
@@ -202,6 +201,19 @@ dialog::backdrop { background: rgb(0 0 0 / 65%); backdrop-filter: blur(6px); }
 .copy-manifest { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; padding: 2px 0; border: none; background: transparent; color: var(--text-muted); font-size: 12px; }
 .copy-manifest:hover { color: var(--brand); }
 .details-manifest .manifest-code { max-height: none; background: var(--page-bg); }
+.artifact-registry { margin-bottom: 28px; }
+.artifact-registry h2, .artifact-charts > h2 { margin: 0 0 12px; font-size: 16px; line-height: 24px; font-weight: 500; }
+.artifact-registry code { display: block; padding: 14px 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--page-bg); color: var(--text-muted); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; line-height: 22px; overflow-wrap: anywhere; }
+.artifact-charts > p { margin: 0 0 20px; color: var(--text-muted); font-size: 14px; line-height: 24px; }
+.artifact-charts > :last-child { margin-bottom: 0; }
+.artifact-list { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+.artifact-card { min-width: 0; padding: 18px 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--page-bg); }
+.artifact-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 12px; }
+.artifact-heading h2 { margin: 0; font-size: 14px; line-height: 22px; font-weight: 500; }
+.artifact-type { padding: 3px 8px; border-radius: 5px; background: var(--brand-soft); color: var(--brand); font-size: 11px; line-height: 18px; }
+.artifact-reference { display: flex; align-items: flex-start; gap: 16px; }
+.artifact-reference code { flex: 1; min-width: 0; overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; line-height: 22px; }
+.artifact-copy-status { margin: 12px 0 0; color: var(--text-muted); font-size: 12px; line-height: 20px; }
 .details-compatibility > p { margin: 0 0 20px; color: var(--text-muted); font-size: 14px; line-height: 24px; }
 .details-compatibility > :last-child { margin-bottom: 0; }
 .details-compatibility strong { color: var(--text); font-weight: 500; }
@@ -238,7 +250,7 @@ dialog::backdrop { background: rgb(0 0 0 / 65%); backdrop-filter: blur(6px); }
 
 @media (max-width: 959px) {
   .details-layout { grid-template-columns: 250px minmax(0, 1fr); gap: 28px; }
-  .readme-content, .readme-fallback, .readme-loading, .details-manifest, .details-compatibility { padding: 24px; }
+  .readme-content, .readme-fallback, .readme-loading, .details-manifest, .details-artifacts, .details-compatibility { padding: 24px; }
 }
 
 @media (max-width: 767px) {
@@ -251,12 +263,14 @@ dialog::backdrop { background: rgb(0 0 0 / 65%); backdrop-filter: blur(6px); }
   .details-actions { flex-direction: row; flex-wrap: wrap; }
   .details-actions > a { flex: 1; min-width: 230px; }
   .repository-metadata > div { padding-block: 10px; }
-  .details-categories, .details-registry { margin-top: 22px; }
+  .details-categories { margin-top: 22px; }
   .details-support { margin-top: 22px; }
 }
 
 @media (max-width: 399px) {
-  .readme-content, .readme-fallback, .readme-loading, .details-manifest, .details-compatibility { padding: 20px; }
+  .readme-content, .readme-fallback, .readme-loading, .details-manifest, .details-artifacts, .details-compatibility { padding: 20px; }
+  .artifact-card { padding: 14px; }
+  .artifact-reference { flex-direction: column; gap: 10px; }
   .details-panel-heading { padding-inline: 16px; }
   .details-tabs { gap: 20px; }
 }
