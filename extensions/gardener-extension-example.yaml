@@ -3,46 +3,131 @@ description: A minimal Gardener extension example that does nothing
 tags:
   - example
 repository: https://github.com/matthias-horne/gardener-extension-example
-manifestRegistry: ghcr.io/matthias-horne/manifests/gardener-extension-example
-version: v0.0.2
-resources:
-  - kind: BackupBucket
-    type: example
-  - kind: BackupEntry
-    type: example
-  - kind: Bastion
-    type: example
-  - kind: ControlPlane
-    type: example
-  - kind: DNSRecord
-    type: example
-  - kind: Infrastructure
-    type: example
-  - kind: Worker
-    type: example
+manifestRegistry: ghcr.io/matthias-horne/extensions/gardener-extension-example
+version: v0.0.3
+extension:
+  apiVersion: operator.gardener.cloud/v1alpha1
+  kind: Extension
+  metadata:
+    annotations:
+      security.gardener.cloud/pod-security-enforce: baseline
+      extension.garden.cloud/manifest: ghcr.io/matthias-horne/extensions/gardener-extension-example:v0.0.2
+    name: example
+  spec:
+    deployment:
+      extension:
+        helm:
+          ociRepository:
+            ref: ghcr.io/matthias-horne/charts/gardener-extension-example:0.0.3
+    resources:
+      - kind: Extension
+        type: example
+github:
+  stars: 1
+  lastCommit: 2026-11-11T14:37:03Z
+  language: Go
+  license:
+    name: MIT License
+    spdxId: MIT
+  owner:
+    login: matthias-horne
+    avatarUrl: https://avatars.githubusercontent.com/u/156783516?v=4
+    htmlUrl: https://github.com/matthias-horne
+  readme:
+    markdown: |
+      # Gardener Extension Example
+
+      This repository is a minimal [Gardener](https://gardener.cloud/) extension that reconciles `Extension` resources of `type: example`.
+
+      The controller accepts an optional, empty `ExampleConfig`, logs reconciliation, and completes the extension lifecycle without creating additional resources. Gardener's generic controller handles operation status and finalizers. The controller manager includes leader election, heartbeat, metrics, and health and readiness probes.
+
+      ## Build and test
+
+      Use the Go version specified in [go.mod](go.mod):
+
+      ```sh
+      make build
+      make test
+      ```
+
+      Build the container image with `make docker-image`. The default image is `ghcr.io/gardener/gardener-extension-example:latest`; override `REGISTRY` and `IMAGE_TAG` as needed.
+
+      ## Release artifacts
+
+      Publishing a GitHub release builds and pushes these artifacts to GHCR:
+
+      | Artifact | Reference for release `vX.Y.Z` |
+      | --- | --- |
+      | Extension image | `ghcr.io/gardener/gardener-extension-example:vX.Y.Z` |
+      | Helm chart | `ghcr.io/gardener/charts/gardener-extension-example:X.Y.Z` |
+      | Extension resource (`extension.yaml`) | `ghcr.io/gardener/extensions/gardener-extension-example:vX.Y.Z` |
+      | Compatibility information (`compatibility.yaml`) | OCI referrer attached to the extension resource by digest |
+
+      The image is also tagged `latest`. The Helm chart version omits the leading `v`, while its `appVersion` uses the full release tag. For forks, replace `gardener` with the repository owner.
+
+      The published `extension.yaml` is generated from [example/extension.yaml](example/extension.yaml), with its Helm chart reference set to the repository owner and release version. [compatibility.yaml](compatibility.yaml) tracks manually maintained `requires` and `supportedFeatures`. The release workflow adds the Gardener dependency version from [go.mod](go.mod) as `builtWith."gardener/gardener"` and preserves any `testedWith` information added after compatibility testing. The extension artifact and its YAML file use media type `application/gardener.extension+yaml`; the compatibility artifact and its YAML file use `application/gardener.compatibility+yaml`.
+
+      ### Download artifacts
+
+      Install [ORAS](https://oras.land/docs/installation/) to download the extension resource. Replace `v0.0.2` with the desired release tag:
+
+      ```sh
+      release_tag=v0.0.2
+      image=ghcr.io/gardener/gardener-extension-example
+      chart=ghcr.io/gardener/charts/gardener-extension-example
+      extension=ghcr.io/gardener/extensions/gardener-extension-example
+
+      docker pull "${image}:${release_tag}"
+      helm pull "oci://${chart}" --version "${release_tag#v}"
+      oras pull "${extension}:${release_tag}" --output ./release-extension
+      ```
+
+      The last command writes `release-extension/extension.yaml`.
+
+      ### Discover attached compatibility information
+
+      The pipeline uses the OCI referrers tag fallback for GHCR. Discover compatibility information attached to the extension resource with:
+
+      ```sh
+      oras discover "${extension}:${release_tag}" \
+        --distribution-spec v1.1-referrers-tag \
+        --artifact-type application/gardener.compatibility+yaml
+      ```
+
+      Copy the attachment digest from the discovery output to download its `compatibility.yaml`:
+
+      ```sh
+      oras pull "${extension}@<compatibility-attachment-digest>" --output ./release-compatibility
+      ```
+
+      ## Run locally
+
+      With a kubeconfig pointing to a seed cluster:
+
+      ```sh
+      bin/gardener-extension-example \
+        --config=example/00-componentconfig.yaml \
+        --kubeconfig=/path/to/seed-kubeconfig \
+        --leader-election=false \
+        --heartbeat-namespace=garden
+      ```
+
+      For a Gardener local setup, use `make push-to-gardener-local` to build and load the image, then register the extension with `kubectl apply -k example/`. Adapt and apply [example/shoot.yaml](example/shoot.yaml) to enable it for a shoot.
+
+      ## Adapt the example
+
+      Implement reconciliation and cleanup in [pkg/controller/example/actuator.go](pkg/controller/example/actuator.go). Add provider configuration fields to the internal and versioned types under [pkg/apis/example](pkg/apis/example), and controller configuration fields under [pkg/apis/config](pkg/apis/config).
+
+      After changing API types or the Helm chart, run `make generate` to regenerate API helpers and the embedded chart in [example/controller-registration.yaml](example/controller-registration.yaml). Generation requires Helm and `yq`; Gardener's registration generator also requires GNU tar (available as `gtar` on macOS).
+    path: README.md
+    htmlUrl: https://github.com/matthias-horne/gardener-extension-example/blob/main/README.md
+    rawUrl: https://raw.githubusercontent.com/matthias-horne/gardener-extension-example/main/README.md
 compatibility:
-  v0.0.2:
+  v0.0.3:
+    requires:
+      gardener/gardener: ">= 1.135.0"
+    supportedFeatures:
+      - namespaced-cloudprofiles
+      - ipv6
     builtWith:
       gardener/gardener: v1.146.6
-  v0.0.1:
-    builtWith:
-      gardener/gardener: v1.153.0
-    testedWith:
-      gardener/gardener: v1.154.1
-      kubernetesVersions:
-        - 1.36
-        - 1.35
-        - 1.34
-        - 1.33
-        - 1.32
-  v0.0.0:
-    builtWith:
-      gardener/gardener: v1.152.0
-    testedWith:
-      gardener/gardener: v1.152.1
-    supportedKubernetesVersions:
-      - 1.36
-      - 1.35
-      - 1.34
-      - 1.33
-      - 1.32
