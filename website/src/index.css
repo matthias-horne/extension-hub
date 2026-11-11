@@ -25,6 +25,7 @@
   --button-bg: #ebebef;
   --button-hover: #e0e0e5;
   --brand: #087254;
+  --on-brand: #ffffff;
   --brand-soft: rgb(8 114 84 / 12%);
 }
 
@@ -40,6 +41,7 @@
   --button-bg: #32343e;
   --button-hover: #3c3f4a;
   --brand: #49a382;
+  --on-brand: #132a22;
   --brand-soft: rgb(73 163 130 / 14%);
 }
 
