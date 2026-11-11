@@ -1,146 +1,239 @@
-import React, { useState, useEffect } from 'react';
-import { ExtensionCard } from './components/ExtensionCard';
-import './index.css';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ExtensionCard, type Extension } from './components/ExtensionCard';
+import { Icon } from './components/Icon';
+import './App.css';
 
-const EXTENSIONS_DATA = [
+const EXTENSIONS: Extension[] = [
   {
     title: 'Auto-Scaler Pro',
     description: 'Advanced automatic scaling for your Gardener workloads based on custom metrics and AI predictions.',
     category: 'Infrastructure',
-    icon: '🚀',
-    link: '#',
+    icon: '/highlights/extensible.svg',
   },
   {
     title: 'Security Guard',
     description: 'Real-time vulnerability scanning and policy enforcement for all your namespaces.',
     category: 'Security',
-    icon: '🛡️',
-    link: '#',
+    icon: '/highlights/certified.svg',
   },
   {
     title: 'Cost Optimizer',
     description: 'Analyze your cluster spending and receive recommendations for right-sizing your nodes.',
     category: 'Management',
-    icon: '💰',
-    link: '#',
+    icon: '/highlights/cloud-agnostic.svg',
   },
   {
     title: 'Log Aggregator',
-    description: 'Centralized logging solution with beautiful dashboards and alerting.',
+    description: 'Centralized logging for your Gardener clusters, with dashboards and alerting.',
     category: 'Observability',
-    icon: '🪵',
-    link: '#',
+    icon: '/highlights/ubiqutious.svg',
   },
   {
     title: 'Backup Master',
     description: 'Automated snapshots and disaster recovery for your entire Gardener environment.',
     category: 'Infrastructure',
-    icon: '💾',
-    link: '#',
+    icon: '/highlights/autonomous.svg',
   },
   {
     title: 'Identity Sync',
     description: 'Seamlessly synchronize your corporate identity provider with Gardener RBAC.',
     category: 'Security',
-    icon: '🔑',
-    link: '#',
+    icon: '/highlights/gardener.svg',
   },
 ];
 
+const NAV_LINKS = [
+  { label: 'Adopters', href: 'https://gardener.cloud/adopters/' },
+  { label: 'Documentation', href: 'https://gardener.cloud/docs/' },
+  { label: 'Blog', href: 'https://gardener.cloud/blog/' },
+  { label: 'Community', href: 'https://gardener.cloud/community/' },
+  { label: 'Contribute', href: 'https://github.com/matthias-horne/extension-hub' },
+];
+
+const SOCIAL_LINKS = [
+  { label: 'GitHub', icon: 'github', href: 'https://github.com/gardener' },
+  { label: 'X', icon: 'x', href: 'https://x.com/GardenerProject' },
+  { label: 'Slack', icon: 'slack', href: 'https://gardener.cloud/community/' },
+  { label: 'YouTube', icon: 'youtube', href: 'https://www.youtube.com/@gardenerproject' },
+] as const;
+
 function App() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    try {
+      return localStorage.getItem('gardener-theme') !== 'light';
+    } catch {
+      return true;
+    }
+  });
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [selectedExtension, setSelectedExtension] = useState<Extension | null>(null);
+  const searchDialog = useRef<HTMLDialogElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
+  const detailDialog = useRef<HTMLDialogElement>(null);
+  const openSearch = useCallback(() => {
+    searchDialog.current?.showModal();
+    searchInput.current?.focus();
+  }, []);
+  const searchResults = EXTENSIONS.filter((extension) =>
+    `${extension.title} ${extension.description} ${extension.category}`
+      .toLowerCase().includes(query.trim().toLowerCase()),
+  );
 
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    document.documentElement.classList.toggle('dark', darkMode);
+    try {
+      localStorage.setItem('gardener-theme', darkMode ? 'dark' : 'light');
+    } catch {
+      // The theme also works when browser storage is unavailable.
     }
   }, [darkMode]);
 
+  useEffect(() => {
+    function handleShortcut(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        detailDialog.current?.close();
+        openSearch();
+      }
+    }
+    document.addEventListener('keydown', handleShortcut);
+    return () => document.removeEventListener('keydown', handleShortcut);
+  }, [openSearch]);
+
+  useEffect(() => {
+    if (selectedExtension) detailDialog.current?.showModal();
+  }, [selectedExtension]);
+
+  function selectExtension(extension: Extension) {
+    searchDialog.current?.close();
+    setSelectedExtension(extension);
+  }
+
   return (
-    <div className="min-h-screen flex flex-col transition-colors duration-300">
-      {/* Header */}
-      <header className="bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-4">
-              <img src="/logo.svg" alt="Gardener Logo" className="h-8 w-auto" />
-              <div className="h-6 w-px bg-gray-300 dark:bg-gray-700 mx-2 hidden sm:block"></div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white hidden sm:inline-block">
-                Extensions
-              </span>
+    <div className="site">
+      <a className="skip-link" href="#extensions">Skip to extensions</a>
+      <header className="site-header">
+        <div className="header-inner">
+          <a className="brand" href="/" aria-label="Gardener Extensions home">
+            <img src="/logo.svg" alt="" width="28" height="28" />
+            <span>Gardener</span>
+          </a>
+          <button className="search-trigger" aria-label="Search extensions" onClick={openSearch}>
+            <Icon name="search" />
+            <span>Search</span>
+            <kbd>⌘ K</kbd>
+          </button>
+          <nav className="desktop-nav" aria-label="Main navigation">
+            {NAV_LINKS.map(({ label, href }) => <a key={label} href={href}>{label}</a>)}
+          </nav>
+          <div className="header-tools">
+            <button
+              className="theme-switch"
+              onClick={() => setDarkMode(!darkMode)}
+              aria-label={darkMode ? 'Switch to light theme' : 'Switch to dark theme'}
+              aria-pressed={darkMode}
+            >
+              <span className="theme-switch-thumb"><Icon name={darkMode ? 'moon' : 'sun'} /></span>
+            </button>
+            <div className="social-links">
+              {SOCIAL_LINKS.map(({ label, icon, href }) => (
+                <a href={href} key={label} aria-label={label} target="_blank" rel="noopener noreferrer">
+                  <Icon name={icon} />
+                </a>
+              ))}
             </div>
-            <nav className="flex items-center gap-6">
-              <a 
-                href="https://github.com/gardener/documentation" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-gray-600 dark:text-gray-400 hover:text-gardener-brand dark:hover:text-gardener-brand-dark transition-colors font-medium text-sm flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.875 8.253 6.839 9.444.622.183 0.923-.491.923-1.116C7.57 15.524 10 .908 10 .908c0 0 2.683 0 4.681 0 2.683 0 4.681 0 4.681 0s2.683 0 4.681 0c0 0 2.683 0 4.681 0 0 0 .581.733.622 1.116C21.125 20.253 24 16.42 24 12c0-5.523-4.477-10-12-10z" />
-                </svg>
-                GitHub
-              </a>
-              <button 
-                onClick={() => setDarkMode(!darkMode)} 
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                aria-label="Toggle Dark Mode"
-              >
-                {darkMode ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 118.646 3.646 9 9 0 0120.354 15.354z" />
-                  </svg>
-                )}
-              </button>
-            </nav>
           </div>
+          <button
+            className="menu-toggle"
+            aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
+            onClick={() => setMenuOpen(!menuOpen)}
+          ><Icon name={menuOpen ? 'close' : 'menu'} /></button>
         </div>
+        {menuOpen && (
+          <nav className="mobile-nav" id="mobile-navigation" aria-label="Mobile navigation">
+            {NAV_LINKS.map(({ label, href }) => <a key={label} href={href}>{label}</a>)}
+          </nav>
+        )}
       </header>
 
-      {/* Hero Section */}
-      <section className="bg-gardener-soft dark:bg-gardener-soft-dark py-20 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6">
-            Extend your <span className="text-gradient">Gardener</span> experience
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-10">
-            Discover a collection of community-driven extensions and official plugins to enhance the capabilities of your Gardener clusters.
-          </p>
-        </div>
-      </section>
+      <main>
+        <section className="hero" aria-labelledby="hero-title">
+          <div className="content-width hero-inner">
+            <div className="hero-copy">
+              <h1 id="hero-title">
+                <span className="hero-name">Gardener</span>
+                <span>Extensions for<br />Every Kubernetes<br />Cluster</span>
+              </h1>
+              <p className="hero-tagline">Discover community-built extensions to enhance your Gardener clusters.</p>
+              <a className="hero-action" href="#extensions">
+                Explore extensions <Icon name="arrow" />
+              </a>
+            </div>
+            <div className="hero-art" aria-hidden="true">
+              <div className="hero-glow" />
+              <img className="hero-logo" src="/logo.svg" alt="" width="320" height="320" />
+            </div>
+          </div>
+        </section>
 
-      {/* Grid Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {EXTENSIONS_DATA.map((ext, index) => (
-            <ExtensionCard key={index} {...ext} />
-          ))}
-        </div>
+        <section className="content-width extensions-section" id="extensions" aria-label="Explore Gardener extensions">
+          <div className="extension-grid">
+            {EXTENSIONS.map((extension) => (
+              <ExtensionCard key={extension.title} extension={extension} onSelect={selectExtension} />
+            ))}
+          </div>
+        </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="Gardener Logo" className="h-6 w-auto brightness-0 invert" />
-            <span className="text-xl font-bold">Gardener Extensions</span>
-          </div>
-          <div className="flex gap-6 text-gray-400 text-sm">
-            <a href="#" className="hover:text-white transition-colors">GitHub</a>
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-          </div>
-          <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} Gardener Project. Apache 2.0 License.
-          </p>
-        </div>
+      <footer className="site-footer content-width">
+        <a className="footer-brand" href="https://gardener.cloud/">
+          <img src="/logo.svg" alt="" width="24" height="24" />
+          <span>Gardener Extensions</span>
+        </a>
+        <p>A community effort. Built to grow together.</p>
+        <a href="https://github.com/matthias-horne/extension-hub">Contribute an extension <Icon name="arrow" /></a>
       </footer>
+
+      <dialog ref={searchDialog} className="search-dialog" aria-labelledby="search-title" onClose={() => setQuery('')}>
+        <div className="dialog-heading">
+          <h2 id="search-title">Search extensions</h2>
+          <button className="icon-button" aria-label="Close search" onClick={() => searchDialog.current?.close()}><Icon name="close" /></button>
+        </div>
+        <div className="search-field">
+          <Icon name="search" />
+          <input ref={searchInput} aria-label="Search extensions" placeholder="Search by name, category, or capability…" value={query} onChange={(event) => setQuery(event.target.value)} />
+        </div>
+        <p className="result-count" aria-live="polite">{searchResults.length} {searchResults.length === 1 ? 'extension' : 'extensions'} found</p>
+        <div className="search-results">
+          {searchResults.map((extension) => (
+            <button className="search-result" key={extension.title} onClick={() => selectExtension(extension)}>
+              <img src={extension.icon} alt="" width="32" height="32" />
+              <span><strong>{extension.title}</strong><small>{extension.category}</small></span>
+              <Icon name="arrow" />
+            </button>
+          ))}
+          {searchResults.length === 0 && <p className="empty-state">No extensions match “{query}”. Try a name or category such as Security.</p>}
+        </div>
+        <p className="dialog-hint"><kbd>esc</kbd> to close</p>
+      </dialog>
+
+      <dialog ref={detailDialog} className="detail-dialog" aria-labelledby="extension-title" onClose={() => setSelectedExtension(null)}>
+        {selectedExtension && (
+          <>
+            <div className="dialog-heading">
+              <img src={selectedExtension.icon} alt="" width="48" height="48" />
+              <button className="icon-button" aria-label="Close extension details" onClick={() => detailDialog.current?.close()}><Icon name="close" /></button>
+            </div>
+            <span className="detail-category">{selectedExtension.category}</span>
+            <h2 id="extension-title">{selectedExtension.title}</h2>
+            <p className="detail-description">{selectedExtension.description}</p>
+            <a className="hero-action" href="https://gardener.cloud/docs/gardener/extensions/" target="_blank" rel="noopener noreferrer">Gardener extension documentation <Icon name="arrow" /></a>
+          </>
+        )}
+      </dialog>
     </div>
   );
 }
