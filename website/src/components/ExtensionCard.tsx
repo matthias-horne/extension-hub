@@ -1,6 +1,5 @@
 import type { Extension } from '../data/extensions';
 import { Link } from 'react-router-dom';
-import { useGitHubRepository } from '../hooks/useGitHubRepository';
 import { Icon } from './Icon';
 
 interface ExtensionCardProps {
@@ -11,15 +10,15 @@ interface ExtensionCardProps {
 const starFormatter = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
 
 export function ExtensionCard({ extension, onSelect }: ExtensionCardProps) {
-  const { data: github, status } = useGitHubRepository(extension.repositoryPath);
+  const github = extension.github;
   const owner = github?.owner.login ?? extension.owner;
-  const ownerUrl = github?.owner.html_url ?? 'https://github.com/' + extension.owner;
-  const avatarUrl = github?.owner.avatar_url
-    ? github.owner.avatar_url + (github.owner.avatar_url.includes('?') ? '&' : '?') + 's=32'
+  const ownerUrl = github?.owner.htmlUrl ?? 'https://github.com/' + extension.owner;
+  const avatarUrl = github?.owner.avatarUrl
+    ? github.owner.avatarUrl + (github.owner.avatarUrl.includes('?') ? '&' : '?') + 's=32'
     : 'https://avatars.githubusercontent.com/' + extension.owner + '?s=32';
   const starsLabel = github
-    ? github.stargazers_count.toLocaleString() + ' GitHub stars'
-    : status === 'loading' ? 'Loading GitHub stars' : 'GitHub stars unavailable';
+    ? github.stars.toLocaleString() + ' GitHub stars'
+    : 'GitHub stars unavailable';
 
   return (
     <article className="extension-card">
@@ -37,7 +36,7 @@ export function ExtensionCard({ extension, onSelect }: ExtensionCardProps) {
         </div>
         <a className="extension-stars" href={extension.repository + '/stargazers'} target="_blank" rel="noopener noreferrer" aria-label={starsLabel} title={starsLabel}>
           <Icon name="star" />
-          <span>{github ? starFormatter.format(github.stargazers_count) : status === 'loading' ? '…' : '—'}</span>
+          <span>{github ? starFormatter.format(github.stars) : '—'}</span>
         </a>
       </div>
       <p className="extension-description">{extension.description}</p>
