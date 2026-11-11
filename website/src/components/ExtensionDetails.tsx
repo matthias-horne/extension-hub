@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Markdown, { defaultUrlTransform } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Extension } from '../data/extensions';
+import { withoutHelmValues } from '../data/manifest';
 import { Icon } from './Icon';
 import { ExtensionCompatibility } from './ExtensionCompatibility';
 import { ExtensionArtifacts } from './ExtensionArtifacts';
@@ -29,6 +30,9 @@ export default function ExtensionDetails({ extension, onCategory }: {
   const readme = github?.readme;
   const [activeTab, setActiveTab] = useState<(typeof detailTabs)[number]['id']>('overview');
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'unavailable'>('idle');
+  const [showValues, setShowValues] = useState(true);
+  const manifestWithoutValues = useMemo(() => withoutHelmValues(extension.manifest), [extension.manifest]);
+  const hasValues = manifestWithoutValues !== extension.manifest;
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const owner = github?.owner.login ?? extension.owner;
   const metadataPlaceholder = '—';
@@ -142,15 +146,23 @@ export default function ExtensionDetails({ extension, onCategory }: {
           </section>
 
           <section className="details-panel" id="manifest-panel" role="tabpanel" aria-labelledby="manifest-tab" tabIndex={0} hidden={activeTab !== 'manifest'}>
-            <div className="details-panel-heading">
+            <div className="details-panel-heading manifest-panel-heading">
               <span><Icon name="file" />Extension manifest</span>
-              <button className="copy-manifest" onClick={copyManifest}><Icon name={copyStatus === 'copied' ? 'check' : 'copy'} />{copyStatus === 'copied' ? 'Copied' : 'Copy YAML'}</button>
+              <div className="manifest-panel-actions">
+                <label className="manifest-values-toggle" title={hasValues ? 'Show or hide Helm values in the preview' : 'This manifest has no Helm values'}>
+                  <input type="checkbox" role="switch" checked={showValues} disabled={!hasValues} aria-controls="manifest-preview" onChange={(event) => setShowValues(event.currentTarget.checked)} />
+                  <span className="manifest-values-switch" aria-hidden="true" />
+                  Show values
+                </label>
+                <button className="copy-manifest" onClick={copyManifest}><Icon name={copyStatus === 'copied' ? 'check' : 'copy'} />{copyStatus === 'copied' ? 'Copied' : 'Copy YAML'}</button>
+              </div>
             </div>
             <div className="details-manifest">
               <p>The extension manifest for the latest published release.</p>
+              {!showValues && hasValues && <p>Helm values are hidden in this preview. Copying or downloading includes all values.</p>}
               {copyStatus === 'unavailable' && <p role="status">Copy is unavailable. Select the YAML below or download the file.</p>}
               <span className="sr-only" role="status">{copyStatus === 'copied' ? 'YAML copied to clipboard.' : ''}</span>
-              <pre className="manifest-code" tabIndex={0} aria-label={extension.title + ' YAML definition'}><code>{extension.manifest}</code></pre>
+              <pre className="manifest-code" id="manifest-preview" tabIndex={0} aria-label={extension.title + ' YAML definition'}><code>{showValues ? extension.manifest : manifestWithoutValues}</code></pre>
             </div>
           </section>
 
