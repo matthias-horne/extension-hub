@@ -70,6 +70,7 @@ describe('extension artifacts', () => {
   test('handles missing charts and unusable OCI references with an empty state', () => {
     const registrationOnly = parseExtension(stringify(registryEntry), 'gcp.yaml');
     expect(registrationOnly.artifacts).toEqual([]);
+    expect(registrationOnly.images).toEqual([]);
     for (const deployment of [undefined, null, {}, { extension: {} }, { extension: { helm: {} } }]) {
       expect(extensionWithDeployment(deployment).artifacts).toEqual([]);
     }
@@ -78,6 +79,89 @@ describe('extension artifacts', () => {
     }
     const markup = renderToStaticMarkup(<ExtensionArtifacts artifacts={[]} />);
     expect(markup).toContain('No Helm charts are referenced in this extension.yaml.');
+    expect(markup).toContain('Container images (0)');
+    expect(markup).toContain('No container images are configured in this extension’s Helm values.');
     expect(markup).not.toContain('artifact-card');
+  });
+
+  test('displays images from all Helm value contexts, grouping shared references with their deployments', () => {
+    const image = { repository: 'registry.example:5000/extension', tag: 'v1' };
+    const extension = extensionWithDeployment({
+      extension: { values: { image }, runtimeClusterValues: { image } },
+      admission: { values: { image: { repository: 'registry.example/admission', tag: 'v2' } } },
+    });
+    expect(extension.images).toEqual([
+      { reference: 'registry.example:5000/extension:v1', deployments: ['extension', 'extension-runtime'] },
+      { reference: 'registry.example/admission:v2', deployments: ['admission'] },
+    ]);
+    const markup = renderToStaticMarkup(<MemoryRouter><ExtensionDetails extension={extension} onCategory={() => {}} /></MemoryRouter>);
+    const artifactsMarkup = markup.split('id="artifacts-panel"')[1].split('id="compatibility-panel"')[0];
+    expect(artifactsMarkup).toContain('Container images (2)');
+    for (const { reference } of extension.images) {
+      expect(artifactsMarkup.split('<code>' + reference + '</code>')).toHaveLength(2);
+    }
+    expect(artifactsMarkup).toContain('Extension (seed clusters), Extension (runtime cluster)');
+    expect(artifactsMarkup).toContain('Admission (runtime and virtual clusters)');
+    expect(artifactsMarkup).toContain('Copy image reference for Extension (seed clusters), Extension (runtime cluster)');
+    expect(parse(extension.manifest).spec.deployment.extension.values.image).toEqual(image);
+  });
+
+  test('keeps distinct runtime image overrides and recognizes nested components and image collections', () => {
+    const extension = extensionWithDeployment({
+      extension: {
+        values: {
+          image: 'registry.example/controller:v1',
+          sidecars: [{ image: 'registry.example/proxy:v2' }],
+          components: { helper: { image: { repository: 'registry.example/helper', tag: 3 } } },
+          images: { controller: 'registry.example/controller:v1', worker: { ref: 'registry.example/worker:v4' } },
+        },
+        runtimeClusterValues: { image: { repository: 'registry.example/controller', tag: 'runtime' } },
+      },
+      admission: { values: { images: [{ name: 'admission', repository: 'registry.example/admission', tag: 'v5' }] } },
+    });
+    expect(extension.images).toEqual([
+      { reference: 'registry.example/controller:v1', deployments: ['extension'] },
+      { reference: 'registry.example/proxy:v2', deployments: ['extension'] },
+      { reference: 'registry.example/helper:3', deployments: ['extension'] },
+      { reference: 'registry.example/worker:v4', deployments: ['extension'] },
+      { reference: 'registry.example/controller:runtime', deployments: ['extension-runtime'] },
+      { reference: 'registry.example/admission:v5', deployments: ['admission'] },
+    ]);
+  });
+
+  test('resolves image references with full-reference and digest precedence', () => {
+    const digest = 'sha256:' + 'b'.repeat(64);
+    const extension = extensionWithDeployment({ extension: { values: { images: [
+      { ref: 'registry.example/full:v1', repository: 'ignored', tag: 'ignored', digest },
+      { repository: 'registry.example/pinned', tag: 'ignored', digest },
+      { repository: 'registry.example/tagged', tag: 'v2' },
+    ] } } });
+    expect(extension.images.map(({ reference }) => reference)).toEqual([
+      'registry.example/full:v1', 'registry.example/pinned@' + digest, 'registry.example/tagged:v2',
+    ]);
+  });
+
+  test('omits incomplete images, unresolved templates, and repositories outside image fields', () => {
+    for (const image of [undefined, null, {}, 123, '', '  ', { repository: 'registry.example/image' },
+      { repository: 123, tag: 'v1' }, { repository: 'registry.example/image', tag: false },
+      '{{ .Values.global.image }}', { repository: 'registry.example/image', tag: '{{ .Chart.AppVersion }}' },
+      { ref: '{{ .Values.image }}', repository: 'registry.example/image', tag: 'v1' },
+      { repository: 'registry.example/image', digest: '{{ .Values.digest }}', tag: 'v1' },
+    ]) {
+      expect(extensionWithDeployment({ extension: { values: { image } } }).images).toEqual([]);
+    }
+    const chart = { helm: { ociRepository: { ref: 'registry.example/chart:v1' } } };
+    expect(extensionWithDeployment({ extension: { ...chart, values: {
+      repository: 'registry.example/config', tag: 'v1', chart,
+      config: { repository: 'registry.example/source', tag: 'v1' },
+    } } }).images).toEqual([]);
+  });
+
+  test('handles recursive YAML aliases in Helm values', () => {
+    const values: Record<string, unknown> = { image: 'registry.example/controller:v1' };
+    values.self = values;
+    expect(extensionWithDeployment({ extension: { values } }).images).toEqual([
+      { reference: 'registry.example/controller:v1', deployments: ['extension'] },
+    ]);
   });
 });

@@ -1,4 +1,5 @@
 import { parse, stringify } from 'yaml';
+import { extensionImages, type ExtensionImage } from './images';
 
 interface GitHubInfo {
   stars: number;
@@ -31,6 +32,8 @@ interface OCIRepository {
 
 interface HelmDeployment {
   helm?: { ociRepository?: OCIRepository };
+  values?: unknown;
+  runtimeClusterValues?: unknown;
 }
 
 interface ExtensionManifest {
@@ -40,7 +43,7 @@ interface ExtensionManifest {
   spec?: {
     deployment?: {
       extension?: HelmDeployment;
-      admission?: { runtimeCluster?: HelmDeployment; virtualCluster?: HelmDeployment };
+      admission?: { runtimeCluster?: HelmDeployment; virtualCluster?: HelmDeployment; values?: unknown };
     };
   };
 }
@@ -59,6 +62,7 @@ export interface Extension {
   manifest: string;
   manifestUrl: string;
   artifacts: ExtensionArtifact[];
+  images: ExtensionImage[];
   github?: GitHubInfo;
   compatibility?: Record<string, CompatibilityInfo>;
 }
@@ -133,6 +137,11 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
     manifest,
     manifestUrl: 'data:application/yaml;charset=utf-8,' + encodeURIComponent(manifest),
     artifacts: extensionArtifacts(entry.extension),
+    images: extensionImages([
+      { deployment: 'extension', values: entry.extension?.spec?.deployment?.extension?.values },
+      { deployment: 'extension-runtime', values: entry.extension?.spec?.deployment?.extension?.runtimeClusterValues },
+      { deployment: 'admission', values: entry.extension?.spec?.deployment?.admission?.values },
+    ]),
     github: entry.github,
     compatibility: entry.compatibility,
   };

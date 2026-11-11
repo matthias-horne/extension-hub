@@ -167,7 +167,7 @@ export default function ExtensionDetails({ extension, onCategory }: {
           </section>
 
           <section className="details-panel" id="artifacts-panel" role="tabpanel" aria-labelledby="artifacts-tab" tabIndex={0} hidden={activeTab !== 'artifacts'}>
-            <ExtensionArtifacts artifacts={extension.artifacts} manifestRegistry={extension.manifestRegistry} />
+            <ExtensionArtifacts artifacts={extension.artifacts} images={extension.images} manifestRegistry={extension.manifestRegistry} />
           </section>
 
           <section className="details-panel compatibility-panel" id="compatibility-panel" role="tabpanel" aria-labelledby="compatibility-tab" tabIndex={0} hidden={activeTab !== 'compatibility'}>

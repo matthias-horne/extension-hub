@@ -21,6 +21,8 @@ Navigation uses hash routes so shared links and page refreshes work on GitHub Pa
 
 The details page has an Artifacts tab showing the manifest registry and the Helm charts referenced in the published `extension.yaml`: the extension chart and any admission charts for the runtime and virtual clusters. Each chart shows its deployment role and a copyable OCI reference. References support both `ref` and separate `repository` with `tag` or `digest` fields, following Gardener's precedence rules.
 
+The tab also lists copyable container image references from the extension’s `values`, `runtimeClusterValues`, and shared admission `values`. It recognizes direct image strings and image mappings with `ref` or `repository` plus `tag` or `digest`, including nested components and `images` collections. Identical references appear once with all deployment roles. Incomplete image mappings and unresolved Helm templates are omitted; this list reflects configured Helm values rather than a rendered workload inventory.
+
 Inline search (or Command/Ctrl + K to focus it) finds extensions by name, owner, repository, tags, and description. Category filters show counts for the current search and work together with the search query. The sort control supports the catalog order and alphabetical order. Cards show the GitHub owner and avatar, live repository stars, category tags, an extension.yaml download, and a repository link. The extension.yaml button opens the registered definition; it can be downloaded with that filename, and Escape closes the viewer. The header links to this repository on GitHub.
 
 ## Design and assets
