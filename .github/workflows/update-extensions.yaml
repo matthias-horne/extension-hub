@@ -1,4 +1,4 @@
-name: Update extension manifests
+name: Update extension information
 
 on:
   schedule:
@@ -8,6 +8,8 @@ on:
     branches: [main]
     paths:
       - extensions/**
+      - tools/update-extensions/**
+      - .github/workflows/update-extensions.yaml
 
 permissions:
   contents: read
@@ -25,8 +27,6 @@ jobs:
     concurrency:
       group: publish-pages
       cancel-in-progress: false
-    outputs:
-      published: ${{ steps.publish.outputs.published }}
     steps:
       - name: Check out registry and updater
         uses: actions/checkout@v6
@@ -61,7 +61,7 @@ jobs:
           ref: pages
           path: pages
 
-      - name: Update aggregated manifests
+      - name: Update extension resources, compatibility, and repository information
         id: update
         env:
           GH_TOKEN: ${{ github.token }}
@@ -70,7 +70,6 @@ jobs:
       # Publish successful extensions even if another extension could not update.
       # The update step still fails the job so missing artifacts remain visible.
       - name: Commit and push changes
-        id: publish
         if: ${{ !cancelled() && (steps.update.outcome == 'success' || steps.update.outcome == 'failure') }}
         working-directory: pages
         run: |
@@ -83,12 +82,3 @@ jobs:
             git commit -m 'Update aggregated extension manifests'
             git push origin HEAD:pages
           fi
-          echo 'published=true' >> "$GITHUB_OUTPUT"
-
-  deploy:
-    needs: update
-    # Rebuild even after a partial update failure or a run without changes.
-    if: ${{ !cancelled() && needs.update.outputs.published == 'true' }}
-    permissions:
-      contents: write
-    uses: ./.github/workflows/deploy.yml

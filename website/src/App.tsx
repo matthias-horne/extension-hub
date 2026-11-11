@@ -1,20 +1,22 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocation, useMatch, useNavigate } from 'react-router-dom';
 import { ExtensionCard } from './components/ExtensionCard';
-import { EXTENSIONS, type Extension } from './data/extensions';
+import type { Extension } from './data/extensions';
+import { useExtensions } from './hooks/useExtensions';
 import { Icon } from './components/Icon';
 import './App.css';
 
 const REPOSITORY_URL = 'https://github.com/matthias-horne/extension-hub';
-const CATEGORIES = ['All', ...new Set(EXTENSIONS.flatMap((extension) => extension.tags))];
 const ExtensionDetails = lazy(() => import('./components/ExtensionDetails'));
 type SortOrder = 'default' | 'az' | 'za';
 
 function App() {
+  const { extensions, status, retry } = useExtensions();
+  const categories = ['All', ...new Set(extensions.flatMap((extension) => extension.tags))];
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const route = useMatch('/extensions/:id');
-  const extension = route ? EXTENSIONS.find((item) => item.id === route.params.id) : undefined;
+  const extension = route ? extensions.find((item) => item.id === route.params.id) : undefined;
   const isCatalog = pathname === '/';
   const [darkMode, setDarkMode] = useState(() => {
     try {
@@ -32,7 +34,7 @@ function App() {
   const catalogScroll = useRef(0);
   const initialNavigation = useRef(true);
   const focusSearchOnNavigation = useRef(false);
-  const matchingExtensions = EXTENSIONS.filter((extension) =>
+  const matchingExtensions = extensions.filter((extension) =>
     [extension.title, extension.description, extension.owner, extension.repositoryPath, ...extension.tags]
       .join(' ').toLowerCase().includes(query.trim().toLowerCase()),
   );
@@ -64,8 +66,8 @@ function App() {
   useEffect(() => {
     document.title = extension
       ? extension.title + ' | Gardener Extensions Hub'
-      : isCatalog ? 'Gardener Extensions Hub' : 'Extension not found | Gardener Extensions Hub';
-  }, [extension, isCatalog]);
+      : isCatalog || status !== 'ready' ? 'Gardener Extensions Hub' : 'Extension not found | Gardener Extensions Hub';
+  }, [extension, isCatalog, status]);
 
   useLayoutEffect(() => {
     if (initialNavigation.current) {
@@ -134,7 +136,19 @@ function App() {
         </div>
       </header>
 
-      {extension ? (
+      {status === 'loading' ? (
+        <main className="content-width catalog" id="main-content" tabIndex={-1}>
+          <p role="status">Loading extensions…</p>
+        </main>
+      ) : status === 'error' ? (
+        <main className="content-width catalog" id="main-content" tabIndex={-1}>
+          <div className="empty-state" role="alert">
+            <h1>Extensions could not be loaded</h1>
+            <p>Please try again.</p>
+            <button className="button-secondary" onClick={retry}>Retry</button>
+          </div>
+        </main>
+      ) : extension ? (
         <Suspense fallback={<main className="content-width extension-details" id="main-content" tabIndex={-1}><p role="status">Loading extension…</p></main>}>
           <ExtensionDetails key={extension.id} extension={extension} onCategory={(tag) => { setQuery(''); setCategory(tag); }} />
         </Suspense>
@@ -142,7 +156,7 @@ function App() {
         <main className="content-width catalog" id="main-content" tabIndex={-1}>
           <div className="catalog-heading">
             <h1>Extensions</h1>
-            <p>{EXTENSIONS.length} community-built {EXTENSIONS.length === 1 ? 'extension' : 'extensions'} for Gardener.</p>
+            <p>{extensions.length} community-built {extensions.length === 1 ? 'extension' : 'extensions'} for Gardener.</p>
           </div>
 
           <div className="catalog-toolbar">
@@ -173,7 +187,7 @@ function App() {
           </div>
 
           <div className="category-filters" role="group" aria-label="Filter by category">
-            {CATEGORIES.map((item) => {
+            {categories.map((item) => {
               const count = item === 'All'
                 ? matchingExtensions.length
                 : matchingExtensions.filter((extension) => extension.tags.includes(item)).length;
@@ -192,7 +206,7 @@ function App() {
           </div>
 
           <div className="results-summary">
-            <p role="status">{visibleExtensions.length} {visibleExtensions.length === 1 ? 'extension' : 'extensions'}{hasFilters ? ' of ' + EXTENSIONS.length : ''}</p>
+            <p role="status">{visibleExtensions.length} {visibleExtensions.length === 1 ? 'extension' : 'extensions'}{hasFilters ? ' of ' + extensions.length : ''}</p>
             {hasFilters && <button className="clear-filters" onClick={clearFilters}>Clear filters</button>}
           </div>
 
@@ -239,7 +253,7 @@ function App() {
               <button className="icon-button" aria-label="Close extension.yaml" onClick={() => detailDialog.current?.close()}><Icon name="close" /></button>
             </div>
             <div className="manifest-toolbar">
-              <span>Registry definition</span>
+              <span>Extension manifest</span>
               <a href={selectedExtension.manifestUrl} download="extension.yaml"><Icon name="download" />Download extension.yaml</a>
             </div>
             <pre className="manifest-code" tabIndex={0} aria-label={selectedExtension.title + ' YAML definition'}><code>{selectedExtension.manifest}</code></pre>
