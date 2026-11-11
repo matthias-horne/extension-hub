@@ -72,8 +72,8 @@ function App() {
       <a className="skip-link" href="#extensions">Skip to extensions</a>
       <header className="site-header">
         <div className="content-width header-inner">
-          <a className="brand" href="/" aria-label="Gardener Extensions Hub home">
-            <img src="/logo.svg" alt="" width="28" height="28" />
+          <a className="brand" href={import.meta.env.BASE_URL} aria-label="Gardener Extensions Hub home">
+            <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="" width="28" height="28" />
             <span className="brand-project">Gardener</span>
             <span className="brand-divider" aria-hidden="true" />
             <span>Extensions Hub</span>
