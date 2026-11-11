@@ -92,12 +92,12 @@ function App() {
         detailDialog.current?.close();
         focusSearchOnNavigation.current = searchInput.current === null;
         searchInput.current?.focus();
-        if (window.location.pathname !== import.meta.env.BASE_URL) navigate('/');
+        if (pathname !== '/') navigate('/');
       }
     }
     document.addEventListener('keydown', handleShortcut);
     return () => document.removeEventListener('keydown', handleShortcut);
-  }, [navigate]);
+  }, [navigate, pathname]);
 
   useEffect(() => {
     if (selectedExtension) detailDialog.current?.showModal();
@@ -111,7 +111,10 @@ function App() {
 
   return (
     <div className="site">
-      <a className="skip-link" href="#main-content">Skip to content</a>
+      <a className="skip-link" href="#main-content" onClick={(event) => {
+        event.preventDefault();
+        document.getElementById('main-content')?.focus();
+      }}>Skip to content</a>
       <header className="site-header">
         <div className="content-width header-inner">
           <Link className="brand" to="/" aria-label="Gardener Extensions Hub home">
