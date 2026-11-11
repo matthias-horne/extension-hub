@@ -1,0 +1,161 @@
+import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import Markdown, { defaultUrlTransform } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import type { Extension } from '../data/extensions';
+import { useGitHubRepository } from '../hooks/useGitHubRepository';
+import { useGitHubReadme } from '../hooks/useGitHubReadme';
+import { Icon } from './Icon';
+
+const dateFormatter = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' });
+
+function formatDate(value?: string) {
+  if (!value) return '—';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '—' : dateFormatter.format(date);
+}
+
+export default function ExtensionDetails({ extension, onCategory }: {
+  extension: Extension;
+  onCategory: (category: string) => void;
+}) {
+  const { data: github, status } = useGitHubRepository(extension.repositoryPath);
+  const readme = useGitHubReadme(extension.repositoryPath);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'unavailable'>('idle');
+  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+  const owner = github?.owner.login ?? extension.owner;
+  const metadataPlaceholder = status === 'loading' ? '…' : '—';
+  const license = github?.license;
+  const readmeUrl = readme.data?.htmlUrl ?? extension.repository + '#readme';
+
+  async function copyManifest() {
+    try {
+      await navigator.clipboard.writeText(extension.manifest);
+      setCopyStatus('copied');
+    } catch {
+      setCopyStatus('unavailable');
+    }
+  }
+
+  function resolveReadmeUrl(value: string, key: string) {
+    const safeUrl = defaultUrlTransform(value);
+    if (!safeUrl || !readme.data) return safeUrl;
+    const base = key === 'src' ? readme.data.rawUrl : readme.data.htmlUrl;
+    // Root-relative paths in a README belong to the repository, not this site.
+    const root = base.slice(0, base.length - readme.data.path.split('/').map(encodeURIComponent).join('/').length);
+    return new URL(safeUrl.startsWith('/') && !safeUrl.startsWith('//') ? safeUrl.slice(1) : safeUrl,
+      safeUrl.startsWith('/') ? root : base).href;
+  }
+
+  return (
+    <main className="content-width extension-details" id="main-content" tabIndex={-1}>
+      <Link className="back-link" to="/"><Icon name="back" />All extensions</Link>
+
+      <div className="details-layout">
+        <aside className="details-sidebar" aria-label="Extension information">
+          <div className="details-identity">
+            <img className="details-icon" src={extension.icon} alt="" width="64" height="64" />
+            <div>
+              <h1>{extension.title}</h1>
+              <a className="extension-owner" href={github?.owner.html_url ?? 'https://github.com/' + owner} target="_blank" rel="noopener noreferrer">
+                <span className="owner-avatar" aria-hidden="true">
+                  <span>{owner.charAt(0).toUpperCase()}</span>
+                  <img src={github?.owner.avatar_url ?? 'https://avatars.githubusercontent.com/' + owner + '?s=40'} alt="" width="20" height="20" onError={(event) => { event.currentTarget.hidden = true; }} />
+                </span>
+                <span>{owner}</span>
+              </a>
+            </div>
+          </div>
+
+          <p className="details-description">{extension.description}</p>
+
+          <div className="details-actions">
+            <a className="button-primary" href={extension.manifestUrl} download="extension.yaml"><Icon name="download" />Download extension.yaml</a>
+            <a className="button-secondary" href={extension.repository} target="_blank" rel="noopener noreferrer"><Icon name="github" />View source<Icon name="external" /></a>
+          </div>
+
+          <dl className="repository-metadata" aria-busy={status === 'loading'}>
+            <div><dt>Stars</dt><dd className="metadata-stars"><a href={extension.repository + '/stargazers'} target="_blank" rel="noopener noreferrer"><Icon name="star" />{github ? github.stargazers_count.toLocaleString('en') : metadataPlaceholder}</a></dd></div>
+            <div><dt>Last commit</dt><dd>{status === 'loading' ? '…' : formatDate(github?.pushed_at)}</dd></div>
+            <div><dt>Language</dt><dd>{github?.language ?? metadataPlaceholder}</dd></div>
+            <div><dt>License</dt><dd>{license ? <a href={extension.repository + '?tab=license-1-ov-file'} target="_blank" rel="noopener noreferrer">{license.spdx_id === 'NOASSERTION' ? license.name : license.spdx_id}</a> : metadataPlaceholder}</dd></div>
+          </dl>
+          {status === 'unavailable' && <p className="metadata-note">Repository information is currently unavailable.</p>}
+
+          <div className="details-categories">
+            <h2>Categories</h2>
+            <div className="extension-tags">
+              {extension.tags.map((tag) => <Link className="extension-tag" to="/" onClick={() => onCategory(tag)} key={tag}>{tag}</Link>)}
+            </div>
+          </div>
+
+          {extension.manifestRegistry && <div className="details-registry">
+            <h2>Manifest registry</h2>
+            <code>{extension.manifestRegistry}</code>
+          </div>}
+
+          <a className="details-support" href={extension.repository + '/issues'} target="_blank" rel="noopener noreferrer">Report an issue<Icon name="external" /></a>
+        </aside>
+
+        <div className="details-content">
+          <div className="details-tabs" role="tablist" aria-label="Extension details" onKeyDown={(event) => {
+            const current = activeTab === 'overview' ? 0 : 1;
+            const next = event.key === 'ArrowRight' || event.key === 'ArrowLeft' ? 1 - current
+              : event.key === 'Home' ? 0 : event.key === 'End' ? 1 : null;
+            if (next !== null) {
+              event.preventDefault();
+              setActiveTab(next === 0 ? 'overview' : 'manifest');
+              tabs.current[next]?.focus();
+            }
+          }}>
+            <button ref={(element) => { tabs.current[0] = element; }} id="overview-tab" role="tab" aria-selected={activeTab === 'overview'} aria-controls="overview-panel" tabIndex={activeTab === 'overview' ? 0 : -1} onClick={() => setActiveTab('overview')}><Icon name="book" />Overview</button>
+            <button ref={(element) => { tabs.current[1] = element; }} id="manifest-tab" role="tab" aria-selected={activeTab === 'manifest'} aria-controls="manifest-panel" tabIndex={activeTab === 'manifest' ? 0 : -1} onClick={() => setActiveTab('manifest')}><Icon name="file" />extension.yaml</button>
+          </div>
+
+          <section className="details-panel" id="overview-panel" role="tabpanel" aria-labelledby="overview-tab" tabIndex={0} hidden={activeTab !== 'overview'}>
+            <div className="details-panel-heading">
+              <span><Icon name="book" />{readme.data?.path ?? 'README'}</span>
+              <a href={readmeUrl} target="_blank" rel="noopener noreferrer" aria-label="Read documentation on GitHub" title="Read on GitHub"><Icon name="external" /></a>
+            </div>
+            {readme.status === 'loading' ? (
+              <div className="readme-loading" role="status">
+                <span>Loading documentation…</span>
+                <div className="skeleton skeleton-heading" /><div className="skeleton" /><div className="skeleton" /><div className="skeleton skeleton-short" />
+              </div>
+            ) : readme.data ? (
+              <div className="readme-content">
+                <Markdown remarkPlugins={[remarkGfm]} skipHtml urlTransform={resolveReadmeUrl} components={{
+                  h1: ({ node: _node, ...props }) => <h2 {...props} className="readme-title" />,
+                  a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
+                  img: ({ node: _node, ...props }) => <img {...props} loading="lazy" />,
+                  table: ({ node: _node, ...props }) => <div className="readme-table"><table {...props} /></div>,
+                }}>{readme.data.markdown}</Markdown>
+              </div>
+            ) : (
+              <div className="readme-fallback">
+                <h2>About this extension</h2>
+                <p>{extension.description}</p>
+                <p className="readme-fallback-note">{readme.status === 'missing' ? 'No public README was found for this repository.' : 'The README could not be loaded right now.'} Visit the repository for documentation and setup instructions.</p>
+                <a className="button-secondary" href={readmeUrl} target="_blank" rel="noopener noreferrer">Read on GitHub<Icon name="external" /></a>
+              </div>
+            )}
+          </section>
+
+          <section className="details-panel" id="manifest-panel" role="tabpanel" aria-labelledby="manifest-tab" tabIndex={0} hidden={activeTab !== 'manifest'}>
+            <div className="details-panel-heading">
+              <span><Icon name="file" />Registry definition</span>
+              <button className="copy-manifest" onClick={copyManifest}><Icon name={copyStatus === 'copied' ? 'check' : 'copy'} />{copyStatus === 'copied' ? 'Copied' : 'Copy YAML'}</button>
+            </div>
+            <div className="details-manifest">
+              <p>The extension definition registered in the Gardener Extensions Hub.</p>
+              {copyStatus === 'unavailable' && <p role="status">Copy is unavailable. Select the YAML below or download the file.</p>}
+              <span className="sr-only" role="status">{copyStatus === 'copied' ? 'YAML copied to clipboard.' : ''}</span>
+              <pre className="manifest-code" tabIndex={0} aria-label={extension.title + ' YAML definition'}><code>{extension.manifest}</code></pre>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  );
+}

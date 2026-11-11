@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 
 interface GitHubRepository {
   stargazers_count: number;
+  pushed_at?: string;
+  language?: string | null;
+  license?: { spdx_id: string; name: string } | null;
   owner: { login: string; avatar_url: string; html_url: string };
 }
 

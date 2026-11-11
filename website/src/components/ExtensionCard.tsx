@@ -1,4 +1,5 @@
 import type { Extension } from '../data/extensions';
+import { Link } from 'react-router-dom';
 import { useGitHubRepository } from '../hooks/useGitHubRepository';
 import { Icon } from './Icon';
 
@@ -25,7 +26,7 @@ export function ExtensionCard({ extension, onSelect }: ExtensionCardProps) {
       <div className="card-heading">
         <img className="extension-icon" src={extension.icon} alt="" width="40" height="40" />
         <div className="card-identity">
-          <h2><a href={extension.repository} target="_blank" rel="noopener noreferrer">{extension.title}</a></h2>
+          <h2><Link className="card-details-link" to={'/extensions/' + encodeURIComponent(extension.id)}>{extension.title}</Link></h2>
           <a className="extension-owner" href={ownerUrl} target="_blank" rel="noopener noreferrer" aria-label={'View ' + owner + ' on GitHub'}>
             <span className="owner-avatar" aria-hidden="true">
               <span>{owner.charAt(0).toUpperCase()}</span>
