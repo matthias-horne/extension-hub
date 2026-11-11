@@ -50,6 +50,12 @@
 .extension-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .extension-card { position: relative; isolation: isolate; display: flex; flex-direction: column; min-width: 0; min-height: 236px; padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--card-bg); transition: border-color .25s, background-color .25s; }
 .extension-card:hover { border-color: var(--brand-soft); background: var(--card-hover); }
+.card-glow { display: none; position: absolute; z-index: -1; inset: 0; overflow: hidden; border-radius: inherit; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.card-glow::before { content: ''; position: absolute; left: var(--card-glow-x, 50%); top: var(--card-glow-y, 50%); width: 420px; height: 420px; background: radial-gradient(circle, color-mix(in srgb, var(--brand) 45%, transparent) 0%, rgb(193 219 194 / 25%) 60%, transparent 100%); filter: blur(48px); transform: translate(-50%, -50%); }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .card-glow { display: block; }
+  .extension-card[data-glow-active] .card-glow { opacity: .95; }
+}
 .card-details-link::after { content: ''; position: absolute; z-index: 1; inset: 0; border-radius: 12px; }
 .card-details-link:focus-visible { outline: none; }
 .card-details-link:focus-visible::after { outline: 2px solid var(--brand); outline-offset: 4px; }

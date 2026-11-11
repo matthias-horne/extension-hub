@@ -1,3 +1,4 @@
+import type { PointerEvent } from 'react';
 import type { Extension } from '../data/extensions';
 import { Link } from 'react-router-dom';
 import { Icon } from './Icon';
@@ -8,6 +9,21 @@ interface ExtensionCardProps {
 }
 
 const starFormatter = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+const cardGlowMedia = '(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)';
+
+function moveCardGlow(event: PointerEvent<HTMLElement>) {
+  if (event.pointerType !== 'mouse' || !window.matchMedia(cardGlowMedia).matches) return;
+
+  const card = event.currentTarget;
+  const bounds = card.getBoundingClientRect();
+  card.style.setProperty('--card-glow-x', `${event.clientX - bounds.left - card.clientLeft}px`);
+  card.style.setProperty('--card-glow-y', `${event.clientY - bounds.top - card.clientTop}px`);
+  card.dataset.glowActive = '';
+}
+
+function hideCardGlow(event: PointerEvent<HTMLElement>) {
+  delete event.currentTarget.dataset.glowActive;
+}
 
 export function ExtensionCard({ extension, onSelect }: ExtensionCardProps) {
   const github = extension.github;
@@ -21,7 +37,8 @@ export function ExtensionCard({ extension, onSelect }: ExtensionCardProps) {
     : 'GitHub stars unavailable';
 
   return (
-    <article className="extension-card">
+    <article className="extension-card" onPointerEnter={moveCardGlow} onPointerMove={moveCardGlow} onPointerLeave={hideCardGlow} onPointerCancel={hideCardGlow}>
+      <span className="card-glow" aria-hidden="true" />
       <div className="card-heading">
         <img className="extension-icon" src={extension.icon} alt="" width="40" height="40" />
         <div className="card-identity">
