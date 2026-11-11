@@ -1,123 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#009f76" />
-    <meta
-      name="description"
-      content="The Gardener Extension Hub is currently under construction. Check back soon."
-    />
-    <title>Gardener Extension Hub — Under Construction</title>
-    <style>
-      :root {
-        /* Colors from gardener.cloud's light theme and homepage hero. */
-        --brand: #009f76;
-        --brand-text: #18794e;
-        --brand-soft: rgba(16, 185, 129, 0.14);
-        --hero-green: #087254;
-        --hero-light: #c1dbc2;
-        --background: #f6f6f7;
-        --surface: #ffffff;
-        --divider: #e2e2e3;
-        --text: #3c3c43;
-        --text-muted: #67676c;
-        color-scheme: light;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        color: var(--text);
-        background: var(--background);
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        min-height: 100svh;
-        display: grid;
-        place-items: center;
-        padding: 2rem 1.25rem;
-        background: radial-gradient(ellipse at top, var(--hero-light), transparent 65%);
-      }
-
-      main {
-        width: 100%;
-        max-width: 38rem;
-        padding: clamp(2rem, 6vw, 4rem);
-        text-align: center;
-        background: var(--surface);
-        border: 1px solid var(--divider);
-        border-radius: 1.5rem;
-        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.04);
-      }
-
-      .sprout {
-        width: 4.5rem;
-        height: 4.5rem;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        color: var(--brand);
-        background: var(--brand-soft);
-        border-radius: 1.25rem;
-      }
-
-      .brand {
-        margin: 0 0 0.5rem;
-        color: var(--brand-text);
-        font-size: 0.8rem;
-        font-weight: 700;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-      }
-
-      h1 {
-        margin: 0;
-        color: var(--hero-green);
-        font-size: clamp(2rem, 7vw, 3rem);
-        font-weight: 650;
-        letter-spacing: -0.04em;
-        line-height: 1.15;
-      }
-
-      .status {
-        display: inline-block;
-        margin: 1.75rem 0 0;
-        padding: 0.5rem 0.9rem;
-        color: var(--brand-text);
-        background: var(--brand-soft);
-        border-radius: 2rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-      }
-
-      .message {
-        margin: 1.5rem 0 0;
-        color: var(--text-muted);
-        font-size: 1rem;
-        line-height: 1.75;
-      }
-    </style>
+    <link rel="icon" type="image/svg+xml" href="/extension-hub/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Discover community-built extensions to enhance your Gardener Kubernetes clusters. Explore infrastructure, security, management, and observability tools." />
+    <meta name="theme-color" content="#1b1b1f" />
+    <title>Extensions Hub | Gardener</title>
+    <script type="module" crossorigin src="/extension-hub/assets/index-Dz11-_7S.js"></script>
+    <link rel="stylesheet" crossorigin href="/extension-hub/assets/index-DIRQN2Hj.css">
   </head>
   <body>
-    <main aria-labelledby="title">
-      <svg class="sprout" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-        <path
-          d="M16 27V16M16 20C8 20 4 15 4 7c8 0 12 5 12 13ZM16 16C16 8 20 4 28 4c0 8-4 12-12 12ZM10 28h12"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-      <p class="brand">Gardener</p>
-      <h1 id="title">Extension Hub</h1>
-      <p class="status">Under construction</p>
-      <p class="message">
-        We’re planting the seeds for the Gardener Extension Hub.
-        Check back soon to see what’s growing.
-      </p>
-    </main>
+    <div id="root"></div>
   </body>
 </html>
