@@ -2,14 +2,16 @@ package util
 
 import (
 	"context"
-	"os"
 	"os/exec"
 )
 
 func ExecuteCmd(ctx context.Context, dir string, name string, args ...string) error {
+	_, err := ExecuteCmdWithOutput(ctx, dir, name, args...)
+	return err
+}
+
+func ExecuteCmdWithOutput(ctx context.Context, dir string, name string, args ...string) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, name, args...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
 	cmd.Dir = dir
-	return cmd.Run()
+	return cmd.CombinedOutput()
 }

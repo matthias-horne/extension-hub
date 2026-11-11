@@ -1,12 +1,15 @@
 package gardener
 
 import (
+	"api-compatibility/pkg/api"
 	gomodules "api-compatibility/pkg/go-modules"
 	"context"
+	"encoding/json"
 	"fmt"
 	"go/types"
 	"io/fs"
 	"log/slog"
+	"maps"
 	"os"
 	"path"
 	"path/filepath"
@@ -143,6 +146,11 @@ func findLowerAndUpperBound(ctx context.Context, log *slog.Logger, gardenerVersi
 		return fmt.Errorf("could not find version for gardener version %s", gardenerVersion.String())
 	}
 
+	var (
+		breakingLower  []string
+		breakingHigher []string
+	)
+
 	upperBoundIdx := currentIdx
 	for i := currentIdx + 1; i < len(latestMinors); i++ {
 		versionStr := latestMinors[i].String()
@@ -162,7 +170,8 @@ func findLowerAndUpperBound(ctx context.Context, log *slog.Logger, gardenerVersi
 
 		if diff := cmp.Diff(baseDefinition, definition); diff != "" {
 			log.Info("detected API change (up)")
-			fmt.Println(diff)
+			log.Info(diff)
+			breakingHigher = getBreakingChanges(baseDefinition, definition, versionStr)
 			break
 		}
 
@@ -188,22 +197,30 @@ func findLowerAndUpperBound(ctx context.Context, log *slog.Logger, gardenerVersi
 
 		if diff := cmp.Diff(baseDefinition, definition); diff != "" {
 			log.Info("detected API change (down)")
-			fmt.Println(diff)
+			log.Info(diff)
+			breakingLower = getBreakingChanges(baseDefinition, definition, versionStr)
 			break
 		}
 		lowerBoundIdx = i
 	}
 
-	log.Info("API compatibility range",
-		"start", latestMinors[lowerBoundIdx].String(),
-		"end", latestMinors[upperBoundIdx].String(),
-		"current", gardenerVersion.String(),
-	)
+	res, err := json.MarshalIndent(api.CompatibilityRange{
+		Version:          gardenerVersion.String(),
+		From:             latestMinors[lowerBoundIdx].String(),
+		To:               latestMinors[upperBoundIdx].String(),
+		BreakingOnLower:  breakingLower,
+		BreakingOnHigher: breakingHigher,
+	}, "", "    ")
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(res))
 
 	return nil
 }
 
-func extractApiDefinition(dir string, apiFolders []string, resources []string) (map[string]map[string]string, error) {
+func extractApiDefinition(dir string, apiFolders []string, resources []string) (map[string]string, error) {
 	var apis []string
 
 	err := filepath.WalkDir(filepath.Join(dir), func(path string, d fs.DirEntry, err error) error {
@@ -222,7 +239,7 @@ func extractApiDefinition(dir string, apiFolders []string, resources []string) (
 		return nil, err
 	}
 
-	definitions := make(map[string]map[string]string)
+	definitions := make(map[string]string)
 
 	for _, api := range apis {
 		pkgs, err := packages.Load(&packages.Config{
@@ -252,12 +269,79 @@ func extractApiDefinition(dir string, apiFolders []string, resources []string) (
 				}
 
 				collector.collect(typeName.Type(), pkg.PkgPath+"/"+name)
-				definitions[pkg.Types.Path()] = collector.fields
+				maps.Copy(definitions, collector.fields)
 			}
 		}
 	}
 
 	return definitions, nil
+}
+
+func getBreakingChanges(base, current map[string]string, version string) []string {
+	var changes []string
+
+	type resourceChange struct {
+		removed []string
+		changed []string
+	}
+
+	resourceChanges := make(map[string]*resourceChange)
+
+	for f, t := range base {
+		currType, exists := current[f]
+		if !exists {
+			resource := getResourceName(f)
+			if _, ok := resourceChanges[resource]; !ok {
+				resourceChanges[resource] = &resourceChange{}
+			}
+			resourceChanges[resource].removed = append(resourceChanges[resource].removed, getRelativeField(f))
+		} else if currType != t {
+			resource := getResourceName(f)
+			if _, ok := resourceChanges[resource]; !ok {
+				resourceChanges[resource] = &resourceChange{}
+			}
+			resourceChanges[resource].changed = append(resourceChanges[resource].changed, fmt.Sprintf("%s: %s -> %s", getRelativeField(f), t, currType))
+		}
+	}
+
+	for resource, ch := range resourceChanges {
+		if len(ch.removed) > 0 {
+			slices.Sort(ch.removed)
+			changes = append(changes, fmt.Sprintf("%s removes fields %s from %s", version, strings.Join(ch.removed, ", "), resource))
+		}
+		if len(ch.changed) > 0 {
+			slices.Sort(ch.changed)
+			changes = append(changes, fmt.Sprintf("%s changes fields in %s: %s", version, resource, strings.Join(ch.changed, ", ")))
+		}
+	}
+	slices.Sort(changes)
+	return changes
+}
+
+func getResourceName(f string) string {
+	lastSlash := strings.LastIndex(f, "/")
+	if lastSlash == -1 {
+		return f
+	}
+	afterSlash := f[lastSlash+1:]
+	before, _, ok := strings.Cut(afterSlash, ".")
+	if !ok {
+		return afterSlash
+	}
+	return before
+}
+
+func getRelativeField(f string) string {
+	lastSlash := strings.LastIndex(f, "/")
+	if lastSlash == -1 {
+		return f
+	}
+	afterSlash := f[lastSlash+1:]
+	_, after, ok := strings.Cut(afterSlash, ".")
+	if !ok {
+		return ""
+	}
+	return after
 }
 
 type typeCollector struct {

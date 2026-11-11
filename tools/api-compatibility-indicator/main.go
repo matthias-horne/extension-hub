@@ -4,6 +4,7 @@ import (
 	"api-compatibility/pkg/gardener"
 	"api-compatibility/pkg/helm"
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 
@@ -11,7 +12,7 @@ import (
 )
 
 func main() {
-	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{}))
+	var log *slog.Logger
 
 	cmd := &cli.Command{
 		Name: "api-check",
@@ -39,6 +40,11 @@ func main() {
 				Name: "extension-with-helm",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
+						Name:     "extension-path",
+						Usage:    "the path to an extension, like github.com/matthias-horne/gardener-extension-example",
+						Required: true,
+					},
+					&cli.StringFlag{
 						Name:     "chart-oci-path",
 						Usage:    "the path to a helm oci chart artifact",
 						Required: true,
@@ -53,6 +59,26 @@ func main() {
 		Flags: []cli.Flag{
 			cli.VersionFlag,
 			cli.HelpFlag,
+			&cli.StringFlag{
+				Name:     "log-level",
+				Usage:    "application log level",
+				Value:    "error",
+				Required: false,
+			},
+		},
+		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
+			var level slog.Level
+
+			err := level.UnmarshalText([]byte(c.String("log-level")))
+			if err != nil {
+				return nil, fmt.Errorf("unable to parse log-level: %w", err)
+			}
+
+			log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+				Level: level,
+			}))
+
+			return ctx, nil
 		},
 	}
 
