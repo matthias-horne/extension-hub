@@ -1,0 +1,29 @@
+name: Register Your Extension
+description: This template can be used to register a new gardener extension at the hub.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe what your extension does and provide some references to your project.
+
+        To register your extension at the hub, you must provide a manifest artifact.
+        Please read the description of this project's README.md to learn more about it.
+
+        Your pull request should contain the following template:
+
+        ```yaml
+        name:
+        description:
+        tags:
+          - ...
+        repository:
+        manifestRegistry:
+        ```
+
+  - type: textarea
+    id: registration
+    attributes:
+      label: Description
+      placeholder: Create a meaningful description describing your extension.
+    validations:
+      required: true
