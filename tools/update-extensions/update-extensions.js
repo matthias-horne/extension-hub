@@ -138,6 +138,65 @@ export function validateManifest(manifest, tag) {
   }
 }
 
+function helmReference(repository) {
+  if (!isMapping(repository)) throw new Error('Helm ociRepository must be a mapping');
+  let reference = repository.ref;
+  if (reference == null) {
+    const version = repository.digest ?? repository.tag;
+    if (typeof repository.repository !== 'string' || typeof version !== 'string') {
+      throw new Error('Helm ociRepository requires a repository and tag or digest');
+    }
+    reference = repository.repository + (repository.digest != null ? '@' : ':') + version;
+  }
+  if (typeof reference !== 'string') throw new Error('Helm ociRepository requires a reference');
+  const normalized = reference.replace(/^oci:\/\//, '');
+  if (!/^[a-zA-Z0-9.-]+(?::[0-9]+)?\/[a-z0-9]+(?:[._/-][a-z0-9]+)*(?::[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}|@sha256:[a-f0-9]{64})$/.test(normalized)) {
+    throw new Error('Helm ociRepository requires an OCI reference with a tag or digest');
+  }
+  return 'oci://' + normalized;
+}
+
+export async function pullHelmValues(reference, command = run) {
+  const values = parse(await command('helm', 'show', 'values', reference));
+  // Helm charts may have an empty or comments-only values.yaml.
+  if (values === null) return {};
+  if (!isMapping(values)) throw new Error(reference + ' values must contain a YAML mapping');
+  return values;
+}
+
+function mergeValues(defaults, overrides) {
+  const values = new Map(Object.entries(defaults));
+  for (const [key, value] of Object.entries(overrides)) {
+    values.set(key, isMapping(value) && isMapping(values.get(key))
+      ? mergeValues(values.get(key), value)
+      : value);
+  }
+  return Object.fromEntries(values);
+}
+
+export async function integrateHelmValues(manifest, fetchValues = pullHelmValues) {
+  const extension = structuredClone(manifest);
+  const deployment = extension.spec?.deployment;
+  const charts = [
+    { chart: deployment?.admission?.runtimeCluster, target: deployment?.admission, fields: ['values'] },
+    { chart: deployment?.extension, target: deployment?.extension, fields: ['values', 'runtimeClusterValues'] },
+  ];
+  const defaultsByReference = new Map();
+  for (const { chart, target, fields } of charts) {
+    if (chart?.helm?.ociRepository == null) continue;
+    const reference = helmReference(chart.helm.ociRepository);
+    if (!defaultsByReference.has(reference)) defaultsByReference.set(reference, await fetchValues(reference));
+    const defaults = defaultsByReference.get(reference);
+    if (!isMapping(defaults)) throw new Error(reference + ' values must contain a YAML mapping');
+    for (const field of fields) {
+      const overrides = target[field] ?? {};
+      if (!isMapping(overrides)) throw new Error(field + ' must contain a YAML mapping');
+      target[field] = structuredClone(mergeValues(defaults, overrides));
+    }
+  }
+  return extension;
+}
+
 export function validateCompatibility(compatibility, source) {
   for (const field of ['requires', 'builtWith', 'testedWith']) {
     if (Object.hasOwn(compatibility, field) && !isMapping(compatibility[field])) {
@@ -226,6 +285,7 @@ export async function aggregate(registration, previous, {
   listReleases: fetchReleases = listReleases,
   listArtifactTags: fetchTags = listArtifactTags,
   pullManifest: fetchManifest = pullManifest,
+  pullHelmValues: fetchValues = pullHelmValues,
   pullCompatibility: fetchCompatibility = pullCompatibility,
   fetchGitHubInfo: fetchInfo = fetchGitHubInfo,
   warn = console.warn,
@@ -247,7 +307,9 @@ export async function aggregate(registration, previous, {
   if (latest && !artifactTags.has(latest)) {
     throw new Error('latest release ' + latest + ' has no published extension artifact');
   }
-  const extension = latest ? await fetchManifest(registration.manifestRegistry, latest) : previous.extension;
+  const extension = latest
+    ? await integrateHelmValues(await fetchManifest(registration.manifestRegistry, latest), fetchValues)
+    : previous.extension;
   for (const release of releases) {
     const tag = release.tag_name;
     if (!artifactTags.has(tag)) {

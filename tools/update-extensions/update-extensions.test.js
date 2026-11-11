@@ -9,7 +9,7 @@ import { promisify } from 'node:util';
 import { parse, stringify } from 'yaml';
 import {
   COMPATIBILITY_MEDIA_TYPE, EXTENSION_MEDIA_TYPE, aggregate, fetchGitHubInfo,
-  listArtifactTags, listReleases, loadMapping, pullCompatibility, pullManifest, repositoryName,
+  integrateHelmValues, listArtifactTags, listReleases, loadMapping, pullCompatibility, pullHelmValues, pullManifest, repositoryName,
   run, updateExtensions, validateCompatibility, validateManifest, writeManifest,
 } from './update-extensions.js';
 
@@ -26,6 +26,7 @@ const GITHUB = {
   owner: { login: 'example', avatarUrl: 'https://avatars.githubusercontent.com/example', htmlUrl: 'https://github.com/example' },
   readme: { markdown: '# Example 🌱\n', path: 'docs/README.md', htmlUrl: 'https://github.com/example/extension/blob/main/docs/README.md', rawUrl: 'https://raw.githubusercontent.com/example/extension/main/docs/README.md' },
 };
+const HELM_VALUES = { replicaCount: 1, image: { repository: 'example/extension', tag: 'latest' } };
 
 function release(tag, publishedAt = '2026-11-11T00:00:00Z', fields = {}) {
   return { tag_name: tag, published_at: publishedAt, draft: false, prerelease: false, ...fields };
@@ -42,6 +43,13 @@ function manifest(tag) {
   };
 }
 
+function manifestWithValues(tag) {
+  const extension = manifest(tag);
+  extension.spec.deployment.extension.values = structuredClone(HELM_VALUES);
+  extension.spec.deployment.extension.runtimeClusterValues = structuredClone(HELM_VALUES);
+  return extension;
+}
+
 function compatibility() {
   return {
     requires: { 'gardener/gardener': '>= 1.135.0' },
@@ -55,7 +63,7 @@ function previousManifest() {
   return {
     ...REGISTRATION,
     version: 'v1',
-    extension: manifest('v1'),
+    extension: manifestWithValues('v1'),
     github: GITHUB,
     compatibility: { v1: compatibility(), v0: {} },
   };
@@ -66,6 +74,7 @@ function dependencies(releases, fetchManifest = async (registry, tag) => manifes
     listReleases: mock.fn(async () => releases),
     listArtifactTags: mock.fn(async () => releases.map((release) => release.tag_name)),
     pullManifest: mock.fn(fetchManifest),
+    pullHelmValues: mock.fn(async () => structuredClone(HELM_VALUES)),
     pullCompatibility: mock.fn(async () => compatibility()),
     fetchGitHubInfo: mock.fn(async () => GITHUB),
   };
@@ -243,6 +252,122 @@ test('validates operator Extension manifests and rejects the old manifest format
   }
 });
 
+test('reads Helm chart values and accepts empty charts but rejects malformed values', async () => {
+  const reference = 'oci://ghcr.io/example/charts/extension:1.2.3';
+  const command = mock.fn(async () => stringify(HELM_VALUES));
+  assert.deepEqual(await pullHelmValues(reference, command), HELM_VALUES);
+  assert.deepEqual(command.mock.calls[0].arguments, ['helm', 'show', 'values', reference]);
+  for (const text of ['', '# No default values\n', '{}']) {
+    assert.deepEqual(await pullHelmValues(reference, async () => text), {});
+  }
+  for (const text of ['- item', 'invalid', 'name: first\nname: second\n']) {
+    await assert.rejects(pullHelmValues(reference, async () => text));
+  }
+});
+
+test('integrates chart defaults into all contexts while preserving nested manifest overrides', async () => {
+  const extension = manifest('v2');
+  const deployment = extension.spec.deployment;
+  deployment.admission = {
+    runtimeCluster: { helm: { ociRepository: { ref: 'ghcr.io/example/charts/admission:2.0.0' } } },
+    virtualCluster: { helm: { ociRepository: { ref: 'ghcr.io/example/charts/rbac:2.0.0' } } },
+    values: { image: { tag: 'custom' }, enabled: false },
+  };
+  deployment.extension.values = { image: { tag: 'seed' }, replicaCount: 0, extra: 'keep', list: ['custom'], deleted: null };
+  deployment.extension.runtimeClusterValues = { image: { repository: 'runtime/image' }, nested: { enabled: false } };
+  const before = structuredClone(extension);
+  const defaults = { ...HELM_VALUES, list: ['default'], deleted: 'default', nested: { enabled: true, keep: 1 } };
+  const fetchValues = mock.fn(async (reference) => reference.includes('/admission:')
+    ? { image: { repository: 'example/admission', tag: 'default' }, enabled: true, port: 443 }
+    : defaults);
+  const result = await integrateHelmValues(extension, fetchValues);
+  const enriched = result.spec.deployment;
+  assert.deepEqual(enriched.admission.values, { image: { repository: 'example/admission', tag: 'custom' }, enabled: false, port: 443 });
+  assert.deepEqual(enriched.extension.values, {
+    ...defaults, image: { repository: 'example/extension', tag: 'seed' }, replicaCount: 0, extra: 'keep', list: ['custom'], deleted: null,
+  });
+  assert.deepEqual(enriched.extension.runtimeClusterValues, {
+    ...defaults, image: { repository: 'runtime/image', tag: 'latest' }, nested: { enabled: false, keep: 1 },
+  });
+  assert.deepEqual(fetchValues.mock.calls.map((call) => call.arguments), [
+    ['oci://ghcr.io/example/charts/admission:2.0.0'], ['oci://ghcr.io/example/charts/extension:2'],
+  ]);
+  assert.deepEqual(extension, before);
+  assert.deepEqual(enriched.admission.virtualCluster, before.spec.deployment.admission.virtualCluster);
+  enriched.extension.values.nested.keep = 99;
+  assert.equal(enriched.extension.runtimeClusterValues.nested.keep, 1);
+  assert.equal(defaults.nested.keep, 1);
+});
+
+test('resolves OCI full references, tags, and digests with Gardener precedence', async () => {
+  const repository = 'registry.example:5000/charts/extension';
+  const digest = 'sha256:' + 'a'.repeat(64);
+  for (const [ociRepository, expected] of [
+    [{ ref: 'oci://' + repository + ':1.2.3', repository: 'ignored', tag: 'ignored', digest }, repository + ':1.2.3'],
+    [{ ref: repository + ':1.2.3' }, repository + ':1.2.3'],
+    [{ repository, tag: '1.2.3-rc.1' }, repository + ':1.2.3-rc.1'],
+    [{ repository, tag: 'ignored', digest }, repository + '@' + digest],
+  ]) {
+    const extension = manifest('v2');
+    extension.spec.deployment.extension.helm.ociRepository = ociRepository;
+    const fetchValues = mock.fn(async () => ({}));
+    await integrateHelmValues(extension, fetchValues);
+    assert.deepEqual(fetchValues.mock.calls[0].arguments, ['oci://' + expected]);
+  }
+});
+
+test('skips absent charts and uses runtime admission defaults only', async () => {
+  const fetchValues = mock.fn(async () => ({}));
+  for (const deployment of [undefined, {}, { extension: {} }, { admission: { virtualCluster: { helm: { ociRepository: { ref: 'ghcr.io/example/rbac:1' } } } } }]) {
+    const extension = manifest('v1');
+    extension.spec.deployment = deployment;
+    assert.deepEqual(await integrateHelmValues(extension, fetchValues), extension);
+  }
+  assert.equal(fetchValues.mock.callCount(), 0);
+});
+
+test('fetches a shared chart once and keeps values independent across deployment contexts', async () => {
+  const extension = manifest('v2');
+  extension.spec.deployment.admission = { runtimeCluster: structuredClone(extension.spec.deployment.extension) };
+  const fetchValues = mock.fn(async () => HELM_VALUES);
+  const deployment = (await integrateHelmValues(extension, fetchValues)).spec.deployment;
+  assert.equal(fetchValues.mock.callCount(), 1);
+  deployment.admission.values.image.tag = 'changed';
+  assert.equal(deployment.extension.values.image.tag, 'latest');
+  assert.equal(deployment.extension.runtimeClusterValues.image.tag, 'latest');
+  assert.equal(HELM_VALUES.image.tag, 'latest');
+});
+
+test('rejects invalid chart references and invalid overrides', async () => {
+  const fetchValues = mock.fn(async () => HELM_VALUES);
+  for (const ociRepository of [
+    {}, { repository: 'ghcr.io/example/chart' }, { tag: '1.0.0' },
+    { ref: '/tmp/chart.tgz' }, { ref: '--help' }, { ref: 'https://example.com/chart' },
+    { ref: 'ghcr.io/example/chart' }, { repository: 'ghcr.io/example/chart', digest: 'invalid' },
+  ]) {
+    const extension = manifest('v2');
+    extension.spec.deployment.extension.helm.ociRepository = ociRepository;
+    await assert.rejects(integrateHelmValues(extension, fetchValues), /OCI reference|ociRepository/);
+  }
+  assert.equal(fetchValues.mock.callCount(), 0);
+  for (const field of ['values', 'runtimeClusterValues']) {
+    const extension = manifest('v2');
+    extension.spec.deployment.extension[field] = ['invalid'];
+    await assert.rejects(integrateHelmValues(extension, fetchValues), /YAML mapping/);
+  }
+});
+
+test('merges values with JavaScript property names without changing object prototypes', async () => {
+  const extension = manifest('v2');
+  extension.spec.deployment.extension.values = parse('__proto__: {custom: true}\nconstructor: {custom: true}');
+  const defaults = parse('__proto__: {default: true}\nconstructor: {default: true}');
+  const values = (await integrateHelmValues(extension, async () => defaults)).spec.deployment.extension.values;
+  assert.equal(Object.getPrototypeOf(values), Object.prototype);
+  assert.deepEqual(values.__proto__, { default: true, custom: true });
+  assert.deepEqual(values.constructor, { default: true, custom: true });
+  assert.equal(Object.prototype.custom, undefined);
+});
+
 test('validates compatibility requirements, features, build and test information', () => {
   validateCompatibility(compatibility(), 'test');
   for (const data of [
@@ -268,7 +393,8 @@ test('bootstraps all releases using registration metadata and the latest Extensi
   assert.equal(result.version, 'v2');
   assert.equal(result.name, REGISTRATION.name);
   assert.equal(Object.hasOwn(result, 'resources'), false);
-  assert.deepEqual(result.extension, manifest('v2'));
+  assert.deepEqual(result.extension, manifestWithValues('v2'));
+  assert.deepEqual(deps.pullHelmValues.mock.calls.map((call) => call.arguments), [['oci://ghcr.io/example/charts/extension:2']]);
   assert.deepEqual(result.github, GITHUB);
   assert.deepEqual(Object.keys(result.compatibility), ['v2', 'v1']);
   assert.deepEqual(result.compatibility.v2, compatibility());
@@ -297,6 +423,20 @@ test('repeat runs refresh mutable information and apply registration metadata ch
   assert.deepEqual(result.extension.spec.resources, previous.extension.spec.resources);
   assert.equal(deps.pullManifest.mock.callCount(), 2);
   assert.equal(deps.fetchGitHubInfo.mock.callCount(), 2);
+});
+
+test('refreshes Helm defaults on every update without retaining removed defaults from the cache', async () => {
+  const deps = dependencies([release('v1')]);
+  const previous = previousManifest();
+  previous.extension.spec.deployment.extension.values.removedDefault = true;
+  previous.extension.spec.deployment.extension.runtimeClusterValues.removedDefault = true;
+  deps.pullHelmValues = mock.fn(async () => ({ replicaCount: 3, newDefault: true }));
+  const result = await aggregate(REGISTRATION, previous, deps);
+  for (const field of ['values', 'runtimeClusterValues']) {
+    assert.deepEqual(result.extension.spec.deployment.extension[field], { replicaCount: 3, newDefault: true });
+  }
+  assert.deepEqual(await aggregate(REGISTRATION, result, deps), result);
+  assert.equal(deps.pullHelmValues.mock.callCount(), 2);
 });
 
 test('updates cached repository information when no release changes', async () => {
@@ -384,6 +524,7 @@ test('updates repository information even without published releases', async () 
   assert.deepEqual(await aggregate(REGISTRATION, previousManifest(), deps), previousManifest());
   assert.deepEqual(await aggregate(REGISTRATION, {}, deps), { ...REGISTRATION, github: GITHUB, compatibility: {} });
   assert.equal(deps.pullManifest.mock.callCount(), 0);
+  assert.equal(deps.pullHelmValues.mock.callCount(), 0);
 });
 
 test('release tags matching JavaScript property names are stored and cached safely', async () => {
@@ -492,6 +633,25 @@ test('repository metadata failures keep the previous aggregate intact', async (t
   deps.fetchGitHubInfo = async () => { throw new Error('GitHub rate limit exceeded'); };
   assert.equal(await updateExtensions(extensions, output, { ...options, ...deps }), 1);
   assert.equal(await readFile(destination, 'utf8'), original);
+});
+
+test('chart retrieval or validation failures retain the aggregate and a successful retry publishes values', async (t) => {
+  const { extensions, output, options } = await fixture(t);
+  await writeFile(join(extensions, 'example.yaml'), stringify(REGISTRATION));
+  const destination = join(output, 'example.yaml');
+  const original = stringify(previousManifest());
+  await writeFile(destination, original);
+  for (const fetchValues of [
+    async () => { throw new Error('Helm registry unavailable'); },
+    async () => ['invalid'],
+  ]) {
+    const deps = dependencies([release('v2')]);
+    deps.pullHelmValues = fetchValues;
+    assert.equal(await updateExtensions(extensions, output, { ...options, ...deps }), 1);
+    assert.equal(await readFile(destination, 'utf8'), original);
+  }
+  assert.equal(await updateExtensions(extensions, output, { ...options, ...dependencies([release('v2')]) }), 0);
+  assert.deepEqual(parse(await readFile(destination, 'utf8')).extension, manifestWithValues('v2'));
 });
 
 test('executes subprocess arguments literally and reports subprocess failures', async () => {
