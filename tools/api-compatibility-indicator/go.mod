@@ -5,6 +5,7 @@ go 1.27.3
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/google/go-cmp v0.7.0
+	github.com/urfave/cli/v3 v3.14.0
 	golang.org/x/mod v0.43.0
 	golang.org/x/tools v0.52.0
 	k8s.io/apimachinery v0.37.2
