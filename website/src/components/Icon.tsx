@@ -1,4 +1,4 @@
-type IconName = 'search' | 'arrow' | 'moon' | 'sun' | 'close' | 'github' | 'chevron' | 'star' | 'download' | 'file';
+type IconName = 'search' | 'arrow' | 'back' | 'moon' | 'sun' | 'close' | 'github' | 'chevron' | 'star' | 'download' | 'file' | 'book' | 'external' | 'copy' | 'check';
 
 export function Icon({ name }: { name: IconName }) {
   if (name === 'github') return (
@@ -8,6 +8,11 @@ export function Icon({ name }: { name: IconName }) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       {name === 'search' && <><circle cx="10.8" cy="10.8" r="7" /><path d="m16 16 4.5 4.5" /></>}
       {name === 'arrow' && <path d="M4 12h16m-6-6 6 6-6 6" />}
+      {name === 'back' && <path d="M20 12H4m6-6-6 6 6 6" />}
+      {name === 'book' && <><path d="M12 5v16M3 3h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5v16h-5a4 4 0 0 0-4 2 4 4 0 0 0-4-2H3Z" /></>}
+      {name === 'external' && <path d="M14 3h7v7m0-7L10 14M10 3H3v18h18v-7" />}
+      {name === 'copy' && <><rect x="8" y="8" width="13" height="13" rx="2" /><path d="M16 8V3H3v13h5" /></>}
+      {name === 'check' && <path d="m5 12 4 4L19 6" />}
       {name === 'moon' && <path d="M20.5 13.2A8.6 8.6 0 0 1 10.8 3.5a8.6 8.6 0 1 0 9.7 9.7Z" />}
       {name === 'sun' && <><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" /></>}
       {name === 'chevron' && <path d="m6 9 6 6 6-6" />}

@@ -9,6 +9,7 @@ export interface Extension {
   repository: string;
   repositoryPath: string;
   owner: string;
+  manifestRegistry?: string;
   manifest: string;
   manifestUrl: string;
 }
@@ -18,6 +19,7 @@ interface RegistryEntry {
   description: string;
   repository: string;
   tags?: string[];
+  manifestRegistry?: string;
 }
 
 const definitions = import.meta.glob<string>('../../../extensions/*.yaml', {
@@ -40,6 +42,9 @@ export const EXTENSIONS: Extension[] = Object.entries(definitions).map(([path, m
   if (entry.tags && (!Array.isArray(entry.tags) || entry.tags.some((tag) => typeof tag !== 'string'))) {
     throw new Error('Expected a list of tags in ' + path);
   }
+  if (entry.manifestRegistry !== undefined && typeof entry.manifestRegistry !== 'string') {
+    throw new Error('Expected a manifest registry string in ' + path);
+  }
   return {
     id: path.split('/').at(-1)!.replace(/\.yaml$/, ''),
     title: entry.name,
@@ -49,6 +54,7 @@ export const EXTENSIONS: Extension[] = Object.entries(definitions).map(([path, m
     repository: 'https://github.com/' + repositoryPath,
     repositoryPath,
     owner: repositoryPath.split('/')[0],
+    manifestRegistry: entry.manifestRegistry,
     manifest,
     manifestUrl: definitionUrls[path],
   };
