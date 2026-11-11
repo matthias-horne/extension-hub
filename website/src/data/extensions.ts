@@ -45,7 +45,7 @@ export const EXTENSIONS: Extension[] = Object.entries(definitions).map(([path, m
     title: entry.name,
     description: entry.description,
     tags: entry.tags?.length ? entry.tags : ['Other'],
-    icon: '/logo.svg',
+    icon: `${import.meta.env.BASE_URL}logo.svg`,
     repository: 'https://github.com/' + repositoryPath,
     repositoryPath,
     owner: repositoryPath.split('/')[0],

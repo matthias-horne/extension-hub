@@ -22,6 +22,11 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: write
+    concurrency:
+      group: publish-pages
+      cancel-in-progress: false
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
     steps:
       - name: Check out registry and updater
         uses: actions/checkout@v6
@@ -65,15 +70,25 @@ jobs:
       # Publish successful extensions even if another extension could not update.
       # The update step still fails the job so missing artifacts remain visible.
       - name: Commit and push changes
+        id: publish
         if: ${{ !cancelled() && (steps.update.outcome == 'success' || steps.update.outcome == 'failure') }}
         working-directory: pages
         run: |
           git add -- extensions
           if git diff --cached --quiet; then
             echo 'No manifest changes.'
-            exit 0
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Update aggregated extension manifests'
+            git push origin HEAD:pages
           fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Update aggregated extension manifests'
-          git push origin HEAD:pages
+          echo 'published=true' >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: update
+    # Rebuild even after a partial update failure or a run without changes.
+    if: ${{ !cancelled() && needs.update.outputs.published == 'true' }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/deploy.yml

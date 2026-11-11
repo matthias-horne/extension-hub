@@ -30,6 +30,14 @@ changed aggregated manifests to `pages`, retaining the site files there.
 The workflow needs permission to push to `pages`; branch rules must allow
 `github-actions[bot]` to do so.
 
+After publishing manifests, the update workflow calls the
+[deploy workflow](.github/workflows/deploy.yml) to build the website and publish
+it to `pages`, preserving `extensions/`. This also runs when no manifests change
+or when successful updates are published despite another extension failing.
+Website changes on `main` and manual deploy runs also rebuild the site. Both
+workflows serialize their writes to `pages`. Configure GitHub Pages to deploy
+from the root of the `pages` branch.
+
 For each extension the updater:
 
 1. Lists all published GitHub releases, with pagination, including prereleases
