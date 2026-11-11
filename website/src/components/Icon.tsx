@@ -1,4 +1,4 @@
-type IconName = 'search' | 'arrow' | 'moon' | 'sun' | 'close' | 'github' | 'chevron';
+type IconName = 'search' | 'arrow' | 'moon' | 'sun' | 'close' | 'github' | 'chevron' | 'star' | 'download' | 'file';
 
 export function Icon({ name }: { name: IconName }) {
   if (name === 'github') return (
@@ -12,6 +12,9 @@ export function Icon({ name }: { name: IconName }) {
       {name === 'sun' && <><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" /></>}
       {name === 'chevron' && <path d="m6 9 6 6 6-6" />}
       {name === 'close' && <path d="m6 6 12 12M6 18 18 6" />}
+      {name === 'star' && <path d="m12 3 2.8 5.7 6.3.9-4.5 4.4 1.1 6.2-5.7-3-5.7 3 1.1-6.2-4.5-4.4 6.3-.9L12 3Z" />}
+      {name === 'download' && <path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4" />}
+      {name === 'file' && <><path d="M14 3H6v18h12V7l-4-4Z" /><path d="M14 3v5h4M9 12h6M9 16h6" /></>}
     </svg>
   );
 }

@@ -1,49 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { ExtensionCard, type Extension } from './components/ExtensionCard';
+import { ExtensionCard } from './components/ExtensionCard';
+import { EXTENSIONS, type Extension } from './data/extensions';
 import { Icon } from './components/Icon';
 import './App.css';
 
-const EXTENSIONS: Extension[] = [
-  {
-    title: 'Auto-Scaler Pro',
-    description: 'Advanced automatic scaling for your Gardener workloads based on custom metrics and AI predictions.',
-    category: 'Infrastructure',
-    icon: '/highlights/extensible.svg',
-  },
-  {
-    title: 'Security Guard',
-    description: 'Real-time vulnerability scanning and policy enforcement for all your namespaces.',
-    category: 'Security',
-    icon: '/highlights/certified.svg',
-  },
-  {
-    title: 'Cost Optimizer',
-    description: 'Analyze your cluster spending and receive recommendations for right-sizing your nodes.',
-    category: 'Management',
-    icon: '/highlights/cloud-agnostic.svg',
-  },
-  {
-    title: 'Log Aggregator',
-    description: 'Centralized logging for your Gardener clusters, with dashboards and alerting.',
-    category: 'Observability',
-    icon: '/highlights/ubiqutious.svg',
-  },
-  {
-    title: 'Backup Master',
-    description: 'Automated snapshots and disaster recovery for your entire Gardener environment.',
-    category: 'Infrastructure',
-    icon: '/highlights/autonomous.svg',
-  },
-  {
-    title: 'Identity Sync',
-    description: 'Seamlessly synchronize your corporate identity provider with Gardener RBAC.',
-    category: 'Security',
-    icon: '/highlights/gardener.svg',
-  },
-];
-
 const REPOSITORY_URL = 'https://github.com/matthias-horne/extension-hub';
-const CATEGORIES = ['All', ...new Set(EXTENSIONS.map((extension) => extension.category))];
+const CATEGORIES = ['All', ...new Set(EXTENSIONS.flatMap((extension) => extension.tags))];
 type SortOrder = 'default' | 'az' | 'za';
 
 function App() {
@@ -61,11 +23,11 @@ function App() {
   const searchInput = useRef<HTMLInputElement>(null);
   const detailDialog = useRef<HTMLDialogElement>(null);
   const matchingExtensions = EXTENSIONS.filter((extension) =>
-    [extension.title, extension.description, extension.category]
+    [extension.title, extension.description, extension.owner, extension.repositoryPath, ...extension.tags]
       .join(' ').toLowerCase().includes(query.trim().toLowerCase()),
   );
   const visibleExtensions = matchingExtensions.filter((extension) =>
-    category === 'All' || extension.category === category,
+    category === 'All' || extension.tags.includes(category),
   );
   if (sortOrder !== 'default') {
     visibleExtensions.sort((a, b) =>
@@ -135,7 +97,7 @@ function App() {
       <main className="content-width catalog" id="extensions">
         <div className="catalog-heading">
           <h1>Extensions</h1>
-          <p>{EXTENSIONS.length} community-built extensions for Gardener.</p>
+          <p>{EXTENSIONS.length} community-built {EXTENSIONS.length === 1 ? 'extension' : 'extensions'} for Gardener.</p>
         </div>
 
         <div className="catalog-toolbar">
@@ -169,7 +131,7 @@ function App() {
           {CATEGORIES.map((item) => {
             const count = item === 'All'
               ? matchingExtensions.length
-              : matchingExtensions.filter((extension) => extension.category === item).length;
+              : matchingExtensions.filter((extension) => extension.tags.includes(item)).length;
             return (
               <button
                 key={item}
@@ -192,7 +154,7 @@ function App() {
         {visibleExtensions.length > 0 ? (
           <div className="extension-grid">
             {visibleExtensions.map((extension) => (
-              <ExtensionCard key={extension.title} extension={extension} onSelect={setSelectedExtension} />
+              <ExtensionCard key={extension.id} extension={extension} onSelect={setSelectedExtension} />
             ))}
           </div>
         ) : (
@@ -210,17 +172,21 @@ function App() {
         <a href={REPOSITORY_URL + '/issues/new'}>Contribute an extension <Icon name="arrow" /></a>
       </footer>
 
-      <dialog ref={detailDialog} className="detail-dialog" aria-labelledby="extension-title" onClose={() => setSelectedExtension(null)}>
+      <dialog ref={detailDialog} className="manifest-dialog" aria-labelledby="manifest-title" onClose={() => setSelectedExtension(null)}>
         {selectedExtension && (
           <>
             <div className="dialog-heading">
-              <img src={selectedExtension.icon} alt="" width="48" height="48" />
-              <button className="icon-button" aria-label="Close extension details" onClick={() => detailDialog.current?.close()}><Icon name="close" /></button>
+              <div>
+                <h2 id="manifest-title">extension.yaml</h2>
+                <p>{selectedExtension.title}</p>
+              </div>
+              <button className="icon-button" aria-label="Close extension.yaml" onClick={() => detailDialog.current?.close()}><Icon name="close" /></button>
             </div>
-            <span className="detail-category">{selectedExtension.category}</span>
-            <h2 id="extension-title">{selectedExtension.title}</h2>
-            <p className="detail-description">{selectedExtension.description}</p>
-            <a className="button-secondary" href="https://gardener.cloud/docs/gardener/extensions/" target="_blank" rel="noopener noreferrer">Gardener extension documentation <Icon name="arrow" /></a>
+            <div className="manifest-toolbar">
+              <span>Registry definition</span>
+              <a href={selectedExtension.manifestUrl} download="extension.yaml"><Icon name="download" />Download extension.yaml</a>
+            </div>
+            <pre className="manifest-code" tabIndex={0} aria-label={selectedExtension.title + ' YAML definition'}><code>{selectedExtension.manifest}</code></pre>
           </>
         )}
       </dialog>
