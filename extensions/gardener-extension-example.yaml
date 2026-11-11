@@ -1,6 +1,45 @@
 name: Example Extension
+version: v0.0.1
 description: A minimal Gardener extension example that does nothing
 tags:
   - example
 repository: https://github.com/matthias-horne/gardener-extension-example
 manifestRegistry: ghcr.io/matthias-horne/manifests/gardener-extension-example
+resources:
+- kind: BackupBucket
+  type: gcp
+- kind: BackupEntry
+  type: gcp
+- kind: Bastion
+  type: gcp
+- kind: ControlPlane
+  type: gcp
+- kind: DNSRecord
+  type: gcp
+- kind: Infrastructure
+  type: gcp
+- kind: Worker
+  type: gcp
+compatibility:
+  v0.0.1:
+    builtWith:
+      gardener/gardener: v1.153.0
+    testedWith:
+      gardener/gardener: v1.154.1
+      kubernetesVersions:
+        - 1.36
+        - 1.35
+        - 1.34
+        - 1.33
+        - 1.32
+  v0.0.0:
+    builtWith:
+      gardener/gardener: v1.152.0
+    testedWith:
+      gardener/gardener: v1.152.1
+    supportedKubernetesVersions:
+      - 1.36
+      - 1.35
+      - 1.34
+      - 1.33
+      - 1.32
