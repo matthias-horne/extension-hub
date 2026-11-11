@@ -26,8 +26,23 @@ This format is used to validate extension compatibility by the gardener-operator
 The `compatibility.yaml` is expected to look like this:
 
 ```yaml
-TBD
+requires: {}
+  # gardener/gardener: '>= x.y.z'
+supportedFeatures: []
+builtWith:
+  gardener/gardener: v<x.y.z>
+testedWith:
+  gardener/gardener: v<x.y.z>
+  kubernetesVersions:
+  - 1.36
+  - 1.35
+  - 1.34
+  - 1.33
+  - 1.32
+  - ...
 ```
+
+For pushing these artifacts using Github Actions, the [composite action](.github/actions/compatibility/action.yaml) can be utilized.
 
 ## Extension Compatibility
 
