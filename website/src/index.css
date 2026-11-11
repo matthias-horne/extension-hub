@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gardener-brand: #009f76;
+  --color-gardener-green-1: #18794e;
+  --color-gardener-green-2: #299764;
+  --color-gardener-green-3: #30a46c;
+  --color-gardener-soft: rgba(16, 185, 129, 0.14);
+  
+  --color-gardener-brand-dark: #3dd68c;
+  --color-gardener-green-1-dark: #3dd68c;
+  --color-gardener-green-2-dark: #30a46c;
+  --color-gardener-green-3-dark: #298459;
+  --color-gardener-soft-dark: rgba(16, 185, 129, 0.16);
+}
+
+@utility text-gradient {
+  background: linear-gradient(120deg, #087254 30%, #c1dbc2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-gradient {
+  background: linear-gradient(120deg, #3dd68c 30%, #298459);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  @apply bg-white text-gray-900 dark:bg-[#1a1a1a] dark:text-gray-100 transition-colors duration-300;
+}
+
+.btn-primary {
+  @apply bg-gardener-brand text-white px-4 py-2 rounded-full font-semibold transition-colors hover:bg-gardener-green-1 dark:bg-gardener-brand-dark dark:text-gray-900 dark:hover:bg-gardener-green-1;
+}
