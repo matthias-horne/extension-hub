@@ -19,12 +19,62 @@ extension:
         helm:
           ociRepository:
             ref: ghcr.io/matthias-horne/charts/gardener-extension-example:0.0.3
+        values:
+          image:
+            repository: ghcr.io/gardener/gardener-extension-example
+            tag: latest
+            pullPolicy: IfNotPresent
+          replicaCount: 1
+          resources: {}
+          controllers:
+            concurrentSyncs: 5
+            heartbeat:
+              renewIntervalSeconds: 30
+            ignoreOperationAnnotation: false
+          disableControllers: []
+          metricsPort: 8080
+          healthPort: 8081
+          logLevel: info
+          logFormat: json
+          config:
+            clientConnection:
+              acceptContentTypes: application/json
+              contentType: application/json
+              qps: 100
+              burst: 130
+          gardener:
+            version: ""
+        runtimeClusterValues:
+          image:
+            repository: ghcr.io/gardener/gardener-extension-example
+            tag: latest
+            pullPolicy: IfNotPresent
+          replicaCount: 1
+          resources: {}
+          controllers:
+            concurrentSyncs: 5
+            heartbeat:
+              renewIntervalSeconds: 30
+            ignoreOperationAnnotation: false
+          disableControllers: []
+          metricsPort: 8080
+          healthPort: 8081
+          logLevel: info
+          logFormat: json
+          config:
+            clientConnection:
+              acceptContentTypes: application/json
+              contentType: application/json
+              qps: 100
+              burst: 130
+          gardener:
+            version: ""
     resources:
       - kind: Extension
         type: example
 github:
   stars: 1
-  lastCommit: 2026-11-11T14:37:03Z
+  lastCommit: 2026-11-11T16:13:13Z
   language: Go
   license:
     name: MIT License
