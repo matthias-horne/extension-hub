@@ -9,6 +9,13 @@ interface GitHubInfo {
   readme: { markdown: string; path: string; htmlUrl: string; rawUrl: string } | null;
 }
 
+export interface CompatibilityInfo {
+  requires?: Record<string, unknown>;
+  supportedFeatures?: string[];
+  builtWith?: Record<string, unknown>;
+  testedWith?: Record<string, unknown>;
+}
+
 export interface Extension {
   id: string;
   title: string;
@@ -23,6 +30,7 @@ export interface Extension {
   manifest: string;
   manifestUrl: string;
   github?: GitHubInfo;
+  compatibility?: Record<string, CompatibilityInfo>;
 }
 
 interface RegistryEntry {
@@ -34,6 +42,7 @@ interface RegistryEntry {
   manifestRegistry?: string;
   extension?: { apiVersion: string; kind: string; metadata: { name: string }; spec: object };
   github?: GitHubInfo;
+  compatibility?: Record<string, CompatibilityInfo>;
 }
 
 export const DEFAULT_EXTENSIONS_URL = 'https://raw.githubusercontent.com/matthias-horne/extension-hub/pages/extensions/';
@@ -72,6 +81,7 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
     manifest,
     manifestUrl: 'data:application/yaml;charset=utf-8,' + encodeURIComponent(manifest),
     github: entry.github,
+    compatibility: entry.compatibility,
   };
 }
 

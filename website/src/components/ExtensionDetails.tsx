@@ -4,8 +4,14 @@ import Markdown, { defaultUrlTransform } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Extension } from '../data/extensions';
 import { Icon } from './Icon';
+import { ExtensionCompatibility } from './ExtensionCompatibility';
 
 const dateFormatter = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' });
+const detailTabs = [
+  { id: 'overview', label: 'Overview', icon: 'book' },
+  { id: 'manifest', label: 'extension.yaml', icon: 'file' },
+  { id: 'compatibility', label: 'Compatibility', icon: 'check' },
+] as const;
 
 function formatDate(value?: string | null) {
   if (!value) return '—';
@@ -19,7 +25,7 @@ export default function ExtensionDetails({ extension, onCategory }: {
 }) {
   const github = extension.github;
   const readme = github?.readme;
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState<(typeof detailTabs)[number]['id']>('overview');
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'unavailable'>('idle');
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const owner = github?.owner.login ?? extension.owner;
@@ -99,17 +105,19 @@ export default function ExtensionDetails({ extension, onCategory }: {
 
         <div className="details-content">
           <div className="details-tabs" role="tablist" aria-label="Extension details" onKeyDown={(event) => {
-            const current = activeTab === 'overview' ? 0 : 1;
-            const next = event.key === 'ArrowRight' || event.key === 'ArrowLeft' ? 1 - current
-              : event.key === 'Home' ? 0 : event.key === 'End' ? 1 : null;
+            const current = detailTabs.findIndex((tab) => tab.id === activeTab);
+            const next = event.key === 'ArrowRight' ? (current + 1) % detailTabs.length
+              : event.key === 'ArrowLeft' ? (current - 1 + detailTabs.length) % detailTabs.length
+              : event.key === 'Home' ? 0 : event.key === 'End' ? detailTabs.length - 1 : null;
             if (next !== null) {
               event.preventDefault();
-              setActiveTab(next === 0 ? 'overview' : 'manifest');
+              setActiveTab(detailTabs[next].id);
               tabs.current[next]?.focus();
             }
           }}>
-            <button ref={(element) => { tabs.current[0] = element; }} id="overview-tab" role="tab" aria-selected={activeTab === 'overview'} aria-controls="overview-panel" tabIndex={activeTab === 'overview' ? 0 : -1} onClick={() => setActiveTab('overview')}><Icon name="book" />Overview</button>
-            <button ref={(element) => { tabs.current[1] = element; }} id="manifest-tab" role="tab" aria-selected={activeTab === 'manifest'} aria-controls="manifest-panel" tabIndex={activeTab === 'manifest' ? 0 : -1} onClick={() => setActiveTab('manifest')}><Icon name="file" />extension.yaml</button>
+            {detailTabs.map((tab, index) => (
+              <button key={tab.id} ref={(element) => { tabs.current[index] = element; }} id={tab.id + '-tab'} role="tab" aria-selected={activeTab === tab.id} aria-controls={tab.id + '-panel'} tabIndex={activeTab === tab.id ? 0 : -1} onClick={() => setActiveTab(tab.id)}><Icon name={tab.icon} />{tab.label}</button>
+            ))}
           </div>
 
           <section className="details-panel" id="overview-panel" role="tabpanel" aria-labelledby="overview-tab" tabIndex={0} hidden={activeTab !== 'overview'}>
@@ -147,6 +155,10 @@ export default function ExtensionDetails({ extension, onCategory }: {
               <span className="sr-only" role="status">{copyStatus === 'copied' ? 'YAML copied to clipboard.' : ''}</span>
               <pre className="manifest-code" tabIndex={0} aria-label={extension.title + ' YAML definition'}><code>{extension.manifest}</code></pre>
             </div>
+          </section>
+
+          <section className="details-panel compatibility-panel" id="compatibility-panel" role="tabpanel" aria-labelledby="compatibility-tab" tabIndex={0} hidden={activeTab !== 'compatibility'}>
+            <ExtensionCompatibility compatibility={extension.compatibility} version={extension.version} />
           </section>
         </div>
       </div>

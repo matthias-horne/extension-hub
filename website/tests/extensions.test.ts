@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { loadExtensions } from '../src/data/extensions';
+import { loadExtensions, parseExtension } from '../src/data/extensions';
 
 const directory = 'https://data.example/hub/extensions/';
 const definition = `
@@ -32,6 +32,20 @@ github:
     path: README.md
     htmlUrl: https://github.com/example/extension/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/example/extension/main/README.md
+compatibility:
+  v0.0.3:
+    requires:
+      gardener/gardener: '>= 1.135.0'
+    supportedFeatures: [namespaced-cloudprofiles, ipv6]
+    builtWith:
+      gardener/gardener: v1.153.0
+    testedWith:
+      gardener/gardener: v1.154.1
+      kubernetesVersions: ['1.36', '1.30']
+  v0.0.2:
+    builtWith:
+      gardener/gardener: v1.150.0
+  v0.0.1: {}
 `;
 
 function files(responses: Record<string, string | Response>) {
@@ -56,12 +70,37 @@ describe('runtime extension catalog', () => {
     expect(extensions[0].version).toBe('v0.0.3');
     expect(extensions[0].github?.stars).toBe(12);
     expect(extensions[0].github?.readme?.markdown).toBe('# Example 🌱');
+    expect(extensions[0].compatibility).toEqual({
+      'v0.0.3': {
+        requires: { 'gardener/gardener': '>= 1.135.0' },
+        supportedFeatures: ['namespaced-cloudprofiles', 'ipv6'],
+        builtWith: { 'gardener/gardener': 'v1.153.0' },
+        testedWith: { 'gardener/gardener': 'v1.154.1', kubernetesVersions: ['1.36', '1.30'] },
+      },
+      'v0.0.2': { builtWith: { 'gardener/gardener': 'v1.150.0' } },
+      'v0.0.1': {},
+    });
     expect(extensions[0].icon).toBe('/hub/logo.svg');
     expect(extensions[0].manifest).toContain('kind: Extension');
     expect(extensions[0].manifest).not.toContain('markdown:');
+    expect(extensions[0].manifest).not.toContain('compatibility:');
     expect(decodeURIComponent(extensions[0].manifestUrl.split(',')[1])).toBe(extensions[0].manifest);
     expect(server.requests.map((request) => request.url)).toEqual([directory + 'index.json', directory + 'example.yaml', directory + 'second.yml']);
     expect(server.requests.every((request) => request.options?.cache === 'no-cache')).toBe(true);
+  });
+
+  test('preserves the full compatibility history, including versions without information', () => {
+    const history = parseExtension(definition, 'example.yaml').compatibility;
+    expect(Object.keys(history!)).toEqual(['v0.0.3', 'v0.0.2', 'v0.0.1']);
+    expect(history?.['v0.0.1']).toEqual({});
+    const olderRelease = definition.replace('version: v0.0.3', 'version: v0.0.2');
+    expect(parseExtension(olderRelease, 'example.yaml').compatibility).toEqual(history);
+    const unknownRelease = definition.replace('version: v0.0.3', 'version: v0.0.4');
+    expect(parseExtension(unknownRelease, 'example.yaml').compatibility).toEqual(history);
+    expect(parseExtension(definition.replace('version: v0.0.3', ''), 'example.yaml').compatibility).toEqual(history);
+    const withoutCompatibility = definition.split('compatibility:')[0];
+    expect(parseExtension(withoutCompatibility, 'example.yaml').compatibility).toBeUndefined();
+    expect(parseExtension(withoutCompatibility + 'compatibility: {v0.0.3: {}}', 'example.yaml').compatibility).toEqual({ 'v0.0.3': {} });
   });
 
   test('picks up newly published versions and extensions without changing the application', async () => {

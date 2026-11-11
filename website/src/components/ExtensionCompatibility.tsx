@@ -1,0 +1,73 @@
+import { useState } from 'react';
+import type { CompatibilityInfo } from '../data/extensions';
+import { Icon } from './Icon';
+import { VersionDropdown } from './VersionDropdown';
+
+function CompatibilityValue({ value }: { value: unknown }) {
+  if (Array.isArray(value)) {
+    return <ul className="compatibility-list">{value.map((item, index) => <li key={index}><CompatibilityValue value={item} /></li>)}</ul>;
+  }
+  if (value !== null && typeof value === 'object') {
+    return <CompatibilityValues values={value as Record<string, unknown>} />;
+  }
+  return <code>{value == null ? '—' : String(value)}</code>;
+}
+
+function CompatibilityValues({ values }: { values: Record<string, unknown> }) {
+  return (
+    <dl className="compatibility-values">
+      {Object.entries(values).map(([name, value]) => (
+        <div key={name}>
+          <dt>{name === 'kubernetesVersions' ? 'Kubernetes versions' : name}</dt>
+          <dd><CompatibilityValue value={value} /></dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+export function ExtensionCompatibility({ compatibility, version }: {
+  compatibility?: Record<string, CompatibilityInfo>;
+  version?: string;
+}) {
+  const history = compatibility ?? {};
+  const versions = [...new Set([...(version ? [version] : []), ...Object.keys(history)])];
+  const [selection, setSelection] = useState(version ?? versions[0] ?? '');
+  const selectedVersion = versions.includes(selection) ? selection : versions[0];
+  const information = selectedVersion && Object.hasOwn(history, selectedVersion) ? history[selectedVersion] : undefined;
+  const groups = [
+    { title: 'Requirements', values: information?.requires },
+    { title: 'Built with', values: information?.builtWith },
+    { title: 'Tested with', values: information?.testedWith },
+  ];
+  const features = information?.supportedFeatures ?? [];
+  const hasInformation = features.length > 0 || groups.some(({ values }) => values && Object.keys(values).length > 0);
+
+  return (
+    <>
+      <div className="details-panel-heading">
+        <span><Icon name="check" />Version compatibility</span>
+        {selectedVersion && <VersionDropdown versions={versions} value={selectedVersion} current={version} onChange={setSelection} />}
+      </div>
+      <div className="details-compatibility">
+        <p>{selectedVersion ? <>Compatibility information for version <strong>{selectedVersion}</strong>.</> : 'No version has been published for this extension.'}</p>
+        {hasInformation ? (
+          <>
+            {groups.map(({ title, values }) => values && Object.keys(values).length > 0 && (
+              <section className="compatibility-section" key={title}>
+                <h2>{title}</h2>
+                <CompatibilityValues values={values} />
+              </section>
+            ))}
+            {features.length > 0 && (
+              <section className="compatibility-section">
+                <h2>Supported features</h2>
+                <ul className="compatibility-features">{features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
+              </section>
+            )}
+          </>
+        ) : selectedVersion && <p>No compatibility information has been published for this version.</p>}
+      </div>
+    </>
+  );
+}

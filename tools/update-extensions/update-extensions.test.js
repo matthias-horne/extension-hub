@@ -308,16 +308,43 @@ test('updates cached repository information when no release changes', async () =
   assert.deepEqual(result.compatibility, previousManifest().compatibility);
 });
 
-test('excludes historical releases without artifacts and requires the latest artifact', async () => {
+test('retains historical releases without artifacts and requires the latest artifact', async () => {
   const deps = dependencies([release('v3'), release('v2'), release('v1')]);
   deps.listArtifactTags = mock.fn(async () => ['v3']);
   const warn = mock.fn();
   const result = await aggregate(REGISTRATION, {}, { ...deps, warn });
-  assert.deepEqual(Object.keys(result.compatibility), ['v3']);
+  assert.deepEqual(result.compatibility, { v3: compatibility(), v2: {}, v1: {} });
   assert.equal(deps.pullCompatibility.mock.callCount(), 1);
   assert.equal(warn.mock.callCount(), 2);
+  const cached = await aggregate(REGISTRATION, previousManifest(), { ...deps, warn });
+  assert.deepEqual(cached.compatibility, { v3: compatibility(), v2: {}, v1: compatibility(), v0: {} });
   deps.listArtifactTags = mock.fn(async () => ['v1']);
   await assert.rejects(aggregate(REGISTRATION, previousManifest(), deps), /latest release v3 has no published extension artifact/);
+});
+
+test('publishes empty historical entries, keeps them on later runs, and fills in new attachments', async (t) => {
+  const { extensions, output, options } = await fixture(t);
+  await writeFile(join(extensions, 'example.yaml'), stringify(REGISTRATION));
+  const destination = join(output, 'example.yaml');
+  const deps = dependencies([release('v3'), release('v2'), release('v1')]);
+  deps.listArtifactTags = mock.fn(async () => ['v3', 'v1']);
+  deps.pullCompatibility = mock.fn(async (_registry, tag) => tag === 'v3' ? compatibility() : {});
+  const warn = mock.fn();
+  assert.equal(await updateExtensions(extensions, output, { ...options, ...deps, warn }), 0);
+  const first = parse(await readFile(destination, 'utf8'));
+  assert.deepEqual(first.compatibility, { v3: compatibility(), v2: {}, v1: {} });
+
+  deps.listReleases = mock.fn(async () => [release('v3'), release('v2')]);
+  deps.listArtifactTags = mock.fn(async () => ['v3']);
+  assert.equal(await updateExtensions(extensions, output, { ...options, ...deps, warn }), 0);
+  assert.deepEqual(parse(await readFile(destination, 'utf8')).compatibility, first.compatibility);
+
+  deps.listArtifactTags = mock.fn(async () => ['v3', 'v2']);
+  deps.pullCompatibility = mock.fn(async () => compatibility());
+  assert.equal(await updateExtensions(extensions, output, { ...options, ...deps, warn }), 0);
+  assert.deepEqual(parse(await readFile(destination, 'utf8')).compatibility, {
+    v3: compatibility(), v2: compatibility(), v1: {},
+  });
 });
 
 test('tracks releases without compatibility and picks up attachments added later', async () => {

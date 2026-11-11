@@ -251,14 +251,15 @@ export async function aggregate(registration, previous, {
   for (const release of releases) {
     const tag = release.tag_name;
     if (!artifactTags.has(tag)) {
-      warn(registration.name + ': skipping historical release ' + tag + ' without a published extension artifact');
+      if (!compatibility.has(tag)) compatibility.set(tag, {});
+      warn(registration.name + ': retaining historical release ' + tag + ' without a published extension artifact');
       continue;
     }
     // Compatibility is mutable: discover attachments on every update, for every release.
     compatibility.set(tag, await fetchCompatibility(registration.manifestRegistry, tag));
   }
   // Keep historical entries even if a release is subsequently removed on GitHub.
-  const tags = new Set([...releases.map((release) => release.tag_name).filter((tag) => compatibility.has(tag)), ...compatibility.keys()]);
+  const tags = new Set([...releases.map((release) => release.tag_name), ...compatibility.keys()]);
   return {
     ...registration,
     ...(extension ? { version: latest ?? previous.version, extension } : {}),
