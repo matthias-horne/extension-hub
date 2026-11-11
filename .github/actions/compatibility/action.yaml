@@ -1,0 +1,112 @@
+---
+name: Push manifest and compatibility artifacts
+description: Pushes the extension's manifest OCI artifact and attaches compatibility information.
+
+inputs:
+  extension-ref:
+    description: The ref that this extension's manifest OCI artifact will be pushed to.
+    required: true
+  chart-ref:
+    description: The extension's OCI helm chart ref. Patched into the extension's manifest.
+    required: true
+  admission-runtime-chart-ref:
+    description: The admission controller's runtime OCI helm chart ref. Patched into the extension's manifest if provided.
+    required: false
+  admission-virtual-chart-ref:
+    description: The admission controller's virtual cluster OCI helm chart ref. Patched into the extension's manifest if provided.
+    required: false
+  image-ref:
+    description: The extension image ref, including its tag. Patched into the extension's manifest if provided.
+    required: false
+  admission-image-ref:
+    description: The admission controller image ref, including its tag. Patched into the extension's manifest if provided.
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve image references
+      shell: bash
+      env:
+        IMAGE_REF: ${{ inputs.image-ref }}
+        ADMISSION_IMAGE_REF: ${{ inputs.admission-image-ref }}
+      run: |
+        {
+          echo "IMAGE_REPOSITORY=${IMAGE_REF%:*}"
+          echo "IMAGE_TAG=${IMAGE_REF##*:}"
+          echo "ADMISSION_IMAGE_REPOSITORY=${ADMISSION_IMAGE_REF%:*}"
+          echo "ADMISSION_IMAGE_TAG=${ADMISSION_IMAGE_REF##*:}"
+        } >> "${GITHUB_ENV}"
+
+    - name: Patch extension chart ref
+      uses: mikefarah/yq@v4
+      with:
+        cmd: yq e -i '.spec.deployment.extension.helm.ociRepository.ref = "${{ inputs.chart-ref }}"' example/extension.yaml
+
+    - name: Patch admission runtime chart ref
+      if: inputs.admission-runtime-chart-ref != ''
+      uses: mikefarah/yq@v4
+      with:
+        cmd: yq e -i '(select(.spec.deployment.admission.runtimeCluster.helm.ociRepository? != null) | .spec.deployment.admission.runtimeCluster.helm.ociRepository.ref = "${{ inputs.admission-runtime-chart-ref }}") // .' example/extension.yaml
+
+    - name: Patch admission virtual chart ref
+      if: inputs.admission-virtual-chart-ref != ''
+      uses: mikefarah/yq@v4
+      with:
+        cmd: yq e -i '(select(.spec.deployment.admission.virtualCluster.helm.ociRepository? != null) | .spec.deployment.admission.virtualCluster.helm.ociRepository.ref = "${{ inputs.admission-virtual-chart-ref }}") // .' example/extension.yaml
+
+    - name: Patch manifest annotation
+      uses: mikefarah/yq@v4
+      with:
+        cmd: yq e -i '.metadata.annotations."extension.garden.cloud/manifest" = "${{ inputs.extension-ref }}"' example/extension.yaml
+
+    - name: Patch extension image values
+      if: inputs.image-ref != ''
+      uses: mikefarah/yq@v4
+      with:
+        cmd: yq e -i '(select(.spec.deployment.extension.values.image? != null) | .spec.deployment.extension.values.image.repository = strenv(IMAGE_REPOSITORY) | .spec.deployment.extension.values.image.tag = strenv(IMAGE_TAG)) // .' example/extension.yaml
+
+    - name: Patch runtime cluster image values
+      if: inputs.image-ref != ''
+      uses: mikefarah/yq@v4
+      with:
+        cmd: yq e -i '(select(.spec.deployment.extension.runtimeClusterValues.image? != null) | .spec.deployment.extension.runtimeClusterValues.image.repository = strenv(IMAGE_REPOSITORY) | .spec.deployment.extension.runtimeClusterValues.image.tag = strenv(IMAGE_TAG)) // .' example/extension.yaml
+
+    - name: Patch admission image values
+      if: inputs.admission-image-ref != ''
+      uses: mikefarah/yq@v4
+      with:
+        cmd: yq e -i '(select(.spec.deployment.admission.values.image? != null) | .spec.deployment.admission.values.image.repository = strenv(ADMISSION_IMAGE_REPOSITORY) | .spec.deployment.admission.values.image.tag = strenv(ADMISSION_IMAGE_TAG)) // .' example/extension.yaml
+
+    - name: Prepare compatibility information
+      shell: bash
+      run: |
+        cp example/extension.yaml "${RUNNER_TEMP}/extension.yaml"
+
+        gardener_version="$(awk '$1 == "github.com/gardener/gardener" { print $2 }' go.mod)"
+        test -n "${gardener_version}"
+        GARDENER_VERSION="${gardener_version}" yq eval \
+          '.builtWith."gardener/gardener" = strenv(GARDENER_VERSION)' \
+          compatibility.yaml > "${RUNNER_TEMP}/compatibility.yaml"
+
+    - name: Set up ORAS
+      uses: oras-project/setup-oras@v2
+
+    - name: Push extension artifact
+      shell: bash
+      working-directory: ${{ runner.temp }}
+      run: |
+        oras push "${{ inputs.extension-ref }}" \
+          --artifact-type application/gardener.extension+yaml \
+          extension.yaml:application/gardener.extension+yaml
+
+    - name: Attach compatibility information to extension artifact
+      shell: bash
+      working-directory: ${{ runner.temp }}
+      run: |
+        extension_name="$(echo "${{ inputs.extension-ref }}" | cut -d: -f1)"
+        extension_digest="$(oras resolve "${{ inputs.extension-ref }}")"
+        oras attach "${extension_name}@${extension_digest}" \
+          --distribution-spec v1.1-referrers-tag \
+          --artifact-type application/gardener.compatibility+yaml \
+          compatibility.yaml:application/gardener.compatibility+yaml
