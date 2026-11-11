@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ExtensionCard, type Extension } from './components/ExtensionCard';
 import { Icon } from './components/Icon';
 import './App.css';
@@ -42,20 +42,9 @@ const EXTENSIONS: Extension[] = [
   },
 ];
 
-const NAV_LINKS = [
-  { label: 'Adopters', href: 'https://gardener.cloud/adopters/' },
-  { label: 'Documentation', href: 'https://gardener.cloud/docs/' },
-  { label: 'Blog', href: 'https://gardener.cloud/blog/' },
-  { label: 'Community', href: 'https://gardener.cloud/community/' },
-  { label: 'Contribute', href: 'https://github.com/matthias-horne/extension-hub' },
-];
-
-const SOCIAL_LINKS = [
-  { label: 'GitHub', icon: 'github', href: 'https://github.com/gardener' },
-  { label: 'X', icon: 'x', href: 'https://x.com/GardenerProject' },
-  { label: 'Slack', icon: 'slack', href: 'https://gardener.cloud/community/' },
-  { label: 'YouTube', icon: 'youtube', href: 'https://www.youtube.com/@gardenerproject' },
-] as const;
+const REPOSITORY_URL = 'https://github.com/matthias-horne/extension-hub';
+const CATEGORIES = ['All', ...new Set(EXTENSIONS.map((extension) => extension.category))];
+type SortOrder = 'default' | 'az' | 'za';
 
 function App() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -65,20 +54,25 @@ function App() {
       return true;
     }
   });
-  const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('All');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('default');
   const [selectedExtension, setSelectedExtension] = useState<Extension | null>(null);
-  const searchDialog = useRef<HTMLDialogElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const detailDialog = useRef<HTMLDialogElement>(null);
-  const openSearch = useCallback(() => {
-    searchDialog.current?.showModal();
-    searchInput.current?.focus();
-  }, []);
-  const searchResults = EXTENSIONS.filter((extension) =>
-    `${extension.title} ${extension.description} ${extension.category}`
-      .toLowerCase().includes(query.trim().toLowerCase()),
+  const matchingExtensions = EXTENSIONS.filter((extension) =>
+    [extension.title, extension.description, extension.category]
+      .join(' ').toLowerCase().includes(query.trim().toLowerCase()),
   );
+  const visibleExtensions = matchingExtensions.filter((extension) =>
+    category === 'All' || extension.category === category,
+  );
+  if (sortOrder !== 'default') {
+    visibleExtensions.sort((a, b) =>
+      sortOrder === 'az' ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title),
+    );
+  }
+  const hasFilters = query !== '' || category !== 'All';
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -94,40 +88,38 @@ function App() {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
         detailDialog.current?.close();
-        openSearch();
+        searchInput.current?.focus();
       }
     }
     document.addEventListener('keydown', handleShortcut);
     return () => document.removeEventListener('keydown', handleShortcut);
-  }, [openSearch]);
+  }, []);
 
   useEffect(() => {
     if (selectedExtension) detailDialog.current?.showModal();
   }, [selectedExtension]);
 
-  function selectExtension(extension: Extension) {
-    searchDialog.current?.close();
-    setSelectedExtension(extension);
+  function clearFilters() {
+    setQuery('');
+    setCategory('All');
+    searchInput.current?.focus();
   }
 
   return (
     <div className="site">
       <a className="skip-link" href="#extensions">Skip to extensions</a>
       <header className="site-header">
-        <div className="header-inner">
-          <a className="brand" href="/" aria-label="Gardener Extensions home">
+        <div className="content-width header-inner">
+          <a className="brand" href="/" aria-label="Gardener Extensions Hub home">
             <img src="/logo.svg" alt="" width="28" height="28" />
-            <span>Gardener</span>
+            <span className="brand-project">Gardener</span>
+            <span className="brand-divider" aria-hidden="true" />
+            <span>Extensions Hub</span>
           </a>
-          <button className="search-trigger" aria-label="Search extensions" onClick={openSearch}>
-            <Icon name="search" />
-            <span>Search</span>
-            <kbd>⌘ K</kbd>
-          </button>
-          <nav className="desktop-nav" aria-label="Main navigation">
-            {NAV_LINKS.map(({ label, href }) => <a key={label} href={href}>{label}</a>)}
-          </nav>
           <div className="header-tools">
+            <a className="repository-link" href={REPOSITORY_URL} target="_blank" rel="noopener noreferrer" aria-label="Extension Hub on GitHub">
+              <Icon name="github" /><span>GitHub</span>
+            </a>
             <button
               className="theme-switch"
               onClick={() => setDarkMode(!darkMode)}
@@ -136,89 +128,87 @@ function App() {
             >
               <span className="theme-switch-thumb"><Icon name={darkMode ? 'moon' : 'sun'} /></span>
             </button>
-            <div className="social-links">
-              {SOCIAL_LINKS.map(({ label, icon, href }) => (
-                <a href={href} key={label} aria-label={label} target="_blank" rel="noopener noreferrer">
-                  <Icon name={icon} />
-                </a>
-              ))}
-            </div>
           </div>
-          <button
-            className="menu-toggle"
-            aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-navigation"
-            onClick={() => setMenuOpen(!menuOpen)}
-          ><Icon name={menuOpen ? 'close' : 'menu'} /></button>
         </div>
-        {menuOpen && (
-          <nav className="mobile-nav" id="mobile-navigation" aria-label="Mobile navigation">
-            {NAV_LINKS.map(({ label, href }) => <a key={label} href={href}>{label}</a>)}
-          </nav>
-        )}
       </header>
 
-      <main>
-        <section className="hero" aria-labelledby="hero-title">
-          <div className="content-width hero-inner">
-            <div className="hero-copy">
-              <h1 id="hero-title">
-                <span className="hero-name">Gardener</span>
-                <span>Extensions for<br />Every Kubernetes<br />Cluster</span>
-              </h1>
-              <p className="hero-tagline">Discover community-built extensions to enhance your Gardener clusters.</p>
-              <a className="hero-action" href="#extensions">
-                Explore extensions <Icon name="arrow" />
-              </a>
-            </div>
-            <div className="hero-art" aria-hidden="true">
-              <div className="hero-glow" />
-              <img className="hero-logo" src="/logo.svg" alt="" width="320" height="320" />
-            </div>
-          </div>
-        </section>
+      <main className="content-width catalog" id="extensions">
+        <div className="catalog-heading">
+          <h1>Extensions</h1>
+          <p>{EXTENSIONS.length} community-built extensions for Gardener.</p>
+        </div>
 
-        <section className="content-width extensions-section" id="extensions" aria-label="Explore Gardener extensions">
+        <div className="catalog-toolbar">
+          <div className="search-field">
+            <Icon name="search" />
+            <input
+              ref={searchInput}
+              type="search"
+              aria-label="Search extensions"
+              placeholder="Search extensions…"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            {query && (
+              <button className="clear-search" aria-label="Clear search" onClick={() => { setQuery(''); searchInput.current?.focus(); }}>
+                <Icon name="close" />
+              </button>
+            )}
+          </div>
+          <div className="sort-field">
+            <select aria-label="Sort extensions" value={sortOrder} onChange={(event) => setSortOrder(event.target.value as SortOrder)}>
+              <option value="default">Default order</option>
+              <option value="az">Name (A–Z)</option>
+              <option value="za">Name (Z–A)</option>
+            </select>
+            <Icon name="chevron" />
+          </div>
+        </div>
+
+        <div className="category-filters" role="group" aria-label="Filter by category">
+          {CATEGORIES.map((item) => {
+            const count = item === 'All'
+              ? matchingExtensions.length
+              : matchingExtensions.filter((extension) => extension.category === item).length;
+            return (
+              <button
+                key={item}
+                className="category-filter"
+                aria-label={item}
+                aria-pressed={category === item}
+                onClick={() => setCategory(item)}
+              >
+                {item}<span className="filter-count" aria-hidden="true">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="results-summary">
+          <p role="status">{visibleExtensions.length} {visibleExtensions.length === 1 ? 'extension' : 'extensions'}{hasFilters ? ' of ' + EXTENSIONS.length : ''}</p>
+          {hasFilters && <button className="clear-filters" onClick={clearFilters}>Clear filters</button>}
+        </div>
+
+        {visibleExtensions.length > 0 ? (
           <div className="extension-grid">
-            {EXTENSIONS.map((extension) => (
-              <ExtensionCard key={extension.title} extension={extension} onSelect={selectExtension} />
+            {visibleExtensions.map((extension) => (
+              <ExtensionCard key={extension.title} extension={extension} onSelect={setSelectedExtension} />
             ))}
           </div>
-        </section>
+        ) : (
+          <div className="empty-state">
+            <Icon name="search" />
+            <h2>No extensions found</h2>
+            <p>Try another search or category.</p>
+            <button className="button-secondary" onClick={clearFilters}>Reset search and filters</button>
+          </div>
+        )}
       </main>
 
       <footer className="site-footer content-width">
-        <a className="footer-brand" href="https://gardener.cloud/">
-          <img src="/logo.svg" alt="" width="24" height="24" />
-          <span>Gardener Extensions</span>
-        </a>
-        <p>A community effort. Built to grow together.</p>
-        <a href="https://github.com/matthias-horne/extension-hub">Contribute an extension <Icon name="arrow" /></a>
+        <span>Gardener Extensions Hub</span>
+        <a href={REPOSITORY_URL + '/issues/new'}>Contribute an extension <Icon name="arrow" /></a>
       </footer>
-
-      <dialog ref={searchDialog} className="search-dialog" aria-labelledby="search-title" onClose={() => setQuery('')}>
-        <div className="dialog-heading">
-          <h2 id="search-title">Search extensions</h2>
-          <button className="icon-button" aria-label="Close search" onClick={() => searchDialog.current?.close()}><Icon name="close" /></button>
-        </div>
-        <div className="search-field">
-          <Icon name="search" />
-          <input ref={searchInput} aria-label="Search extensions" placeholder="Search by name, category, or capability…" value={query} onChange={(event) => setQuery(event.target.value)} />
-        </div>
-        <p className="result-count" aria-live="polite">{searchResults.length} {searchResults.length === 1 ? 'extension' : 'extensions'} found</p>
-        <div className="search-results">
-          {searchResults.map((extension) => (
-            <button className="search-result" key={extension.title} onClick={() => selectExtension(extension)}>
-              <img src={extension.icon} alt="" width="32" height="32" />
-              <span><strong>{extension.title}</strong><small>{extension.category}</small></span>
-              <Icon name="arrow" />
-            </button>
-          ))}
-          {searchResults.length === 0 && <p className="empty-state">No extensions match “{query}”. Try a name or category such as Security.</p>}
-        </div>
-        <p className="dialog-hint"><kbd>esc</kbd> to close</p>
-      </dialog>
 
       <dialog ref={detailDialog} className="detail-dialog" aria-labelledby="extension-title" onClose={() => setSelectedExtension(null)}>
         {selectedExtension && (
@@ -230,7 +220,7 @@ function App() {
             <span className="detail-category">{selectedExtension.category}</span>
             <h2 id="extension-title">{selectedExtension.title}</h2>
             <p className="detail-description">{selectedExtension.description}</p>
-            <a className="hero-action" href="https://gardener.cloud/docs/gardener/extensions/" target="_blank" rel="noopener noreferrer">Gardener extension documentation <Icon name="arrow" /></a>
+            <a className="button-secondary" href="https://gardener.cloud/docs/gardener/extensions/" target="_blank" rel="noopener noreferrer">Gardener extension documentation <Icon name="arrow" /></a>
           </>
         )}
       </dialog>
