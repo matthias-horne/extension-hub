@@ -1,0 +1,84 @@
+name: Registry Cache
+description: Cache container images close to workloads in Gardener shoot clusters.
+tags:
+  - Images
+repository: https://github.com/gardener/gardener-extension-registry-cache
+addedAt: 2026-11-12T14:49:37.671Z
+version: v0.25.1
+github:
+  stars: 9
+  lastCommit: 2026-11-11T06:59:29Z
+  language: Go
+  license:
+    name: Apache License 2.0
+    spdxId: Apache-2.0
+  owner:
+    login: gardener
+    avatarUrl: https://avatars.githubusercontent.com/u/33683699?v=4
+    htmlUrl: https://github.com/gardener
+  readme:
+    markdown: |
+      # Gardener Extension for Registry Cache
+
+      [![REUSE status](https://api.reuse.software/badge/github.com/gardener/gardener-extension-registry-cache)](https://api.reuse.software/info/github.com/gardener/gardener-extension-registry-cache)
+      [![CI Build status](https://github.com/gardener/gardener-extension-registry-cache/actions/workflows/non-release.yaml/badge.svg)](https://github.com/gardener/gardener-extension-registry-cache/actions/workflows/non-release.yaml)
+
+      Gardener extension controller which deploys pull-through caches for container registries.
+
+      ## Usage
+
+      ### Registry Cache
+
+      - [Configuring the Registry Cache Extension](docs/usage/registry-cache/configuration.md) - learn what is the use-case for a pull-through cache, how to enable it and configure it
+      - [How to provide credentials for upstream repository?](docs/usage/registry-cache/upstream-credentials.md)
+      - [Registry Cache Observability](docs/usage/registry-cache/observability.md) - learn what metrics and alerts are exposed and how to view the registry cache logs
+
+      ### Registry Mirror
+
+      - [Configuring the Registry Mirror Extension](docs/usage/registry-mirror/configuration.md) - learn what is the use-case for a registry mirror, how to enable and configure it
+      - [How to provide a certificate authority bundle for a private mirror?](docs/usage/registry-mirror/ca-bundle-for-private-mirror.md)
+
+      ## Local Setup and Development
+
+      - [Deploying Registry Cache Extension Locally](docs/development/getting-started-locally.md) - learn how to set up a local development environment
+      - [Deploying Registry Cache Extension in Gardener's Remote Setup](docs/development/getting-started-remotely.md) - learn how to set up a remote development environment using an existing Kubernetes cluster
+      - [Developer Docs for Gardener Extension Registry Cache](docs/development/extension-registry-cache.md) - learn about the inner workings
+    path: README.md
+    htmlUrl: https://github.com/gardener/gardener-extension-registry-cache/blob/main/README.md
+    rawUrl: https://raw.githubusercontent.com/gardener/gardener-extension-registry-cache/main/README.md
+compatibility:
+  v0.25.1: {}
+  v0.25.0: {}
+  v0.24.0: {}
+  v0.23.1: {}
+  v0.23.0: {}
+  v0.22.0: {}
+  v0.21.0: {}
+  v0.20.0: {}
+  v0.19.0: {}
+  v0.18.0: {}
+  v0.17.2: {}
+  v0.17.1: {}
+  v0.17.0: {}
+  v0.16.0: {}
+  v0.15.0: {}
+  v0.13.2: {}
+  v0.14.1: {}
+  v0.14.0: {}
+  v0.13.1: {}
+  v0.13.0: {}
+  v0.12.0: {}
+  v0.11.0: {}
+  v0.10.0: {}
+  v0.9.0: {}
+  v0.8.0: {}
+  v0.7.1: {}
+  v0.7.0: {}
+  v0.6.0: {}
+  v0.5.0: {}
+  v0.4.0: {}
+  v0.3.1: {}
+  v0.3.0: {}
+  v0.2.1: {}
+  v0.2.0: {}
+  v0.1.0: {}

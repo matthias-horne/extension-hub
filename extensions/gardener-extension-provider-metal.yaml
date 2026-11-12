@@ -1,0 +1,212 @@
+name: metal-stack
+description: Provision and manage Gardener clusters on bare metal using metal-stack.
+tags:
+  - Infrastructure
+repository: https://github.com/metal-stack/gardener-extension-provider-metal
+addedAt: 2026-11-12T14:49:27.840Z
+version: v0.29.0
+github:
+  stars: 24
+  lastCommit: 2026-11-12T14:39:55Z
+  language: Go
+  license:
+    name: MIT License
+    spdxId: MIT
+  owner:
+    login: metal-stack
+    avatarUrl: https://avatars.githubusercontent.com/u/58738008?v=4
+    htmlUrl: https://github.com/metal-stack
+  readme:
+    markdown: |
+      # Gardener Extension for Provider metal-stack
+
+      [![GitHub License](https://img.shields.io/github/license/metal-stack/gardener-extension-provider-metal)](https://github.com/metal-stack/gardener-extension-provider-metal/blob/master/LICENCE)
+      [![Build](https://github.com/metal-stack/gardener-extension-provider-metal/actions/workflows/build.yaml/badge.svg)](https://github.com/metal-stack/gardener-extension-provider-metal/actions/workflows/build.yaml)
+
+      [Project Gardener](https://gardener.cloud/) implements the automated management and operation of [Kubernetes](https://kubernetes.io/) clusters as a service. This controller implements [Gardener's extension contract](https://github.com/gardener/gardener/blob/master/docs/extensions/overview.md) for the [**metal-stack**](https://metal-stack.io/) provider.
+
+      It reconciles the `Infrastructure`, `ControlPlane`, and `Worker` resources of `type: metal`, and additionally contains a validator for all metal-specific provider configs as well as mutating webhooks.
+
+      The `Worker` resource will also create a `FirewallDeployment` resource reconciled by the [firewall-controller-manager](https://github.com/metal-stack/firewall-controller-manager).
+
+      For the shoot `ControlPlane`, the extension provider also deploys [MetalLB](https://metallb.io/) into the cluster, which gets dynamically configured by the [metal-ccm](https://github.com/metal-stack/metal-ccm).
+
+      ## Example
+
+      An example `ControllerRegistration` resource that can be used to register this controller to Gardener can be found in [`example/controller-registration.yaml`](example/controller-registration.yaml).
+
+      ## Development
+
+      Development currently needs to happen against a real environment because there are many dependencies to external APIs for reconciliation. It is planned to allow development in the [mini-lab](https://github.com/metal-stack/mini-lab) soon.
+
+      ## Feedback and Support
+
+      Feedback and contributions are always welcome! Please report bugs or suggestions as [GitHub issues](https://github.com/metal-stack/gardener-extension-provider-metal/issues) or reach out to our [community](https://metal-stack.io/community).
+    path: README.md
+    htmlUrl: https://github.com/metal-stack/gardener-extension-provider-metal/blob/master/README.md
+    rawUrl: https://raw.githubusercontent.com/metal-stack/gardener-extension-provider-metal/master/README.md
+compatibility:
+  v0.29.0: {}
+  v0.28.1: {}
+  v0.28.0: {}
+  v0.27.14: {}
+  v0.27.13: {}
+  v0.27.12: {}
+  v0.27.11: {}
+  v0.27.10: {}
+  v0.27.9: {}
+  v0.27.8: {}
+  v0.27.7: {}
+  v0.27.6: {}
+  v0.27.5: {}
+  v0.27.4: {}
+  v0.27.3: {}
+  v0.27.2: {}
+  v0.27.1: {}
+  v0.27.0: {}
+  v0.26.5: {}
+  v0.26.4: {}
+  v0.26.3: {}
+  v0.26.2: {}
+  v0.26.1: {}
+  v0.26.0: {}
+  v0.25.15: {}
+  v0.25.14: {}
+  v0.25.13: {}
+  v0.25.12: {}
+  v0.25.11: {}
+  v0.25.10: {}
+  v0.25.9: {}
+  v0.25.8: {}
+  v0.25.7: {}
+  v0.25.6: {}
+  v0.25.5: {}
+  v0.25.4: {}
+  v0.25.3: {}
+  v0.25.2: {}
+  v0.25.1: {}
+  v0.25.0: {}
+  v0.24.9: {}
+  v0.24.8: {}
+  v0.24.7: {}
+  v0.24.6: {}
+  v0.24.5: {}
+  v0.24.4: {}
+  v0.24.3: {}
+  v0.24.2: {}
+  v0.24.1: {}
+  v0.24.0: {}
+  v0.23.1: {}
+  v0.23.0: {}
+  v0.22.13: {}
+  v0.22.12: {}
+  v0.22.11: {}
+  v0.22.10: {}
+  v0.22.9: {}
+  v0.22.8: {}
+  v0.22.7: {}
+  v0.22.6: {}
+  v0.22.5: {}
+  v0.22.4: {}
+  v0.22.3: {}
+  v0.22.2: {}
+  v0.22.1: {}
+  v0.22.0: {}
+  v0.21.3: {}
+  v0.21.2: {}
+  v0.21.1: {}
+  v0.21.0: {}
+  v0.20.20: {}
+  v0.20.19: {}
+  v0.20.18: {}
+  v0.20.17: {}
+  v0.20.16: {}
+  v0.20.15: {}
+  v0.20.14: {}
+  v0.20.13: {}
+  v0.20.12: {}
+  v0.20.11: {}
+  v0.20.10: {}
+  v0.20.9: {}
+  v0.20.8: {}
+  v0.20.7: {}
+  v0.20.6: {}
+  v0.20.5: {}
+  v0.20.4: {}
+  v0.20.3: {}
+  v0.20.2: {}
+  v0.20.1: {}
+  v0.20.0: {}
+  v0.19.0: {}
+  v0.18.29: {}
+  v0.18.28: {}
+  v0.18.27: {}
+  v0.18.26: {}
+  v0.18.25: {}
+  v0.18.24: {}
+  v0.18.23: {}
+  v0.18.22: {}
+  v0.18.21: {}
+  v0.18.20: {}
+  v0.18.19: {}
+  v0.18.18: {}
+  v0.18.17: {}
+  v0.18.16: {}
+  v0.18.15: {}
+  v0.18.14: {}
+  v0.18.13: {}
+  v0.18.12: {}
+  v0.18.11: {}
+  v0.18.10: {}
+  v0.18.9: {}
+  v0.18.8: {}
+  v0.18.7: {}
+  v0.18.6: {}
+  v0.18.5: {}
+  v0.18.4: {}
+  v0.18.3: {}
+  v0.18.2: {}
+  v0.18.1: {}
+  v0.18.0: {}
+  v0.17.4: {}
+  v0.17.3: {}
+  v0.17.2: {}
+  v0.17.1: {}
+  v0.17.0: {}
+  v0.16.13: {}
+  v0.16.12: {}
+  v0.16.11: {}
+  v0.16.10: {}
+  v0.16.9: {}
+  v0.16.8: {}
+  v0.16.7: {}
+  v0.16.6: {}
+  v0.16.5: {}
+  v0.16.4: {}
+  v0.16.3: {}
+  v0.16.2: {}
+  v0.16.1: {}
+  v0.16.0: {}
+  v0.15.7: {}
+  v0.15.6: {}
+  v0.15.5: {}
+  v0.15.4: {}
+  v0.15.3: {}
+  v0.15.2: {}
+  v0.15.1: {}
+  v0.15.0: {}
+  v0.14.0: {}
+  v0.13.2: {}
+  v0.13.1: {}
+  v0.13.0: {}
+  v0.12.10: {}
+  v0.12.9: {}
+  v0.12.8: {}
+  v0.12.7: {}
+  v0.12.6: {}
+  v0.12.5: {}
+  v0.12.4: {}
+  v0.12.3: {}
+  v0.12.2: {}
+  v0.12.1: {}
+  v0.12.0: {}

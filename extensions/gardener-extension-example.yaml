@@ -1,7 +1,7 @@
 name: Example Extension
 description: A minimal Gardener extension example that does nothing
 tags:
-  - example
+  - Example
 repository: https://github.com/matthias-horne/gardener-extension-example
 manifestRegistry: ghcr.io/matthias-horne/extensions/gardener-extension-example
 addedAt: 2026-11-12T13:18:37.456Z

@@ -1,0 +1,175 @@
+name: Garden Linux
+description: Configure Garden Linux nodes in Gardener clusters.
+tags:
+  - OS
+repository: https://github.com/gardener/gardener-extension-os-gardenlinux
+addedAt: 2026-11-12T14:48:59.527Z
+version: v0.51.0
+github:
+  stars: 9
+  lastCommit: 2026-11-11T08:14:27Z
+  language: Go
+  license:
+    name: Apache License 2.0
+    spdxId: Apache-2.0
+  owner:
+    login: gardener
+    avatarUrl: https://avatars.githubusercontent.com/u/33683699?v=4
+    htmlUrl: https://github.com/gardener
+  readme:
+    markdown: |
+      # Gardener Extension for Garden Linux OS
+
+      [![REUSE status](https://api.reuse.software/badge/github.com/gardener/gardener-extension-os-gardenlinux)](https://api.reuse.software/info/github.com/gardener/gardener-extension-os-gardenlinux)
+      [![Build status](https://github.com/gardener/gardener-extension-os-gardenlinux/actions/workflows/dev_build.yaml/badge.svg?branch=master)](https://github.com/gardener/gardener-extension-os-gardenlinux/actions/workflows/dev_build.yaml)
+      [![Go Report Card](https://goreportcard.com/badge/github.com/gardener/gardener-extension-os-gardenlinux)](https://goreportcard.com/report/github.com/gardener/gardener-extension-os-gardenlinux)
+
+      This controller operates on the [`OperatingSystemConfig`](https://github.com/gardener/gardener/blob/master/docs/proposals/01-extensibility.md#cloud-config-user-data-for-bootstrapping-machines) resource in the `extensions.gardener.cloud/v1alpha1` API group.
+
+      It manages those objects that are requesting...
+
+      - [Garden Linux OS](https://gardenlinux.org/) configuration (`.spec.type=gardenlinux`) and its FIPS hardened variant (`.spec.type=gardenlinux-fips`):
+
+        ```yaml
+        ---
+        apiVersion: extensions.gardener.cloud/v1alpha1
+        kind: OperatingSystemConfig
+        metadata:
+          name: pool-01-original
+          namespace: default
+        spec:
+          type: gardenlinux
+          units:
+            ...
+          files:
+            ...
+        ```
+
+        Please find [a concrete example](example/40-operatingsystemconfig-gardenlinux.yaml) in the `example` folder.
+
+      - MemoryOne on Garden Linux configuration (`spec.type=memoryone-gardenlinux`):
+
+        ```yaml
+        ---
+        apiVersion: extensions.gardener.cloud/v1alpha1
+        kind: OperatingSystemConfig
+        metadata:
+          name: pool-01-original
+          namespace: default
+        spec:
+          type: memoryone-gardenlinux
+          units:
+            ...
+          files:
+            ...
+          providerConfig:
+            apiVersion: memoryone-gardenlinux.os.extensions.gardener.cloud/v1alpha1
+            kind: OperatingSystemConfiguration
+            memoryTopology: "2"
+            systemMemory: "6x"
+        ```
+
+        Please find [a concrete example](example/40-operatingsystemconfig-memoryonegardenlinux.yaml) in the `example` folder.
+
+      After reconciliation the resulting data will be stored in a secret within the same namespace (as the config itself might contain confidential data). The name of the secret will be written into the resource's `.status` field:
+
+      ```yaml
+      ...
+      status:
+        ...
+        cloudConfig:
+          secretRef:
+            name: osc-result-pool-01-original
+            namespace: default
+        command: /usr/bin/env bash <path>
+        units:
+        - kubelet-monitor.service
+        - kubelet.service
+      ```
+
+      The secret has one data key `cloud_config` that stores the generation.
+
+      An example for a `ControllerRegistration` resource that can be used to register this controller to Gardener can be found [here](example/controller-registration.yaml).
+
+      Please find more information regarding the extensibility concepts and a detailed proposal [here](https://github.com/gardener/gardener/blob/master/docs/proposals/01-extensibility.md).
+
+      ----
+
+      ## How to start using or developing this extension controller locally
+
+      You can run the controller locally on your machine by executing `make start`. Please make sure to have the kubeconfig to the cluster you want to connect to ready in the `./dev/kubeconfig` file.
+      Static code checks and tests can be executed by running `make verify`. We are using Go modules for Golang package dependency management and [Ginkgo](https://github.com/onsi/ginkgo)/[Gomega](https://github.com/onsi/gomega) for testing.
+
+      ## Feedback and Support
+
+      Feedback and contributions are always welcome!
+
+      Please report bugs or suggestions as [GitHub issues](https://github.com/gardener/gardener-extension-os-gardenlinux/issues) or reach out on [Slack](https://gardener-cloud.slack.com/) (join the workspace [here](https://gardener.cloud/community/#get-connected)).
+
+      ## Learn more!
+
+      Please find further resources about out project here:
+
+      - [Our landing page gardener.cloud](https://gardener.cloud/)
+      - ["Gardener, the Kubernetes Botanist" blog on kubernetes.io](https://kubernetes.io/blog/2018/05/17/gardener/)
+      - ["Gardener Project Update" blog on kubernetes.io](https://kubernetes.io/blog/2019/12/02/gardener-project-update/)
+      - [Gardener Extensions Golang library](https://godoc.org/github.com/gardener/gardener/extensions/pkg)
+      - [GEP-1 (Gardener Enhancement Proposal) on extensibility](https://github.com/gardener/gardener/blob/master/docs/proposals/01-extensibility.md)
+      - [Extensibility API documentation](https://github.com/gardener/gardener/tree/master/docs/extensions)
+    path: README.md
+    htmlUrl: https://github.com/gardener/gardener-extension-os-gardenlinux/blob/master/README.md
+    rawUrl: https://raw.githubusercontent.com/gardener/gardener-extension-os-gardenlinux/master/README.md
+compatibility:
+  v0.51.0: {}
+  v0.50.0: {}
+  v0.49.0: {}
+  v0.48.0: {}
+  v0.47.0: {}
+  v0.46.0: {}
+  v0.45.0: {}
+  v0.44.0: {}
+  v0.43.0: {}
+  v0.42.0: {}
+  v0.41.0: {}
+  v0.40.0: {}
+  v0.39.0: {}
+  v0.38.1: {}
+  v0.38.0: {}
+  v0.37.0: {}
+  v0.36.0: {}
+  v0.35.0: {}
+  v0.34.0: {}
+  v0.33.0: {}
+  v0.32.0: {}
+  v0.31.0: {}
+  v0.30.0: {}
+  v0.29.0: {}
+  v0.28.1: {}
+  v0.28.0: {}
+  v0.27.0: {}
+  v0.26.0: {}
+  v0.25.0: {}
+  v0.24.0: {}
+  v0.23.0: {}
+  v0.22.0: {}
+  v0.21.0: {}
+  v0.20.0: {}
+  v0.19.0: {}
+  v0.18.0: {}
+  v0.17.0: {}
+  v0.16.0: {}
+  v0.15.0: {}
+  v0.14.0: {}
+  v0.13.0: {}
+  v0.12.0: {}
+  v0.11.0: {}
+  v0.10.0: {}
+  v0.9.0: {}
+  v0.8.0: {}
+  v0.7.0: {}
+  v0.6.0: {}
+  v0.5.0: {}
+  v0.4.0: {}
+  v0.3.0: {}
+  v0.2.0: {}
+  v0.1.0: {}

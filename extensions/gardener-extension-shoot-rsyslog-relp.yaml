@@ -1,0 +1,70 @@
+name: Shoot Rsyslog Relp
+description: Forward logs from Gardener shoot clusters using rsyslog and RELP.
+tags:
+  - Observability
+repository: https://github.com/gardener/gardener-extension-shoot-rsyslog-relp
+addedAt: 2026-11-12T14:49:58.489Z
+version: v0.15.1
+github:
+  stars: 1
+  lastCommit: 2026-11-09T20:23:49Z
+  language: Go
+  license:
+    name: Other
+    spdxId: NOASSERTION
+  owner:
+    login: gardener
+    avatarUrl: https://avatars.githubusercontent.com/u/33683699?v=4
+    htmlUrl: https://github.com/gardener
+  readme:
+    markdown: |
+      # Gardener Extension to configure rsyslog with relp module
+
+      [![REUSE status](https://api.reuse.software/badge/github.com/gardener/gardener-extension-shoot-rsyslog-relp)](https://api.reuse.software/info/github.com/gardener/gardener-extension-shoot-rsyslog-relp)
+      [![CI Build status](https://github.com/gardener/gardener-extension-shoot-rsyslog-relp/actions/workflows/non-release.yaml/badge.svg)](https://github.com/gardener/gardener-extension-shoot-rsyslog-relp/actions/workflows/non-release.yaml)
+      [![Go Report Card](https://goreportcard.com/badge/github.com/gardener/gardener-extension-shoot-rsyslog-relp)](https://goreportcard.com/report/github.com/gardener/gardener-extension-shoot-rsyslog-relp)
+
+      Gardener extension controller which configures the rsyslog and auditd services installed on shoot nodes.
+
+      ## Usage
+
+      - [Configuring the Rsyslog Relp Extension](docs/usage/configuration.md) - learn what is the use-case for rsyslog-relp, how to enable it and configure it
+
+      ## Local Setup and Development
+
+      * [Deploying the Rsyslog Relp Extension Locally](docs/development/getting-started.md) - learn how to set up a local development environment
+      * [Deploying the Rsyslog Relp Extension in Gardener's Remote Setup](docs/development/getting-started-remotely.md) - learn how to set up a remote development environment using an existing Kubernetes cluster
+      * [Developer Docs for Gardener Shoot Rsyslog Relp Extension](docs/development/shoot-rsyslog-relp.md) -  learn about the inner workings
+      * [Validation Guidelines for Gardener Shoot Rsyslog Relp Extension](docs/development/input-validation.md) - learn about input validation specifics
+    path: README.md
+    htmlUrl: https://github.com/gardener/gardener-extension-shoot-rsyslog-relp/blob/main/README.md
+    rawUrl: https://raw.githubusercontent.com/gardener/gardener-extension-shoot-rsyslog-relp/main/README.md
+compatibility:
+  v0.15.1: {}
+  v0.15.0: {}
+  v0.14.0: {}
+  v0.13.0: {}
+  v0.12.0: {}
+  v0.11.0: {}
+  v0.10.2: {}
+  v0.10.1: {}
+  v0.10.0: {}
+  v0.9.0: {}
+  v0.8.1: {}
+  v0.8.0: {}
+  v0.7.0: {}
+  v0.6.0: {}
+  v0.5.2: {}
+  v0.5.1: {}
+  v0.5.0: {}
+  v0.4.4: {}
+  v0.4.3: {}
+  v0.4.2: {}
+  v0.4.1: {}
+  v0.4.0: {}
+  v0.3.1: {}
+  v0.3.0: {}
+  v0.2.2: {}
+  v0.2.1: {}
+  v0.2.0: {}
+  v0.1.0: {}

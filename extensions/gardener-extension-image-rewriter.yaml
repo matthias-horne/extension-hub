@@ -1,0 +1,52 @@
+name: Image Rewriter
+description: Rewrite container image references in Gardener shoot clusters.
+tags:
+  - Images
+repository: https://github.com/gardener/gardener-extension-image-rewriter
+addedAt: 2026-11-12T14:48:50.615Z
+version: v0.12.0
+github:
+  stars: 2
+  lastCommit: 2026-11-11T03:44:17Z
+  language: Go
+  license:
+    name: Apache License 2.0
+    spdxId: Apache-2.0
+  owner:
+    login: gardener
+    avatarUrl: https://avatars.githubusercontent.com/u/33683699?v=4
+    htmlUrl: https://github.com/gardener
+  readme:
+    markdown: |
+      # Gardener Extension for Image Rewrites
+
+      [![REUSE status](https://api.reuse.software/badge/github.com/gardener/gardener-extension-image-rewriter)](https://api.reuse.software/info/github.com/gardener/gardener-extension-image-rewriter)
+
+      This project provides a Gardener extension that replaces pod image references for **system components** of shoot clusters.
+      Additionally, it can handle mirror configuration for containerd.
+
+      ## Components
+
+      - Mutating webhook for shoots to replace image references of `Pod`s running in the `kube-system` namespace.
+      - Mutating webhook for seeds to replace image references in `OperatingSystemConfig` resources.
+      - Mutating webhook for seeds to add containerd configuration to `OperatingSystemConfig` resources.
+
+      ## Configuration
+
+      A separate configuration file is used to define the image rewrites. Please see [here](./example/00-componentconfig.yaml) for an example.
+    path: README.md
+    htmlUrl: https://github.com/gardener/gardener-extension-image-rewriter/blob/master/README.md
+    rawUrl: https://raw.githubusercontent.com/gardener/gardener-extension-image-rewriter/master/README.md
+compatibility:
+  v0.12.0: {}
+  v0.11.0: {}
+  v0.10.0: {}
+  v0.9.0: {}
+  v0.8.0: {}
+  v0.7.0: {}
+  v0.6.0: {}
+  v0.5.0: {}
+  v0.4.0: {}
+  v0.3.0: {}
+  v0.2.0: {}
+  v0.1.0: {}

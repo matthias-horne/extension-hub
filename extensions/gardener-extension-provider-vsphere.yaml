@@ -1,0 +1,141 @@
+name: vSphere
+description: Provision and manage Gardener clusters on VMware vSphere.
+tags:
+  - Infrastructure
+repository: https://github.com/gardener/gardener-extension-provider-vsphere
+addedAt: 2026-11-12T14:49:34.767Z
+version: v0.33.2
+github:
+  stars: 9
+  lastCommit: 2025-07-02T20:31:48Z
+  language: Go
+  license:
+    name: Other
+    spdxId: NOASSERTION
+  owner:
+    login: gardener-attic
+    avatarUrl: https://avatars.githubusercontent.com/u/35408174?v=4
+    htmlUrl: https://github.com/gardener-attic
+  readme:
+    markdown: |
+      # [Gardener Extension for vSphere provider](https://gardener.cloud)
+
+      [![CI Build status](https://concourse.ci.gardener.cloud/api/v1/teams/gardener-tests/pipelines/gardener-extension-provider-vsphere-main/jobs/main-head-update-job/badge)](https://concourse.ci.gardener.cloud/teams/gardener-tests/pipelines/gardener-extension-provider-vsphere-main/jobs/main-head-update-job)
+      [![Go Report Card](https://goreportcard.com/badge/github.com/gardener/gardener-extension-provider-vsphere)](https://goreportcard.com/report/github.com/gardener/gardener-extension-provider-vsphere)
+
+      ## Overview 
+      The Gardener Extension for vSphere is a [GEP-1](https://github.com/gardener/gardener/blob/master/docs/proposals/01-extensibility.md) provider implementation that allows Gardener to leverage vSphere clusters for machine provisioning. 
+
+      vSphere is an undeniable class leader for commercially supported virtual machine orchestration. The Gardener extension for vSphere provider compliments this leadership by allowing Gardener to create Kubernetes nodes within vSphere.  
+
+      Like other Gardener provider extensions, the vSphere provider pairs with a provider-specific Machine Controller Manager providing node services to Kubernetes clusters. This extension provides complimentary APIs to Gardener. A Gardener-hosted Kubernetes
+      cluster does not know anything about it's environment (such as bare metal vs. public cloud or within a hyperscaler vs. standalone), only that the MCM abstraction can manage requests such as cluster autoscaling. 
+
+      An example for a `ControllerRegistration` resource that can be used to register this controller to Gardener can be found [here](example/controller-registration.yaml).
+
+      Please find more information regarding the extensibility concepts and the architecture details in the GEP-1 proposal. 
+
+      ## Use Cases
+      The primary use case for this extension is organizations who wish to deploy a substantial Gardener landscape and use vSphere for data center fleet management. We intentionally sidestep prescribing any particular extension as this is
+      an intimately local determination and the benefits of different solutions are more than adequately debated in industry literature.
+
+      While we may inadvertently duplicate some documentation in the mainline Gardener documentation, it is only to reduce tedium as new evaluators and developers come up-to-speed with the concepts relevant to successful deployment.
+      We refer directly to the mainline Gardener documentation for the most up-to-date information. 
+
+      ## Supported Kubernetes versions
+
+      This extension controller supports the following Kubernetes versions:
+
+      | Version         | Support | Conformance test results                                                                                                                                                                                                   |
+      |-----------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+      | Kubernetes 1.28 | 1.28.0+ | N/A                                                                                                                                                                                                                        |
+      | Kubernetes 1.27 | 1.27.0+ | N/A                                                                                                                                                                                                                        |
+      | Kubernetes 1.26 | 1.26.0+ | [![Gardener v1.26 Conformance Tests](https://testgrid.k8s.io/q/summary/conformance-gardener/Gardener,%20v1.26%20vSphere/tests_status?style=svg)](https://testgrid.k8s.io/conformance-gardener#Gardener,%20v1.26%20vSphere) |
+      | Kubernetes 1.25 | 1.25.0+ | [![Gardener v1.25 Conformance Tests](https://testgrid.k8s.io/q/summary/conformance-gardener/Gardener,%20v1.25%20vSphere/tests_status?style=svg)](https://testgrid.k8s.io/conformance-gardener#Gardener,%20v1.25%20vSphere) |
+      | Kubernetes 1.24 | 1.24.0+ | [![Gardener v1.24 Conformance Tests](https://testgrid.k8s.io/q/summary/conformance-gardener/Gardener,%20v1.24%20vSphere/tests_status?style=svg)](https://testgrid.k8s.io/conformance-gardener#Gardener,%20v1.24%20vSphere) |
+
+      Older versions of the extension [(`v0.16.0` and earlier)](https://github.com/gardener/gardener-extension-provider-vsphere/releases/tag/v0.16.0) are supported prior to current releases.
+
+      Please take a look [here](https://github.com/gardener/gardener/blob/master/docs/usage/supported_k8s_versions.md) to see which versions are supported by Gardener in general.
+
+      ----
+      ## Deployment patterns
+      As with any production software, deployment of Gardener and this extension should be considered in the context of both lifecycle and automation. Orgs should aspire to have apply 
+
+      ## How to start using or developing this extension controller locally
+
+      You can run the controller locally on your machine by executing `make start`.
+
+      Static code checks and tests can be executed by running `make verify`. We are using Go modules for Golang package dependency management and [Ginkgo](https://github.com/onsi/ginkgo)/[Gomega](https://github.com/onsi/gomega) for testing.
+
+      ## Feedback and Support
+
+      Feedback and contributions are always welcome!
+
+      Please report bugs or suggestions as [GitHub issues](https://github.com/gardener/gardener-extension-provider-vsphere/issues) or reach out on [Slack](https://gardener-cloud.slack.com/) (join the workspace [here](https://gardener.cloud/community/community-bio/)).
+
+      ## Learn more!
+
+      Please find further resources about out project here:
+
+      * [Our landing page gardener.cloud](https://gardener.cloud/)
+      * ["Gardener, the Kubernetes Botanist" blog on kubernetes.io](https://kubernetes.io/blog/2018/05/17/gardener/)
+      * ["Gardener Project Update" blog on kubernetes.io](https://kubernetes.io/blog/2019/12/02/gardener-project-update/)
+      * [GEP-1 (Gardener Enhancement Proposal) on extensibility](https://github.com/gardener/gardener/blob/master/docs/proposals/01-extensibility.md)
+      * [GEP-4 (New `core.gardener.cloud/v1beta1` API)](https://github.com/gardener/gardener/blob/master/docs/proposals/04-new-core-gardener-cloud-apis.md)
+      * [Extensibility API documentation](https://github.com/gardener/gardener/tree/master/docs/extensions)
+      * [Gardener Extensions Golang library](https://godoc.org/github.com/gardener/gardener/extensions/pkg)
+      * [Gardener API Reference](https://gardener.cloud/api-reference/)
+    path: README.md
+    htmlUrl: https://github.com/gardener-attic/gardener-extension-provider-vsphere/blob/main/README.md
+    rawUrl: https://raw.githubusercontent.com/gardener-attic/gardener-extension-provider-vsphere/main/README.md
+compatibility:
+  v0.33.2: {}
+  v0.33.1: {}
+  v0.33.0: {}
+  v0.32.0: {}
+  v0.31.2: {}
+  v0.31.1: {}
+  v0.31.0: {}
+  v0.30.0: {}
+  v0.29.4: {}
+  v0.29.3: {}
+  v0.29.2: {}
+  v0.29.1: {}
+  v0.29.0: {}
+  v0.28.3: {}
+  v0.28.2: {}
+  v0.28.1: {}
+  v0.28.0: {}
+  v0.27.0: {}
+  v0.26.0: {}
+  v0.25.0: {}
+  v0.24.1: {}
+  v0.24.0: {}
+  v0.23.0: {}
+  v0.22.0: {}
+  v0.21.0: {}
+  v0.20.1: {}
+  v0.20.0: {}
+  v0.19.0: {}
+  v0.18.0: {}
+  v0.17.0: {}
+  v0.16.0: {}
+  v0.14.1: {}
+  v0.14.0: {}
+  v0.13.0: {}
+  v0.12.1: {}
+  v0.12.0: {}
+  v0.11.0: {}
+  v0.10.0: {}
+  v0.9.0: {}
+  v0.8.0: {}
+  v0.7.1: {}
+  v0.7.0: {}
+  v0.6.0: {}
+  v0.5.0: {}
+  v0.4.1: {}
+  v0.4.0: {}
+  v0.3.0: {}
+  v0.2.0: {}
+  v0.1.0: {}
