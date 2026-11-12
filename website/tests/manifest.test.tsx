@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import { parse, stringify } from 'yaml';
@@ -76,6 +77,7 @@ describe('manifest values preview', () => {
 
   test('starts with values visible and retains the complete download', () => {
     const extension = extensionDefinition(manifest);
+    assert(extension.manifest && extension.manifestUrl);
     const markup = renderToStaticMarkup(<MemoryRouter><ExtensionDetails extension={extension} onCategory={() => {}} /></MemoryRouter>);
     expect(markup).toContain('role="switch" aria-controls="manifest-preview" checked=""');
     expect(markup).toContain('Show values');
