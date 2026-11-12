@@ -9,6 +9,12 @@ repository, and registry changes. Existing aggregates without this field receive
 the current update's timestamp once. A failed update does not persist a timestamp;
 the first successful retry records it. Git history is not required.
 
+Each registration requires a name, description, and GitHub repository. The OCI
+`manifestRegistry` is optional. Without it, the updater fetches repository metadata
+and release versions, records empty compatibility entries, and skips all OCI and
+Helm requests. These entries are included in the runtime catalog index. Removing
+or adding a registry resets the previous manifest and compatibility history.
+
 For the latest published release, it fetches the default Helm values from the OCI
 chart references in the Extension resource (using `ref`, or `repository` with
 `tag` or `digest`). It integrates the runtime admission chart's defaults into

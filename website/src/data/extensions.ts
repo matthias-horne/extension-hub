@@ -60,8 +60,8 @@ export interface Extension {
   repositoryPath: string;
   owner: string;
   manifestRegistry?: string;
-  manifest: string;
-  manifestUrl: string;
+  manifest?: string;
+  manifestUrl?: string;
   artifacts: ExtensionArtifact[];
   images: ExtensionImage[];
   github?: GitHubInfo;
@@ -118,8 +118,8 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
   if (entry.tags && (!Array.isArray(entry.tags) || entry.tags.some((tag) => typeof tag !== 'string'))) {
     throw new Error('Expected a list of tags in ' + path);
   }
-  if (entry.manifestRegistry !== undefined && typeof entry.manifestRegistry !== 'string') {
-    throw new Error('Expected a manifest registry string in ' + path);
+  if (entry.manifestRegistry !== undefined && (typeof entry.manifestRegistry !== 'string' || !entry.manifestRegistry.trim())) {
+    throw new Error('Expected a non-empty manifest registry string in ' + path);
   }
   if (entry.version !== undefined && (typeof entry.version !== 'string' || !entry.version.trim())) {
     throw new Error('Expected a non-empty version string in ' + path);
@@ -127,7 +127,7 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
   if (entry.addedAt !== undefined && (typeof entry.addedAt !== 'string' || !Number.isFinite(Date.parse(entry.addedAt)))) {
     throw new Error('Expected an addedAt date string in ' + path);
   }
-  const manifest = entry.extension ? stringify(entry.extension) : definition;
+  const manifest = entry.extension ? stringify(entry.extension) : undefined;
   return {
     id: path.split('/').at(-1)!.replace(/\.ya?ml$/, ''),
     title: entry.name,
@@ -141,7 +141,7 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
     owner: repositoryPath.split('/')[0],
     manifestRegistry: entry.manifestRegistry,
     manifest,
-    manifestUrl: 'data:application/yaml;charset=utf-8,' + encodeURIComponent(manifest),
+    manifestUrl: manifest ? 'data:application/yaml;charset=utf-8,' + encodeURIComponent(manifest) : undefined,
     artifacts: extensionArtifacts(entry.extension),
     images: extensionImages([
       { deployment: 'extension', values: entry.extension?.spec?.deployment?.extension?.values },
@@ -154,8 +154,8 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
 }
 
 export async function loadExtensions(baseUrl = DEFAULT_EXTENSIONS_URL, {
-  signal, fetcher = fetch, siteBase = '/',
-}: { signal?: AbortSignal; fetcher?: typeof fetch; siteBase?: string } = {}): Promise<Extension[]> {
+  signal, fetcher = fetch, siteBase = '/', showWithoutRegistry = true,
+}: { signal?: AbortSignal; fetcher?: typeof fetch; siteBase?: string; showWithoutRegistry?: boolean } = {}): Promise<Extension[]> {
   const directory = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
   async function getFile(name: string) {
     const response = await fetcher(directory + encodeURIComponent(name), { cache: 'no-cache', signal });
@@ -168,7 +168,8 @@ export async function loadExtensions(baseUrl = DEFAULT_EXTENSIONS_URL, {
   ) || new Set(filenames).size !== filenames.length) {
     throw new Error('The extension catalog index is invalid.');
   }
-  return Promise.all(filenames.map(async (name: string) =>
+  const extensions = await Promise.all(filenames.map(async (name: string) =>
     parseExtension(await (await getFile(name)).text(), name, siteBase),
   ));
+  return showWithoutRegistry ? extensions : extensions.filter((extension) => extension.manifestRegistry);
 }

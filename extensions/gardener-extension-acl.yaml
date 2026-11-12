@@ -1,0 +1,7 @@
+name: "ACL"
+description: "Control access to Gardener clusters using access control lists."
+tags:
+  - "Generic Extensions"
+  - "Networking"
+  - "Security"
+repository: https://github.com/stackitcloud/gardener-extension-acl

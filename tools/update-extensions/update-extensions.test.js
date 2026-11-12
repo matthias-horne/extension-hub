@@ -10,7 +10,7 @@ import { parse, stringify } from 'yaml';
 import {
   COMPATIBILITY_MEDIA_TYPE, EXTENSION_MEDIA_TYPE, aggregate, fetchGitHubInfo,
   integrateHelmValues, listArtifactTags, listReleases, loadMapping, pullCompatibility, pullHelmValues, pullManifest, repositoryName,
-  run, updateExtensions, validateCompatibility, validateManifest, writeManifest,
+  run, updateExtensions, validateCompatibility, validateManifest, validateRegistration, writeManifest,
 } from './update-extensions.js';
 
 const REGISTRATION = {
@@ -573,6 +573,65 @@ test('updates repository information even without published releases', async () 
   assert.deepEqual(await aggregate(REGISTRATION, {}, deps), { ...REGISTRATION, addedAt: ADDED_AT, github: GITHUB, compatibility: {} });
   assert.equal(deps.pullManifest.mock.callCount(), 0);
   assert.equal(deps.pullHelmValues.mock.callCount(), 0);
+});
+
+test('accepts an omitted registry but rejects invalid registry values', () => {
+  const registration = { ...REGISTRATION };
+  delete registration.manifestRegistry;
+  validateRegistration(registration);
+  for (const manifestRegistry of [null, '', ' ', 12, 'https://ghcr.io/example/extension', 'ghcr.io/example/extension:v1']) {
+    assert.throws(() => validateRegistration({ ...registration, manifestRegistry }), /manifestRegistry/);
+  }
+});
+
+test('aggregates releases without a registry and skips all OCI and Helm requests', async () => {
+  const registration = { ...REGISTRATION };
+  delete registration.manifestRegistry;
+  for (const releases of [[release('v2'), release('v1')], []]) {
+    const deps = dependencies(releases);
+    const result = await aggregate(registration, {}, deps);
+    assert.deepEqual(result, {
+      ...registration,
+      addedAt: ADDED_AT,
+      ...(releases.length ? { version: 'v2' } : {}),
+      github: GITHUB,
+      compatibility: Object.fromEntries(releases.map((release) => [release.tag_name, {}])),
+    });
+    assert.deepEqual(await aggregate(registration, result, deps), result);
+    for (const method of ['listArtifactTags', 'pullManifest', 'pullHelmValues', 'pullCompatibility']) {
+      assert.equal(deps[method].mock.callCount(), 0);
+    }
+    assert.equal(deps.fetchGitHubInfo.mock.callCount(), 2);
+  }
+});
+
+test('removing and adding a registry discards stale manifests and compatibility', async () => {
+  const registration = { ...REGISTRATION };
+  delete registration.manifestRegistry;
+  const withoutRegistry = await aggregate(registration, previousManifest(), dependencies([release('v2')]));
+  assert.equal(Object.hasOwn(withoutRegistry, 'extension'), false);
+  assert.equal(Object.hasOwn(withoutRegistry, 'manifestRegistry'), false);
+  assert.deepEqual(withoutRegistry.compatibility, { v2: {} });
+  const deps = dependencies([release('v3')]);
+  const withRegistry = await aggregate(REGISTRATION, withoutRegistry, deps);
+  assert.deepEqual(withRegistry.extension, manifestWithValues('v3'));
+  assert.deepEqual(withRegistry.compatibility, { v3: compatibility() });
+});
+
+test('publishes registry-free aggregates in the runtime catalog alongside registry entries', async (t) => {
+  const { extensions, output, options } = await fixture(t);
+  const registration = { ...REGISTRATION };
+  delete registration.manifestRegistry;
+  await writeFile(join(extensions, 'community.yaml'), stringify(registration));
+  await writeFile(join(extensions, 'registered.yaml'), stringify(REGISTRATION));
+  const deps = dependencies([release('v1')]);
+  assert.equal(await updateExtensions(extensions, output, { ...options, ...deps }), 0);
+  const community = parse(await readFile(join(output, 'community.yaml'), 'utf8'));
+  assert.equal(community.version, 'v1');
+  assert.equal(Object.hasOwn(community, 'extension'), false);
+  assert.deepEqual(community.github, GITHUB);
+  assert.deepEqual(JSON.parse(await readFile(join(output, 'index.json'), 'utf8')), ['community.yaml', 'registered.yaml']);
+  assert.equal(deps.pullManifest.mock.callCount(), 1);
 });
 
 test('release tags matching JavaScript property names are stored and cached safely', async () => {

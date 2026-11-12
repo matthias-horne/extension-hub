@@ -1,0 +1,5 @@
+name: "SUSE CHost"
+description: "Configure SUSE CHost nodes in Gardener clusters."
+tags:
+  - "Operating System"
+repository: https://github.com/gardener/gardener-extension-os-suse-chost

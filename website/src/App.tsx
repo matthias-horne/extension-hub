@@ -235,7 +235,7 @@ function App() {
       </footer>
 
       <dialog ref={detailDialog} className="manifest-dialog" aria-labelledby="manifest-title" onClose={() => setSelectedExtension(null)}>
-        {selectedExtension && (
+        {selectedExtension?.manifest && (
           <>
             <div className="dialog-heading">
               <div>

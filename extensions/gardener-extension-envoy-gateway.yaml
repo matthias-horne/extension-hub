@@ -1,0 +1,6 @@
+name: "Envoy Gateway"
+description: "Provide Gateway API traffic management using Envoy Gateway."
+tags:
+  - "Generic Extensions"
+  - "Networking"
+repository: https://github.com/gardener/gardener-extension-envoy-gateway

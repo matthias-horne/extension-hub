@@ -49,7 +49,7 @@ export function repositoryName(url) {
 }
 
 export function validateRegistration(registration) {
-  for (const field of ['name', 'description', 'repository', 'manifestRegistry']) {
+  for (const field of ['name', 'description', 'repository']) {
     if (typeof registration[field] !== 'string' || !registration[field].trim()) {
       throw new Error('registration requires a non-empty ' + field);
     }
@@ -59,7 +59,9 @@ export function validateRegistration(registration) {
     throw new Error('tags must be a list of strings');
   }
   repositoryName(registration.repository);
-  if (!/^[a-zA-Z0-9.-]+(?::[0-9]+)?\/[a-z0-9]+(?:[._/-][a-z0-9]+)*$/.test(registration.manifestRegistry)) {
+  if (registration.manifestRegistry !== undefined &&
+      (typeof registration.manifestRegistry !== 'string' ||
+       !/^[a-zA-Z0-9.-]+(?::[0-9]+)?\/[a-z0-9]+(?:[._/-][a-z0-9]+)*$/.test(registration.manifestRegistry))) {
     throw new Error('manifestRegistry must be an OCI repository without a scheme or tag');
   }
 }
@@ -306,6 +308,17 @@ export async function aggregate(registration, previous, {
   const releases = await fetchReleases(registration.repository);
   const github = await fetchInfo(registration.repository);
   const latest = releases[0]?.tag_name;
+  if (!registration.manifestRegistry) {
+    return {
+      ...registration,
+      addedAt: firstAddedAt,
+      ...(latest ? { version: latest } : {}),
+      github,
+      compatibility: Object.fromEntries([...new Set([
+        ...releases.map((release) => release.tag_name), ...compatibility.keys(),
+      ])].map((tag) => [tag, {}])),
+    };
+  }
   const artifactTags = new Set(latest ? await fetchTags(registration.manifestRegistry) : []);
   if (latest && !artifactTags.has(latest)) {
     throw new Error('latest release ' + latest + ' has no published extension artifact');

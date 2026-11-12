@@ -1,0 +1,6 @@
+name: "Calico"
+description: "Provide cluster networking and network policies with Calico."
+tags:
+  - "Network Plugin"
+  - "Networking"
+repository: https://github.com/gardener/gardener-extension-networking-calico

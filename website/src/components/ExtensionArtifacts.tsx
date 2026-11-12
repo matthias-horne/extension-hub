@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ExtensionArtifact } from '../data/extensions';
 import type { ExtensionImage } from '../data/images';
 import { Icon } from './Icon';
+import { MissingInformation } from './MissingInformation';
 
 const deploymentLabels = {
   extension: 'Extension',
@@ -54,32 +55,40 @@ export function ExtensionArtifacts({ artifacts, images = [], manifestRegistry }:
         <span><Icon name="package" />Extension artifacts</span>
       </div>
       <div className="details-artifacts">
-        {manifestRegistry && <section className="artifact-registry">
-          <h2>Manifest registry</h2>
-          <code>{manifestRegistry}</code>
-        </section>}
-        <section className="artifact-section">
-          <h2>Helm charts ({artifacts.length})</h2>
-          {artifacts.length > 0 ? (
-            <>
-              <p>Helm charts referenced in this extension.yaml.</p>
-              <ul className="artifact-list">
-                {artifacts.map((artifact) => <ArtifactCard key={artifact.deployment} label={deploymentLabels[artifact.deployment]} reference={artifact.reference} type="Helm chart" />)}
-              </ul>
-            </>
-          ) : <p>No Helm charts are referenced in this extension.yaml.</p>}
-        </section>
-        <section className="artifact-section">
-          <h2>Container images ({images.length})</h2>
-          {images.length > 0 ? (
-            <>
-              <p>Container images configured in this extension’s Helm values.</p>
-              <ul className="artifact-list">
-                {images.map((image) => <ArtifactCard key={image.reference} label={image.deployments.map((deployment) => imageDeploymentLabels[deployment]).join(', ')} reference={image.reference} type="Container image" />)}
-              </ul>
-            </>
-          ) : <p>No container images are configured in this extension’s Helm values.</p>}
-        </section>
+        {!manifestRegistry && artifacts.length === 0 && images.length === 0 ? (
+          <MissingInformation title="Artifact information unavailable">
+            No manifest registry, Helm charts, or container images are available for this extension. Visit the repository for deployment artifacts.
+          </MissingInformation>
+        ) : (
+          <>
+            {manifestRegistry && <section className="artifact-registry">
+              <h2>Manifest registry</h2>
+              <code>{manifestRegistry}</code>
+            </section>}
+            <section className="artifact-section">
+              <h2>Helm charts ({artifacts.length})</h2>
+              {artifacts.length > 0 ? (
+                <>
+                  <p>Helm charts referenced in this extension.yaml.</p>
+                  <ul className="artifact-list">
+                    {artifacts.map((artifact) => <ArtifactCard key={artifact.deployment} label={deploymentLabels[artifact.deployment]} reference={artifact.reference} type="Helm chart" />)}
+                  </ul>
+                </>
+              ) : <p>No Helm charts are referenced in this extension.yaml.</p>}
+            </section>
+            <section className="artifact-section">
+              <h2>Container images ({images.length})</h2>
+              {images.length > 0 ? (
+                <>
+                  <p>Container images configured in this extension’s Helm values.</p>
+                  <ul className="artifact-list">
+                    {images.map((image) => <ArtifactCard key={image.reference} label={image.deployments.map((deployment) => imageDeploymentLabels[deployment]).join(', ')} reference={image.reference} type="Container image" />)}
+                  </ul>
+                </>
+              ) : <p>No container images are configured in this extension’s Helm values.</p>}
+            </section>
+          </>
+        )}
       </div>
     </>
   );

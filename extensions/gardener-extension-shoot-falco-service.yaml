@@ -1,0 +1,7 @@
+name: "Shoot Falco Service"
+description: "Detect suspicious workload activity using Falco in Gardener shoot clusters."
+tags:
+  - "Generic Extensions"
+  - "Security"
+  - "Observability"
+repository: https://github.com/gardener/gardener-extension-shoot-falco-service

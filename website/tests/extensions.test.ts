@@ -60,6 +60,33 @@ function files(responses: Record<string, string | Response>) {
 }
 
 describe('runtime extension catalog', () => {
+  test('omits the manifest download when only catalog metadata is available', () => {
+    const registration = `name: Community Extension
+description: An extension without published artifacts
+repository: https://github.com/example/community
+`;
+    for (const registry of ['', 'manifestRegistry: ghcr.io/example/extensions/community']) {
+      const extension = parseExtension(registration + registry, 'community.yaml');
+      expect(extension.manifest).toBeUndefined();
+      expect(extension.manifestUrl).toBeUndefined();
+      expect(extension.artifacts).toEqual([]);
+      expect(extension.images).toEqual([]);
+    }
+  });
+
+  test('includes registry-free entries by default and filters by registry when disabled', async () => {
+    const server = files({
+      [directory + 'index.json']: '["registered.yaml", "community.yaml"]',
+      [directory + 'registered.yaml']: definition + 'manifestRegistry: ghcr.io/example/extensions/extension',
+      [directory + 'community.yaml']: definition,
+    });
+    expect((await loadExtensions(directory, server)).map((entry) => entry.id)).toEqual(['registered', 'community']);
+    expect((await loadExtensions(directory, { ...server, showWithoutRegistry: true })).map((entry) => entry.id)).toEqual(['registered', 'community']);
+    expect((await loadExtensions(directory, { ...server, showWithoutRegistry: false })).map((entry) => entry.id)).toEqual(['registered']);
+    const onlyCommunity = files({ [directory + 'index.json']: '["community.yaml"]', [directory + 'community.yaml']: definition });
+    expect(await loadExtensions(directory, { ...onlyCommunity, showWithoutRegistry: false })).toEqual([]);
+  });
+
   test('loads the published index and YAML files, preserving cached data and the Extension download', async () => {
     const server = files({
       [directory + 'index.json']: '["example.yaml", "second.yml"]',

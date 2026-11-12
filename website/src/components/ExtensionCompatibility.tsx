@@ -2,6 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import type { CompatibilityInfo } from '../data/extensions';
 import { Icon } from './Icon';
 import { Dropdown } from './Dropdown';
+import { MissingInformation } from './MissingInformation';
 
 function CompatibilityValue({ value }: { value: unknown }) {
   if (Array.isArray(value)) {
@@ -62,9 +63,9 @@ export function ExtensionCompatibility({ compatibility, version }: {
         )}
       </div>
       <div className="details-compatibility">
-        <p>{selectedVersion ? <>Compatibility information for version <strong>{selectedVersion}</strong>.</> : 'No version has been published for this extension.'}</p>
         {hasInformation ? (
           <>
+            <p>Compatibility information for version <strong>{selectedVersion}</strong>.</p>
             {groups.map(({ title, values }) => values && Object.keys(values).length > 0 && (
               <section className="compatibility-section" key={title}>
                 <h2>{title}</h2>
@@ -78,7 +79,9 @@ export function ExtensionCompatibility({ compatibility, version }: {
               </section>
             )}
           </>
-        ) : selectedVersion && <p>No compatibility information has been published for this version.</p>}
+        ) : <MissingInformation title="Compatibility information unavailable">
+          {selectedVersion ? <>No compatibility information has been published for version <strong>{selectedVersion}</strong>.</> : 'No compatibility information is available for this extension.'}
+        </MissingInformation>}
       </div>
     </>
   );

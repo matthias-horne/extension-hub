@@ -1,0 +1,6 @@
+name: "Shoot Certificate Service"
+description: "Manage TLS certificates in Gardener shoot clusters."
+tags:
+  - "Generic Extensions"
+  - "Security"
+repository: https://github.com/gardener/gardener-extension-shoot-cert-service

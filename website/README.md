@@ -23,7 +23,7 @@ The details page has an Artifacts tab showing the manifest registry and the Helm
 
 The tab also lists copyable container image references from the extension’s `values`, `runtimeClusterValues`, and shared admission `values`. It recognizes direct image strings and image mappings with `ref` or `repository` plus `tag` or `digest`, including nested components and `images` collections. Identical references appear once with all deployment roles. Incomplete image mappings and unresolved Helm templates are omitted; this list reflects configured Helm values rather than a rendered workload inventory.
 
-Inline search (or Command/Ctrl + K to focus it) finds extensions by name, owner, repository, tags, and description. Category filters show counts for the current search and work together with the search query. The grid defaults to Name (A–Z). The custom sort dropdown supports alphabetical order, Most popular (descending GitHub stars), and Newest (descending `addedAt`, the timestamp when the updater first creates the extension's aggregated manifest in the `pages` branch). Existing aggregates without a date receive one on their next successful update. Missing stars count as zero; missing dates sort last, and ties use alphabetical order. Cards show the GitHub owner and avatar, repository stars, category tags, an extension.yaml download, and a repository link. The extension.yaml button opens the registered definition; it can be downloaded with that filename, and Escape closes the viewer. The header links to this repository on GitHub.
+Inline search (or Command/Ctrl + K to focus it) finds extensions by name, owner, repository, tags, and description. Category filters show counts for the current search and work together with the search query. The grid defaults to Name (A–Z). The custom sort dropdown supports alphabetical order, Most popular (descending GitHub stars), and Newest (descending `addedAt`, the timestamp when the updater first creates the extension's aggregated manifest in the `pages` branch). Existing aggregates without a date receive one on their next successful update. Missing stars count as zero; missing dates sort last, and ties use alphabetical order. Cards show the GitHub owner and avatar, cached repository stars, category tags, and a repository link. When an Extension resource is available, the extension.yaml button opens the manifest and the download icon saves it with that filename. Escape closes the viewer. The header links to this repository on GitHub.
 
 ## Design and assets
 
@@ -33,6 +33,14 @@ Theme variables are defined in `src/index.css`; page, component, and responsive 
 
 ## Extension data
 
-The catalog imports `../extensions/*.yaml` at build time. Each entry requires `name`, `description`, and a GitHub `repository`, with optional `tags`. Add an entry to this directory to include it in the hub. The YAML viewer and download use the original registry file contents.
+Registrations live in `../extensions/*.yaml`. Each entry requires `name`, `description`, and a GitHub `repository`, with optional `tags` and `manifestRegistry`. Add an entry to this directory to include it in the hub. The updater publishes aggregated YAML files and an `index.json` on the `pages` branch; the website fetches them at runtime. `VITE_EXTENSIONS_URL` can override the data directory URL.
 
-GitHub owner information and stars are fetched from the public repository API without credentials. Requests are reused across search and filter changes. If the API is unavailable or rate limited, stars show an unavailable marker and the repository owner and avatar still use the registered GitHub URL. The card download icon and YAML viewer both download the original registry definition as extension.yaml.
+GitHub metadata and README content are cached by the updater. If metadata is missing, stars show an unavailable marker and the repository owner and avatar use the registered GitHub URL. The YAML viewer and download use only the aggregate's optional `extension` resource. Unavailable documentation, manifests, artifacts, and compatibility information show prominent yellow notices in their respective tabs. Manifest preview and download controls are unavailable when there is no Extension resource.
+
+Extensions without a manifest registry are shown by default. To hide them, set the build-time environment variable to the literal string `false`:
+
+```bash
+VITE_SHOW_EXTENSIONS_WITHOUT_REGISTRY=false bun run build
+```
+
+Set it to `true` (or leave it unset) to include all extensions. You can also copy `.env.example` to `.env.local` and set the value there. The filter applies to search, category counts, and detail routes, and requires rebuilding to change. GitHub Pages builds read the Actions repository variable `VITE_SHOW_EXTENSIONS_WITHOUT_REGISTRY`, defaulting to `true`.

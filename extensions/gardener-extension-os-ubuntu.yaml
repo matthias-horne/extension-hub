@@ -1,0 +1,5 @@
+name: "Ubuntu"
+description: "Configure Ubuntu nodes in Gardener clusters."
+tags:
+  - "Operating System"
+repository: https://github.com/gardener/gardener-extension-os-ubuntu

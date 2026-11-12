@@ -1,0 +1,5 @@
+name: "IronCore Metal"
+description: "Provision and manage Gardener clusters on bare metal using IronCore Metal."
+tags:
+  - "Infrastructure Provider"
+repository: https://github.com/ironcore-dev/gardener-extension-provider-ironcore-metal

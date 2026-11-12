@@ -1,0 +1,6 @@
+name: "Cloudflare"
+description: "Manage Gardener DNSRecord resources using Cloudflare DNS."
+tags:
+  - "Primary DNS Provider"
+  - "DNS"
+repository: https://github.com/schrodit/gardener-extension-provider-dns-cloudflare

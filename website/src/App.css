@@ -80,6 +80,7 @@
 .card-actions { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 .manifest-button { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: 7px; min-width: 0; min-height: 32px; padding: 6px 10px; border: 1px solid transparent; border-radius: 7px; background: var(--brand); color: var(--on-brand); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; line-height: 18px; font-weight: 500; transition: filter .2s; }
 .manifest-button:hover { filter: brightness(1.12); }
+.manifest-button:disabled { background: var(--button-bg); color: var(--text-muted); cursor: default; filter: none; }
 .manifest-button svg { width: 14px; height: 14px; }
 .card-action-link { display: flex; align-items: center; justify-content: center; width: 30px; height: 32px; flex-shrink: 0; border-radius: 6px; color: var(--text-muted); transition: color .2s, background-color .2s; }
 .card-action-link:hover { background: var(--button-bg); color: var(--text); }
@@ -198,8 +199,13 @@ dialog::backdrop { background: rgb(0 0 0 / 65%); backdrop-filter: blur(6px); }
 .readme-table th { color: var(--text); font-weight: 500; background: var(--button-bg); }
 .readme-fallback h2 { margin: 0 0 16px; font-size: 22px; line-height: 30px; font-weight: 600; }
 .readme-fallback p, .details-manifest > p { margin: 0 0 20px; color: var(--text-muted); font-size: 14px; line-height: 24px; }
-.readme-fallback .readme-fallback-note { font-size: 13px; }
 .readme-fallback .button-secondary { margin-top: 0; }
+.information-warning { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 24px; padding: 20px; border: 1px solid #b58b13; border-left: 4px solid #eab308; border-radius: 8px; background: #fef9c3; color: #713f12; }
+.information-warning > svg { width: 24px; height: 24px; flex-shrink: 0; }
+.information-warning h2 { margin: 0 0 8px; color: inherit; font-size: 16px; line-height: 24px; font-weight: 600; }
+.information-warning p { margin: 0; color: inherit; font-size: 14px; line-height: 24px; }
+.information-warning:last-child { margin-bottom: 0; }
+.dark .information-warning { background: #3b300e; color: #fde68a; }
 .readme-loading { min-height: 300px; color: var(--text-muted); font-size: 13px; line-height: 22px; }
 .skeleton { height: 12px; margin-top: 14px; border-radius: 4px; background: var(--button-bg); }
 .skeleton-heading { width: 62%; height: 24px; margin-block: 28px 24px; }

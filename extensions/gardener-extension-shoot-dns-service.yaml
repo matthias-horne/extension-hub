@@ -1,0 +1,6 @@
+name: "Shoot DNS Service"
+description: "Manage DNS records for workloads in Gardener shoot clusters."
+tags:
+  - "Generic Extensions"
+  - "DNS"
+repository: https://github.com/gardener/gardener-extension-shoot-dns-service

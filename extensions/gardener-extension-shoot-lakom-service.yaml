@@ -1,0 +1,7 @@
+name: "Shoot Lakom Service"
+description: "Verify container image signatures in Gardener shoot clusters using Lakom."
+tags:
+  - "Generic Extensions"
+  - "Security"
+  - "Container Images"
+repository: https://github.com/gardener/gardener-extension-shoot-lakom-service
