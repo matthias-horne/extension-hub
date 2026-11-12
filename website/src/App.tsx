@@ -181,7 +181,7 @@ function App() {
                 </button>
               )}
             </div>
-            <Dropdown className="sort-field" label="Sort extensions" options={SORT_OPTIONS} value={sortOrder} onChange={setSortOrder} />
+            <Dropdown className="sort-field" label="Sort extensions" listLabel="Sort order" options={SORT_OPTIONS} value={sortOrder} onChange={setSortOrder} />
           </div>
 
           <div className="category-filters" role="group" aria-label="Filter by category">

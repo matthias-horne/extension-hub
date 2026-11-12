@@ -47,7 +47,7 @@ export function Dropdown<T extends string>({ options, value, onChange, label, li
     <div className={'dropdown ' + className} ref={container} onBlur={(event) => {
       if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
     }}>
-      <button className="dropdown-trigger" ref={trigger} type="button" role="combobox" aria-label={label + ': ' + (selected?.label ?? value)}
+      <button className="dropdown-control dropdown-trigger" ref={trigger} type="button" role="combobox" aria-label={label + ': ' + (selected?.label ?? value)}
         aria-haspopup="listbox" aria-expanded={open} aria-controls={id + '-options'}
         aria-activedescendant={open ? id + '-option-' + activeIndex : undefined}
         onClick={() => open ? setOpen(false) : openMenu()}
