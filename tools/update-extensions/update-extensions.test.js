@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { parse, stringify } from 'yaml';
 import {
-  COMPATIBILITY_MEDIA_TYPE, EXTENSION_MEDIA_TYPE, aggregate, fetchGitHubInfo, fetchSocialPreview,
+  COMPATIBILITY_MEDIA_TYPE, EXTENSION_MEDIA_TYPE, aggregate, checkApiCompatibility, fetchGitHubInfo, fetchSocialPreview,
   integrateHelmValues, listArtifactTags, listReleases, loadMapping, pullCompatibility, pullHelmValues, pullManifest, repositoryName,
   run, updateExtensions, validateCompatibility, validateManifest, validateRegistration, writeManifest,
 } from './update-extensions.js';
@@ -29,6 +29,11 @@ const GITHUB = {
 };
 const HELM_VALUES = { replicaCount: 1, image: { repository: 'example/extension', tag: 'latest' } };
 const ADDED_AT = '2026-11-01T10:00:00.000Z';
+const API_RANGE = {
+  version: '1.153.0', from: '1.135.0', to: '1.154.1',
+  breaking_on_lower: ['1.134.0 removes fields from Extension'], breaking_on_higher: null,
+};
+const API_CHECKS = { gardener: API_RANGE, kubernetes: { ...API_RANGE, version: '0.35.0', from: '0.34.0', to: '0.36.0' } };
 
 function release(tag, publishedAt = '2026-11-11T00:00:00Z', fields = {}) {
   return { tag_name: tag, published_at: publishedAt, draft: false, prerelease: false, ...fields };
@@ -69,6 +74,7 @@ function previousManifest() {
     extension: manifestWithValues('v1'),
     github: GITHUB,
     compatibility: { v1: compatibility(), v0: {} },
+    apiCompatibility: { v1: API_CHECKS },
   };
 }
 
@@ -80,6 +86,7 @@ function dependencies(releases, fetchManifest = async (registry, tag) => manifes
     pullManifest: mock.fn(fetchManifest),
     pullHelmValues: mock.fn(async () => structuredClone(HELM_VALUES)),
     pullCompatibility: mock.fn(async () => compatibility()),
+    checkApiCompatibility: mock.fn(async (_repository, _tag, extension) => structuredClone(extension ? API_CHECKS : { gardener: API_RANGE })),
     fetchGitHubInfo: mock.fn(async () => GITHUB),
   };
 }
@@ -486,6 +493,76 @@ test('validates compatibility requirements, features, build and test information
   ]) assert.throws(() => validateCompatibility(data, 'test'));
 });
 
+test('runs both API indicator modes against the exact release and stores the full JSON ranges', async () => {
+  const command = mock.fn(async (_indicator, subcommand) => JSON.stringify(API_CHECKS[subcommand === 'extension-with-gardener' ? 'gardener' : 'kubernetes']));
+  const result = await checkApiCompatibility(REGISTRATION.repository, 'v2', manifest('v2'), {}, { indicator: '/tmp/api-check', command });
+  assert.deepEqual(result, API_CHECKS);
+  assert.deepEqual(command.mock.calls.map((call) => call.arguments), [
+    ['/tmp/api-check', 'extension-with-gardener', '--extension-path', 'github.com/example/extension@v2'],
+    ['/tmp/api-check', 'extension-with-helm', '--extension-path', 'github.com/example/extension@v2', '--chart-oci-path', 'oci://ghcr.io/example/charts/extension:2'],
+  ]);
+});
+
+test('checks repository-only extensions, using latest when no release exists', async () => {
+  const command = mock.fn(async () => JSON.stringify(API_RANGE));
+  assert.deepEqual(await checkApiCompatibility(REGISTRATION.repository, undefined, undefined, {}, { command }), { gardener: API_RANGE });
+  assert.deepEqual(command.mock.calls[0].arguments, [
+    'api-compatibility-indicator', 'extension-with-gardener', '--extension-path', 'github.com/example/extension@latest',
+  ]);
+  assert.equal(command.mock.callCount(), 1);
+});
+
+test('failed and malformed API checks warn, retain previous results, and allow other checks to update', async () => {
+  for (const output of [undefined, 'not JSON', 'null', '{}', JSON.stringify({ ...API_RANGE, to: 10 }), JSON.stringify({ ...API_RANGE, breaking_on_lower: [10] })]) {
+    const warn = mock.fn();
+    const command = mock.fn(async (_indicator, subcommand) => {
+      if (subcommand === 'extension-with-helm') return JSON.stringify(API_CHECKS.kubernetes);
+      if (output === undefined) throw new Error('download timed out');
+      return output;
+    });
+    assert.deepEqual(await checkApiCompatibility(REGISTRATION.repository, 'v1', manifest('v1'), API_CHECKS, { command, warn }), API_CHECKS);
+    assert.equal(warn.mock.callCount(), 1);
+    assert.match(warn.mock.calls[0].arguments[0], /gardener API compatibility check failed/);
+    assert.deepEqual(await checkApiCompatibility(REGISTRATION.repository, 'v2', manifest('v2'), {}, { command, warn }), { kubernetes: API_CHECKS.kubernetes });
+  }
+});
+
+test('refreshes API results once per extension update and retains version history without changing published compatibility', async () => {
+  const deps = dependencies([release('v2'), release('v1')]);
+  const before = previousManifest();
+  const original = structuredClone(before);
+  const updatedChecks = { ...API_CHECKS, gardener: { ...API_RANGE, to: '1.155.0' } };
+  deps.checkApiCompatibility = mock.fn(async () => updatedChecks);
+  const result = await aggregate(REGISTRATION, before, { ...deps, apiCompatibilityIndicator: '/tmp/indicator' });
+  assert.deepEqual(result.apiCompatibility, { v2: updatedChecks, v1: API_CHECKS });
+  assert.deepEqual(result.compatibility.v2, compatibility());
+  assert.deepEqual(before, original);
+  assert.equal(deps.checkApiCompatibility.mock.callCount(), 1);
+  assert.deepEqual(deps.checkApiCompatibility.mock.calls[0].arguments.slice(0, 4), [REGISTRATION.repository, 'v2', manifestWithValues('v2'), {}]);
+  assert.equal(deps.checkApiCompatibility.mock.calls[0].arguments[4].indicator, '/tmp/indicator');
+  deps.listReleases = mock.fn(async () => [release('v2')]);
+  await aggregate(REGISTRATION, result, deps);
+  assert.deepEqual(deps.checkApiCompatibility.mock.calls[1].arguments[3], updatedChecks);
+});
+
+test('persists generated API compatibility alongside published data even when one indicator mode fails', async (t) => {
+  const { extensions, output, options } = await fixture(t);
+  await writeFile(join(extensions, 'example.yaml'), stringify(REGISTRATION));
+  const deps = dependencies([release('v2')]);
+  const warn = mock.fn();
+  deps.checkApiCompatibility = (repository, tag, extension, previous) => checkApiCompatibility(repository, tag, extension, previous, {
+    warn, command: async (_indicator, subcommand) => {
+      if (subcommand === 'extension-with-helm') throw new Error('kubeconform unavailable');
+      return JSON.stringify(API_RANGE);
+    },
+  });
+  assert.equal(await updateExtensions(extensions, output, { ...options, ...deps }), 0);
+  const result = parse(await readFile(join(output, 'example.yaml'), 'utf8'));
+  assert.deepEqual(result.apiCompatibility, { v2: { gardener: API_RANGE } });
+  assert.deepEqual(result.compatibility, { v2: compatibility() });
+  assert.equal(warn.mock.callCount(), 1);
+});
+
 test('rejects non-mapping and duplicate-key YAML and preserves quoted versions', () => {
   for (const text of ['null', '- item', 'name: first\nname: second\n']) {
     assert.throws(() => loadMapping(text, 'test.yaml'));
@@ -618,6 +695,7 @@ test('changing repository or registry resets compatibility history', async () =>
     assert.equal(result.addedAt, ADDED_AT);
     assert.deepEqual(deps.pullManifest.mock.calls[0].arguments, [registration.manifestRegistry, 'v1']);
     assert.deepEqual(Object.keys(result.compatibility), ['v1']);
+    assert.deepEqual(Object.keys(result.apiCompatibility), ['v1']);
   }
 });
 
@@ -632,8 +710,12 @@ test('refetches a cached release if it becomes the newest published release', as
 
 test('updates repository information even without published releases', async () => {
   const deps = dependencies([]);
-  assert.deepEqual(await aggregate(REGISTRATION, previousManifest(), deps), previousManifest());
-  assert.deepEqual(await aggregate(REGISTRATION, {}, deps), { ...REGISTRATION, addedAt: ADDED_AT, github: GITHUB, compatibility: {} });
+  assert.deepEqual(await aggregate(REGISTRATION, previousManifest(), deps), {
+    ...previousManifest(), apiCompatibility: { latest: { gardener: API_RANGE }, v1: API_CHECKS },
+  });
+  assert.deepEqual(await aggregate(REGISTRATION, {}, deps), {
+    ...REGISTRATION, addedAt: ADDED_AT, github: GITHUB, compatibility: {}, apiCompatibility: { latest: { gardener: API_RANGE } },
+  });
   assert.equal(deps.pullManifest.mock.callCount(), 0);
   assert.equal(deps.pullHelmValues.mock.callCount(), 0);
 });
@@ -659,6 +741,7 @@ test('aggregates releases without a registry and skips all OCI and Helm requests
       ...(releases.length ? { version: 'v2' } : {}),
       github: GITHUB,
       compatibility: Object.fromEntries(releases.map((release) => [release.tag_name, {}])),
+      apiCompatibility: { [releases.length ? 'v2' : 'latest']: { gardener: API_RANGE } },
     });
     assert.deepEqual(await aggregate(registration, result, deps), result);
     for (const method of ['listArtifactTags', 'pullManifest', 'pullHelmValues', 'pullCompatibility']) {

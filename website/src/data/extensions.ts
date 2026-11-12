@@ -18,6 +18,19 @@ export interface CompatibilityInfo {
   testedWith?: Record<string, unknown>;
 }
 
+export interface ApiCompatibilityRange {
+  version: string;
+  from: string;
+  to: string;
+  breaking_on_lower: string[] | null;
+  breaking_on_higher: string[] | null;
+}
+
+export interface ApiCompatibilityInfo {
+  gardener?: ApiCompatibilityRange;
+  kubernetes?: ApiCompatibilityRange;
+}
+
 export interface ExtensionArtifact {
   type: 'helm-chart';
   deployment: 'extension' | 'admission-runtime' | 'admission-virtual';
@@ -68,6 +81,7 @@ export interface Extension {
   images: ExtensionImage[];
   github?: GitHubInfo;
   compatibility?: Record<string, CompatibilityInfo>;
+  apiCompatibility?: Record<string, ApiCompatibilityInfo>;
 }
 
 interface RegistryEntry {
@@ -82,6 +96,7 @@ interface RegistryEntry {
   extension?: ExtensionManifest;
   github?: GitHubInfo;
   compatibility?: Record<string, CompatibilityInfo>;
+  apiCompatibility?: Record<string, ApiCompatibilityInfo>;
 }
 
 export const DEFAULT_EXTENSIONS_URL = 'https://raw.githubusercontent.com/matthias-horne/extension-hub/pages/extensions/';
@@ -175,6 +190,7 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
     ]),
     github: entry.github,
     compatibility: entry.compatibility,
+    apiCompatibility: entry.apiCompatibility,
   };
 }
 

@@ -9,6 +9,7 @@ on:
     paths:
       - extensions/**
       - tools/update-extensions/**
+      - tools/api-compatibility-indicator/**
       - .github/workflows/update-extensions.yaml
 
 permissions:
@@ -21,7 +22,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 120
     permissions:
       contents: write
     concurrency:
@@ -50,6 +51,35 @@ jobs:
         working-directory: hub/tools/update-extensions
         run: npm test
 
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: hub/tools/api-compatibility-indicator/go.mod
+          cache: false
+
+      # Checks download extension modules and many Gardener API versions at runtime.
+      # Save a new cache after every run so these downloads survive even failed updates.
+      - name: Restore Go dependencies and build cache
+        id: go-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-${{ runner.arch }}-extension-api-go-${{ hashFiles('hub/tools/api-compatibility-indicator/go.sum') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-extension-api-go-${{ hashFiles('hub/tools/api-compatibility-indicator/go.sum') }}-
+            ${{ runner.os }}-${{ runner.arch }}-extension-api-go-
+
+      - name: Build API compatibility indicator
+        working-directory: hub/tools/api-compatibility-indicator
+        run: |
+          go test ./...
+          go build -o "$RUNNER_TEMP/api-compatibility-indicator" .
+
+      - name: Install kubeconform for Helm API checks
+        run: go install github.com/yannh/kubeconform/cmd/kubeconform@v0.7.0
+
       - name: Set up ORAS
         uses: oras-project/setup-oras@v1
         with:
@@ -70,7 +100,10 @@ jobs:
         id: update
         env:
           GH_TOKEN: ${{ github.token }}
-        run: node hub/tools/update-extensions/update-extensions.js --extensions-dir hub/extensions --output-dir pages/extensions
+        run: >-
+          node hub/tools/update-extensions/update-extensions.js
+          --extensions-dir hub/extensions --output-dir pages/extensions
+          --api-compatibility-indicator "$RUNNER_TEMP/api-compatibility-indicator"
 
       # Publish successful extensions even if another extension could not update.
       # The update step still fails the job so missing artifacts remain visible.
@@ -87,3 +120,12 @@ jobs:
             git commit -m 'Update aggregated extension manifests'
             git push origin HEAD:pages
           fi
+
+      - name: Save Go dependencies and build cache
+        if: ${{ always() && steps.go-cache.outputs.cache-primary-key != '' }}
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ steps.go-cache.outputs.cache-primary-key }}

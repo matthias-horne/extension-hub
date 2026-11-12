@@ -330,6 +330,14 @@
 .compatibility-features { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .compatibility-value, .compatibility-features li { max-width: 100%; padding: 4px 10px; border-radius: 5px; background: var(--brand-soft); color: var(--brand); font-size: 12px; line-height: 20px; overflow-wrap: anywhere; }
 .compatibility-value { display: inline-flex; align-items: center; }
+.content-section + .api-compatibility { margin-top: 20px; }
+.api-compatibility .section-title { margin-bottom: 8px; font-size: 14px; line-height: 22px; }
+.api-compatibility .compatibility-values > div { padding: 8px 0; }
+.api-compatibility-reference { display: block; margin-top: 4px; color: var(--text-muted); font-size: 11px; line-height: 18px; }
+.api-compatibility-disclaimer { margin: 10px 0 0; color: var(--text-muted); font-size: 12px; line-height: 20px; }
+.api-compatibility-changes { margin-top: 10px; color: var(--text-muted); font-size: 12px; line-height: 20px; overflow-wrap: anywhere; }
+.api-compatibility-changes summary { cursor: pointer; }
+.api-compatibility-changes ul { margin: 8px 0 0; padding-left: 20px; }
 
 /* Community discussion below the compatibility information. */
 .extension-discussion { padding: 28px 32px 32px; border-top: 1px solid var(--line); }

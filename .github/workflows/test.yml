@@ -30,6 +30,12 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: tools/api-compatibility-indicator/go.mod
+          cache-dependency-path: tools/api-compatibility-indicator/go.sum
+
       - name: Install updater dependencies
         run: npm ci
         working-directory: tools/update-extensions
@@ -40,3 +46,7 @@ jobs:
 
       - name: Run tests
         run: bun test
+
+      - name: Test API compatibility indicator
+        working-directory: tools/api-compatibility-indicator
+        run: go test ./...
