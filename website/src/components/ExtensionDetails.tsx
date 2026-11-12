@@ -8,7 +8,6 @@ import { Icon } from './Icon';
 import { ExtensionIcon } from './ExtensionIcon';
 import { ExtensionCompatibility } from './ExtensionCompatibility';
 import { ExtensionArtifacts } from './ExtensionArtifacts';
-import { HighlightedCode } from './HighlightedCode';
 import { MissingInformation } from './MissingInformation';
 
 const dateFormatter = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -152,12 +151,6 @@ export default function ExtensionDetails({ extension, onCategory }: {
                   a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
                   img: ({ node: _node, ...props }) => <img {...props} loading="lazy" />,
                   table: ({ node: _node, ...props }) => <div className="readme-table"><table {...props} /></div>,
-                  code: ({ node: _node, className, children, ...props }) => {
-                    const language = /language-([\w-]+)/.exec(className ?? '')?.[1];
-                    return language
-                      ? <HighlightedCode code={String(children).replace(/\n$/, '')} language={language} className={className} {...props} />
-                      : <code className={className} {...props}>{children}</code>;
-                  },
                 }}>{readme.markdown}</Markdown>
               </div>
             ) : (
@@ -191,7 +184,7 @@ export default function ExtensionDetails({ extension, onCategory }: {
                   <span className="sr-only" role="status">{copyStatus === 'copied' ? 'YAML copied to clipboard.' : ''}</span>
                   <div className="manifest-code-window">
                     <button className="button button-small button-icon" onClick={copyManifest} aria-label="Copy YAML to clipboard" title="Copy to clipboard"><Icon name={copyStatus === 'copied' ? 'check' : 'copy'} /></button>
-                    <pre className="manifest-code" id="manifest-preview" tabIndex={0} aria-label={extension.title + ' YAML definition'}><HighlightedCode code={showValues ? extension.manifest : manifestWithoutValues ?? extension.manifest} language="yaml" /></pre>
+                    <pre className="manifest-code" id="manifest-preview" tabIndex={0} aria-label={extension.title + ' YAML definition'}><code>{showValues ? extension.manifest : manifestWithoutValues}</code></pre>
                   </div>
                 </>
               ) : (
