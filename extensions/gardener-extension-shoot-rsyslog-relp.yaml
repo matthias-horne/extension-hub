@@ -3,3 +3,4 @@ description: "Forward logs from Gardener shoot clusters using rsyslog and RELP."
 tags:
   - Observability
 repository: https://github.com/gardener/gardener-extension-shoot-rsyslog-relp
+icon: https://avatars.githubusercontent.com/u/6178456?s=200&v=4

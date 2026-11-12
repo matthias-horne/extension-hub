@@ -3,3 +3,4 @@ description: "Cache container images close to workloads in Gardener shoot cluste
 tags:
   - Images
 repository: https://github.com/gardener/gardener-extension-registry-cache
+icon: https://avatars.githubusercontent.com/u/78096003?s=200&v=4
