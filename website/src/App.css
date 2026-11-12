@@ -150,7 +150,7 @@
 .code-block { min-width: 0; }
 .code-block-window { position: relative; border: 1px solid var(--line); border-radius: 8px; background: var(--page-bg); }
 .code-block .code-block-copy { position: absolute; top: 8px; right: 8px; z-index: 1; }
-.code-block .code-block-pre { margin: 0 48px 0 0; padding: 16px 18px; overflow-x: auto; border-radius: 8px; color: var(--text); font-family: var(--font-mono); font-size: 12px; line-height: 22px; tab-size: 2; }
+.code-block .code-block-pre { margin: 0 48px 0 0; padding: 16px 18px; overflow-x: auto; border: none; border-radius: 8px; color: var(--text); font-family: var(--font-mono); font-size: 12px; line-height: 22px; tab-size: 2; }
 .code-block .code-block-pre:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .code-block .code-block-pre code { display: block; width: max-content; min-width: 100%; padding: 0; border-radius: 0; background: transparent; color: inherit; font: inherit; }
 .code-block-status { margin: 8px 0 0; color: var(--text-muted); font-size: 12px; }
