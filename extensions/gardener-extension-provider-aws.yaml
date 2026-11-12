@@ -4,6 +4,7 @@ tags:
   - Infrastructure
   - DNS
 repository: https://github.com/gardener/gardener-extension-provider-aws
+icon: https://gardener.cloud/lp/platforms/aws-dark.svg
 addedAt: 2026-11-12T14:49:09.707Z
 version: v1.76.2
 github:
