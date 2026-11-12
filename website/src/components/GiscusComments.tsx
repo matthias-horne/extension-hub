@@ -64,7 +64,8 @@ export function GiscusComments({ term }: { term: string }) {
   return (
     <div className="extension-discussion" role="region" aria-labelledby={headingId}>
       <h2 className="section-title" id={headingId}>Add compatibility feedback for this extension</h2>
-      <p className="panel-description">Have you encountered a compatibility problem? Ask the community below. If you want to contact the extension's maintainers raise an issue in the corresponding repository.</p>
+      <p className="panel-description">Have you encountered a compatibility problem? Ask the community below. </p>
+      <p className="panel-description">When you want to contact the extension's maintainers directly raise an issue in the corresponding repository.</p>
       <div ref={container} className="giscus-comments" />
     </div>
   );
