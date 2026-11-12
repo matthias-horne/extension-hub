@@ -43,7 +43,7 @@ from the registered repository owner. Failed image loads advance through the
 remaining sources, stopping at the Gardener logo. Images fit within the existing
 icon dimensions without cropping.
 
-GitHub metadata and README content are cached by the updater. If metadata is missing, stars show an unavailable marker and the repository owner and avatar use the registered GitHub URL. The YAML viewer and download use only the aggregate's optional `extension` resource. Unavailable documentation, manifests, artifacts, and compatibility information show prominent yellow notices in their respective tabs. Manifest preview and download controls are unavailable when there is no Extension resource.
+GitHub metadata and README content are cached by the updater. If metadata is missing, stars show an unavailable marker and the repository owner and avatar use the registered GitHub URL. The YAML viewer and download use only the aggregate's optional `extension` resource. Unavailable documentation, manifests, and compatibility information show prominent yellow notices in their respective tabs. Manifest and compatibility notices link maintainers to the [contribution guide](https://github.com/matthias-horne/extension-hub#how-to-contribute-my-extension-as-a-maintainer); compatibility notices apply to the selected version, including releases with empty compatibility data. Missing artifacts show explanatory messages. Manifest preview and download controls are unavailable when there is no Extension resource.
 
 Extensions without a manifest registry are shown by default. To hide them, set the build-time environment variable to the literal string `false`:
 

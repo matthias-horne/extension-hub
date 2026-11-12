@@ -18,11 +18,12 @@ tags:
   - Example
 repository: https://github.com/matthias-horne/gardener-extension-example
 manifestRegistry: ghcr.io/matthias-horne/manifests/gardener-extension-example
+icon: https://example.com/my-extension-icon.svg # Optional; use an absolute HTTP(S) URL
 ```
 
 The catalog includes all known implementations from the [Gardener Extensions Library](https://github.com/gardener/gardener/blob/master/extensions/README.md). Repositories listed in multiple sections have one registration with all applicable tags. Tags use the approved categories: Infrastructure, DNS, OS, Runtime, Network, Security, Observability, Images, Storage, GitOps, and Example. Shared capability tags generally apply to at least three extensions; Storage and GitOps are approved exceptions.
 
-`manifestRegistry` is optional. Extensions without a registry are listed with repository information and release versions; unavailable manifests, artifacts, documentation, and compatibility information show yellow notices. The hub offers an `extension.yaml` download only when an Extension resource is available.
+`manifestRegistry` is optional. Extensions without a registry are listed with repository information and release versions. The hub offers an `extension.yaml` download only when an Extension resource is available.
 
 To choose an extension icon, add an optional `icon` URL to its registration:
 

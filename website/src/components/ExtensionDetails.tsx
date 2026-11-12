@@ -188,9 +188,9 @@ export default function ExtensionDetails({ extension, onCategory }: {
                   </div>
                 </>
               ) : (
-                <p className="panel-description">
+                <MissingInformation title="Extension manifest unavailable" maintainerGuidance>
                   No extension.yaml is available for this extension. Visit the repository for installation instructions.
-                </p>
+                </MissingInformation>
               )}
             </div>
           </section>

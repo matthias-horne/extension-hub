@@ -148,7 +148,7 @@
 .metadata-table dd { min-width: 0; margin: 0; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .metadata-table dd a:hover { text-decoration: underline; }
 .repository-metadata { margin-top: 24px; }
-.metadata-stars span { display: inline-flex; align-items: center; gap: 6px; color: var(--brand); }
+.metadata-stars span { display: inline-flex; align-items: center; gap: 6px; }
 .metadata-stars svg { width: 13px; height: 13px; }
 .metadata-note { margin: 10px 0 0; color: var(--text-subtle); font-size: 12px; line-height: 20px; }
 .details-categories { margin-top: 26px; }
@@ -213,6 +213,9 @@
 .information-warning > svg { width: 24px; height: 24px; flex-shrink: 0; }
 .information-warning h2 { margin: 0 0 8px; color: inherit; font-size: 16px; line-height: 24px; font-weight: 600; }
 .information-warning p { margin: 0; color: inherit; font-size: 14px; line-height: 24px; }
+.information-warning p + p { margin-top: 8px; }
+.information-warning a { text-decoration: underline; text-underline-offset: 3px; }
+.information-warning a:hover { text-decoration-thickness: 2px; }
 .information-warning:last-child { margin-bottom: 0; }
 .dark .information-warning { background: #3b300e; color: #fde68a; }
 
