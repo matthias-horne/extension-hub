@@ -238,7 +238,7 @@ function App() {
 
       <footer className="site-footer content-width">
         <span>Gardener Extensions Hub</span>
-        <a href={REPOSITORY_URL + '/issues/new'}>Contribute an extension <Icon name="arrow" /></a>
+        <a href={REPOSITORY_URL + '/issues/new?template=1-Register.yml'}>Contribute an extension <Icon name="arrow" /></a>
       </footer>
 
     </div>
