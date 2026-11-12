@@ -173,7 +173,6 @@ export default function ExtensionDetails({ extension, onCategory }: {
                   <span className="manifest-values-switch" aria-hidden="true" />
                   Show values
                 </label>
-                <button className="copy-manifest" onClick={copyManifest} aria-label="Copy YAML to clipboard" title="Copy to clipboard"><Icon name={copyStatus === 'copied' ? 'check' : 'copy'} /></button>
               </div>}
             </div>
             <div className="details-manifest">
@@ -183,7 +182,10 @@ export default function ExtensionDetails({ extension, onCategory }: {
                   {!showValues && hasValues && <p>Helm values are hidden in this preview. Copying or downloading includes all values.</p>}
                   {copyStatus === 'unavailable' && <p role="status">Copy is unavailable. Select the YAML below or download the file.</p>}
                   <span className="sr-only" role="status">{copyStatus === 'copied' ? 'YAML copied to clipboard.' : ''}</span>
-                  <pre className="manifest-code" id="manifest-preview" tabIndex={0} aria-label={extension.title + ' YAML definition'}><code>{showValues ? extension.manifest : manifestWithoutValues}</code></pre>
+                  <div className="manifest-code-window">
+                    <button className="copy-manifest" onClick={copyManifest} aria-label="Copy YAML to clipboard" title="Copy to clipboard"><Icon name={copyStatus === 'copied' ? 'check' : 'copy'} /></button>
+                    <pre className="manifest-code" id="manifest-preview" tabIndex={0} aria-label={extension.title + ' YAML definition'}><code>{showValues ? extension.manifest : manifestWithoutValues}</code></pre>
+                  </div>
                 </>
               ) : (
                 <p>

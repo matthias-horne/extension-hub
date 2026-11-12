@@ -208,7 +208,9 @@
 .manifest-values-toggle input:checked + .manifest-values-switch::after { transform: translateX(12px); background: var(--on-brand); }
 .manifest-values-toggle input:focus-visible + .manifest-values-switch { outline: 2px solid var(--brand); outline-offset: 3px; }
 .manifest-values-toggle:has(input:disabled) { opacity: .5; cursor: default; }
-.details-manifest .manifest-code { max-height: none; background: var(--page-bg); }
+.manifest-code-window { position: relative; }
+.manifest-code-window .copy-manifest { position: absolute; top: 12px; right: 12px; z-index: 1; }
+.details-manifest .manifest-code { max-height: none; padding-top: 56px; background: var(--page-bg); }
 .artifact-registry { margin-bottom: 28px; }
 .artifact-registry h2, .artifact-section > h2 { margin: 0 0 12px; font-size: 16px; line-height: 24px; font-weight: 500; }
 .artifact-section + .artifact-section { margin-top: 28px; }
