@@ -22,6 +22,7 @@
   "gardener-extension-provider-azure.yaml",
   "gardener-extension-provider-dns-cloudflare.yaml",
   "gardener-extension-provider-gcp.yaml",
+  "gardener-extension-provider-gdc.yaml",
   "gardener-extension-provider-hcloud.yaml",
   "gardener-extension-provider-ironcore-metal.yaml",
   "gardener-extension-provider-ironcore.yaml",
