@@ -186,7 +186,13 @@ github:
     htmlUrl: https://github.com/stackitcloud/gardener-extension-acl/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/stackitcloud/gardener-extension-acl/main/README.md
 apiCompatibility:
-  v1.21.0: {}
+  v1.21.0:
+    gardener:
+      version: 1.154.0
+      from: 1.137.7
+      to: 1.154.5
+      breaking_on_lower: null
+      breaking_on_higher: null
 compatibility:
   v1.21.0: {}
   v1.20.0: {}
