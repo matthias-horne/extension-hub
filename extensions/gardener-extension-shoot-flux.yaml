@@ -1,0 +1,5 @@
+name: "Shoot Flux Service"
+description: "Manage Gardener shoot cluster workloads through GitOps with Flux."
+tags:
+  - GitOps
+repository: https://github.com/stackitcloud/gardener-extension-shoot-flux

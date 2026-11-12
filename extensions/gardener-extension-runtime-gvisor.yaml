@@ -1,0 +1,6 @@
+name: "gVisor"
+description: "Run sandboxed workloads with the gVisor container runtime in Gardener clusters."
+tags:
+  - Runtime
+  - Security
+repository: https://github.com/gardener/gardener-extension-runtime-gvisor

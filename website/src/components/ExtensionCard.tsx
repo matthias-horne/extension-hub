@@ -61,12 +61,12 @@ export function ExtensionCard({ extension, onSelect }: ExtensionCardProps) {
         {extension.tags.map((tag) => <span className="extension-tag" key={tag}>{tag}</span>)}
       </div>
       <div className="card-actions">
-        <button className="manifest-button" onClick={() => onSelect(extension)} aria-label={'Show extension.yaml for ' + extension.title}>
+        <button className="manifest-button" disabled={!extension.manifest} title={extension.manifest ? 'Show extension.yaml' : 'No extension.yaml has been published'} onClick={() => onSelect(extension)} aria-label={'Show extension.yaml for ' + extension.title}>
           <Icon name="file" />extension.yaml
         </button>
-        <a className="card-action-link" href={extension.manifestUrl} download="extension.yaml" aria-label={'Download extension.yaml for ' + extension.title} title="Download extension.yaml">
+        {extension.manifestUrl && <a className="card-action-link" href={extension.manifestUrl} download="extension.yaml" aria-label={'Download extension.yaml for ' + extension.title} title="Download extension.yaml">
           <Icon name="download" />
-        </a>
+        </a>}
         <a className="card-action-link" href={extension.repository} target="_blank" rel="noopener noreferrer" aria-label={'View ' + extension.title + ' on GitHub'} title="View repository on GitHub">
           <Icon name="github" />
         </a>

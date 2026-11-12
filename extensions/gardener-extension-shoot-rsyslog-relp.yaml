@@ -1,0 +1,5 @@
+name: "Shoot Rsyslog Relp"
+description: "Forward logs from Gardener shoot clusters using rsyslog and RELP."
+tags:
+  - Observability
+repository: https://github.com/gardener/gardener-extension-shoot-rsyslog-relp

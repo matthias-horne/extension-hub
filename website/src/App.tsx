@@ -9,6 +9,20 @@ import { Icon } from './components/Icon';
 import './App.css';
 
 const REPOSITORY_URL = 'https://github.com/matthias-horne/extension-hub';
+const TAG_DESCRIPTIONS: Record<string, string> = {
+  All: 'All extensions',
+  Infrastructure: 'Infrastructure providers',
+  DNS: 'DNS providers and services',
+  OS: 'Operating systems',
+  Runtime: 'Container runtimes',
+  Network: 'Networking, ingress, and traffic routing',
+  Security: 'Authentication, certificates, and protection',
+  Observability: 'Auditing, logging, and diagnostics',
+  Images: 'Image rewriting, caching, and verification',
+  Storage: 'Persistent volumes and backups',
+  GitOps: 'Workload management with Flux',
+  Example: 'Demonstration extensions',
+};
 const ExtensionDetails = lazy(() => import('./components/ExtensionDetails'));
 
 function App() {
@@ -188,6 +202,8 @@ function App() {
                   key={item}
                   className="category-filter"
                   aria-label={item}
+                  title={TAG_DESCRIPTIONS[item]}
+                  aria-description={TAG_DESCRIPTIONS[item]}
                   aria-pressed={category === item}
                   onClick={() => setCategory(item)}
                 >
@@ -235,7 +251,7 @@ function App() {
       </footer>
 
       <dialog ref={detailDialog} className="manifest-dialog" aria-labelledby="manifest-title" onClose={() => setSelectedExtension(null)}>
-        {selectedExtension && (
+        {selectedExtension?.manifest && (
           <>
             <div className="dialog-heading">
               <div>

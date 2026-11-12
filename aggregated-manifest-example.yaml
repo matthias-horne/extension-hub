@@ -3,7 +3,7 @@ version: v0.0.3
 addedAt: '2026-11-11T10:46:44.000Z'
 description: A minimal Gardener extension example that does nothing
 tags:
-  - example
+  - Example
 repository: https://github.com/matthias-horne/gardener-extension-example
 manifestRegistry: ghcr.io/matthias-horne/extensions/gardener-extension-example
 extension:

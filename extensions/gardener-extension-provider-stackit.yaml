@@ -1,0 +1,5 @@
+name: "STACKIT"
+description: "Provision and manage Gardener clusters on STACKIT infrastructure."
+tags:
+  - Infrastructure
+repository: https://github.com/stackitcloud/gardener-extension-provider-stackit

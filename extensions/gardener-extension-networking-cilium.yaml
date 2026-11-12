@@ -1,0 +1,5 @@
+name: "Cilium"
+description: "Provide cluster networking and network policies with Cilium."
+tags:
+  - Network
+repository: https://github.com/gardener/gardener-extension-networking-cilium

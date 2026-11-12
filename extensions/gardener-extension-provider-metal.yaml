@@ -1,0 +1,5 @@
+name: "metal-stack"
+description: "Provision and manage Gardener clusters on bare metal using metal-stack."
+tags:
+  - Infrastructure
+repository: https://github.com/metal-stack/gardener-extension-provider-metal

@@ -6,7 +6,8 @@ body:
       value: |
         Please describe what your extension does and provide some references to your project.
 
-        To register your extension at the hub, you must provide a manifest artifact.
+        A manifest registry is optional. Provide one to publish an extension.yaml
+        and compatibility information in the hub.
         Please read the description of this project's README.md to learn more about it.
 
         Your pull request should contain the following template:
@@ -17,7 +18,8 @@ body:
         tags:
           - ...
         repository:
-        manifestRegistry:
+        # Optional OCI repository containing Extension artifacts:
+        # manifestRegistry: ghcr.io/owner/extensions/name
         ```
 
   - type: textarea

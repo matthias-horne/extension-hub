@@ -1,0 +1,5 @@
+name: "OIDC Apps Controller"
+description: "Manage OpenID Connect applications and authentication integration."
+tags:
+  - Security
+repository: https://github.com/gardener/oidc-apps-controller

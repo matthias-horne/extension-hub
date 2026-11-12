@@ -1,0 +1,6 @@
+name: "Alibaba Cloud"
+description: "Provision and manage Gardener clusters and DNS records on Alibaba Cloud."
+tags:
+  - Infrastructure
+  - DNS
+repository: https://github.com/gardener/gardener-extension-provider-alicloud

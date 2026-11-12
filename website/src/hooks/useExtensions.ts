@@ -14,6 +14,7 @@ export function useExtensions() {
     const controller = new AbortController();
     loadExtensions(import.meta.env.VITE_EXTENSIONS_URL, {
       signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]), siteBase: import.meta.env.BASE_URL,
+      showWithoutRegistry: import.meta.env.VITE_SHOW_EXTENSIONS_WITHOUT_REGISTRY !== 'false',
     }).then((extensions) => {
       if (!controller.signal.aborted) setState({ status: 'ready', extensions });
     }).catch(() => {

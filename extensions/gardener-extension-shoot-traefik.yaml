@@ -1,0 +1,5 @@
+name: "Shoot Traefik"
+description: "Provide ingress traffic routing with Traefik in Gardener shoot clusters."
+tags:
+  - Network
+repository: https://github.com/gardener/gardener-extension-shoot-traefik

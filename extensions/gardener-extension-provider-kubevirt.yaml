@@ -1,0 +1,5 @@
+name: "KubeVirt"
+description: "Provision and manage Gardener clusters on virtual machines using KubeVirt."
+tags:
+  - Infrastructure
+repository: https://github.com/gardener/gardener-extension-provider-kubevirt

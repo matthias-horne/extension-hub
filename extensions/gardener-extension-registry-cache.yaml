@@ -1,0 +1,5 @@
+name: "Registry Cache"
+description: "Cache container images close to workloads in Gardener shoot clusters."
+tags:
+  - Images
+repository: https://github.com/gardener/gardener-extension-registry-cache

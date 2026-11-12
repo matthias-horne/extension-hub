@@ -1,0 +1,5 @@
+name: "Shoot OpenID Connect Service"
+description: "Manage OpenID Connect authentication in Gardener shoot clusters."
+tags:
+  - Security
+repository: https://github.com/gardener/gardener-extension-shoot-oidc-service
