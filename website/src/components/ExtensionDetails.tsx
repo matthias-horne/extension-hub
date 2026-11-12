@@ -186,9 +186,9 @@ export default function ExtensionDetails({ extension, onCategory }: {
                   <pre className="manifest-code" id="manifest-preview" tabIndex={0} aria-label={extension.title + ' YAML definition'}><code>{showValues ? extension.manifest : manifestWithoutValues}</code></pre>
                 </>
               ) : (
-                <MissingInformation title="Extension manifest unavailable">
+                <p>
                   No extension.yaml is available for this extension. Visit the repository for installation instructions.
-                </MissingInformation>
+                </p>
               )}
             </div>
           </section>

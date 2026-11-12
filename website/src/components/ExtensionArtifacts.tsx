@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import type { ExtensionArtifact } from '../data/extensions';
 import type { ExtensionImage } from '../data/images';
 import { Icon } from './Icon';
-import { MissingInformation } from './MissingInformation';
 
 const deploymentLabels = {
   extension: 'Extension',
@@ -55,46 +54,66 @@ function ArtifactCard({ label, reference, type }: { label: string; reference: st
 }
 
 export function ExtensionArtifacts({ artifacts, images = [], manifestRegistry }: { artifacts: ExtensionArtifact[]; images?: ExtensionImage[]; manifestRegistry?: string }) {
+  const [registryCopyStatus, setRegistryCopyStatus] = useState<'idle' | 'copied' | 'unavailable'>('idle');
+
+  useEffect(() => {
+    if (registryCopyStatus !== 'copied') return;
+    const timer = setTimeout(() => setRegistryCopyStatus('idle'), 2000);
+    return () => clearTimeout(timer);
+  }, [registryCopyStatus]);
+
+  async function copyRegistry() {
+    if (!manifestRegistry) return;
+    try {
+      await navigator.clipboard.writeText(manifestRegistry);
+      setRegistryCopyStatus('copied');
+    } catch {
+      setRegistryCopyStatus('unavailable');
+    }
+  }
+
   return (
     <>
       <div className="details-panel-heading">
         <span><Icon name="package" />Extension artifacts</span>
       </div>
       <div className="details-artifacts">
-        {!manifestRegistry && artifacts.length === 0 && images.length === 0 ? (
-          <MissingInformation title="Artifact information unavailable">
-            No manifest registry, Helm charts, or container images are available for this extension. Visit the repository for deployment artifacts.
-          </MissingInformation>
-        ) : (
-          <>
-            {manifestRegistry && <section className="artifact-registry">
-              <h2>Manifest registry</h2>
+        {manifestRegistry && <section className="artifact-registry">
+          <h2>Manifest registry</h2>
+          <div className="artifact-card">
+            <div className="artifact-reference">
               <code>{manifestRegistry}</code>
-            </section>}
-            <section className="artifact-section">
-              <h2>Helm charts ({artifacts.length})</h2>
-              {artifacts.length > 0 ? (
-                <>
-                  <p>Helm charts referenced in this extension.yaml.</p>
-                  <ul className="artifact-list">
-                    {artifacts.map((artifact) => <ArtifactCard key={artifact.deployment} label={deploymentLabels[artifact.deployment]} reference={artifact.reference} type="Helm chart" />)}
-                  </ul>
-                </>
-              ) : <p>No Helm charts are referenced in this extension.yaml.</p>}
-            </section>
-            <section className="artifact-section">
-              <h2>Container images ({images.length})</h2>
-              {images.length > 0 ? (
-                <>
-                  <p>Container images configured in this extension’s Helm values.</p>
-                  <ul className="artifact-list">
-                    {images.map((image) => <ArtifactCard key={image.reference} label={image.deployments.map((deployment) => imageDeploymentLabels[deployment]).join(', ')} reference={image.reference} type="Container image" />)}
-                  </ul>
-                </>
-              ) : <p>No container images are configured in this extension’s Helm values.</p>}
-            </section>
-          </>
-        )}
+              <button className="copy-manifest" onClick={copyRegistry} aria-label="Copy manifest registry">
+                <Icon name={registryCopyStatus === 'copied' ? 'check' : 'copy'} />{registryCopyStatus === 'copied' ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+            <p className={registryCopyStatus === 'unavailable' ? 'artifact-copy-status' : 'sr-only'} role="status">
+              {registryCopyStatus === 'copied' ? 'Manifest registry copied to clipboard.' : registryCopyStatus === 'unavailable' ? 'Copy is unavailable. Select the registry above.' : ''}
+            </p>
+          </div>
+        </section>}
+        <section className="artifact-section">
+          <h2>Helm charts ({artifacts.length})</h2>
+          {artifacts.length > 0 ? (
+            <>
+              <p>Helm charts referenced in this extension.yaml.</p>
+              <ul className="artifact-list">
+                {artifacts.map((artifact) => <ArtifactCard key={artifact.deployment} label={deploymentLabels[artifact.deployment]} reference={artifact.reference} type="Helm chart" />)}
+              </ul>
+            </>
+          ) : <p>No Helm charts are referenced in this extension.yaml.</p>}
+        </section>
+        <section className="artifact-section">
+          <h2>Container images ({images.length})</h2>
+          {images.length > 0 ? (
+            <>
+              <p>Container images configured in this extension’s Helm values.</p>
+              <ul className="artifact-list">
+                {images.map((image) => <ArtifactCard key={image.reference} label={image.deployments.map((deployment) => imageDeploymentLabels[deployment]).join(', ')} reference={image.reference} type="Container image" />)}
+              </ul>
+            </>
+          ) : <p>No container images are configured in this extension’s Helm values.</p>}
+        </section>
       </div>
     </>
   );

@@ -78,9 +78,9 @@ describe('extension artifacts', () => {
       expect(extensionWithDeployment({ extension: { helm: { ociRepository } } }).artifacts).toEqual([]);
     }
     const markup = renderToStaticMarkup(<ExtensionArtifacts artifacts={[]} />);
-    expect(markup).toContain('information-warning');
-    expect(markup).toContain('Artifact information unavailable');
-    expect(markup).toContain('No manifest registry, Helm charts, or container images are available');
+    expect(markup).not.toContain('information-warning');
+    expect(markup).toContain('No Helm charts are referenced in this extension.yaml.');
+    expect(markup).toContain('No container images are configured in this extension’s Helm values.');
     expect(markup).not.toContain('artifact-card');
   });
 
