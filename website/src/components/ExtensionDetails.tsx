@@ -102,7 +102,7 @@ export default function ExtensionDetails({ extension, onCategory }: {
             <a className="button-secondary" href={extension.repository} target="_blank" rel="noopener noreferrer"><Icon name="github" />View source</a>
           </div>
 
-          <dl className="repository-metadata">
+          <dl className="metadata-table repository-metadata">
             <div><dt>Latest version</dt><dd>{extension.version ? <a href={extension.repository + '/releases/tag/' + encodeURIComponent(extension.version)} target="_blank" rel="noopener noreferrer">{extension.version}</a> : metadataPlaceholder}</dd></div>
             <div><dt>Stars</dt><dd className="metadata-stars"><a href={extension.repository + '/stargazers'} target="_blank" rel="noopener noreferrer"><Icon name="star" />{github ? github.stars.toLocaleString('en') : metadataPlaceholder}</a></dd></div>
             <div><dt>Last commit</dt><dd>{formatDate(github?.lastCommit)}</dd></div>
@@ -173,7 +173,7 @@ export default function ExtensionDetails({ extension, onCategory }: {
                   <span className="manifest-values-switch" aria-hidden="true" />
                   Show values
                 </label>
-                <button className="copy-manifest" onClick={copyManifest}><Icon name={copyStatus === 'copied' ? 'check' : 'copy'} />{copyStatus === 'copied' ? 'Copied' : 'Copy YAML'}</button>
+                <button className="copy-manifest" onClick={copyManifest} aria-label="Copy YAML to clipboard" title="Copy to clipboard"><Icon name={copyStatus === 'copied' ? 'check' : 'copy'} /></button>
               </div>}
             </div>
             <div className="details-manifest">

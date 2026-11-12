@@ -92,7 +92,7 @@
 .button-primary svg, .button-secondary svg, .card-action-link svg, .copy-manifest svg { width: 16px; height: 16px; }
 .card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 .card-action-link, .copy-manifest { min-height: 32px; padding: 5px 10px; flex-shrink: 0; font-size: 12px; }
-.copy-manifest { border-color: transparent; }
+.copy-manifest, .artifact-registry-link { width: 32px; padding: 0; border-color: transparent; }
 .empty-state { display: flex; flex-direction: column; align-items: center; padding: 56px 20px; border: 1px dashed var(--line); border-radius: 12px; color: var(--text-muted); text-align: center; }
 .empty-state > svg { width: 28px; height: 28px; margin-bottom: 18px; }
 .empty-state h1, .empty-state h2 { margin: 0; color: var(--text); font-size: 18px; line-height: 26px; font-weight: 600; }
@@ -125,12 +125,13 @@
 .details-description { margin: 22px 0; color: var(--text-muted); font-size: 14px; line-height: 24px; overflow-wrap: anywhere; }
 .details-actions { display: flex; flex-direction: column; gap: 8px; }
 .details-actions .button-primary, .details-actions .button-secondary { min-height: 42px; margin: 0; padding: 10px 12px; }
-.repository-metadata { margin: 24px 0 0; overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: var(--card-bg); }
-.repository-metadata > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 14px; font-size: 12px; line-height: 18px; }
-.repository-metadata > div + div { border-top: 1px solid var(--line); }
-.repository-metadata dt { flex-shrink: 0; color: var(--text-muted); }
-.repository-metadata dd { min-width: 0; margin: 0; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.repository-metadata dd a:hover { text-decoration: underline; }
+.metadata-table { margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: var(--card-bg); }
+.metadata-table > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 14px; font-size: 12px; line-height: 18px; }
+.metadata-table > div + div { border-top: 1px solid var(--line); }
+.metadata-table dt { flex-shrink: 0; color: var(--text-muted); }
+.metadata-table dd { min-width: 0; margin: 0; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.metadata-table dd a:hover { text-decoration: underline; }
+.repository-metadata { margin-top: 24px; }
 .metadata-stars a { display: inline-flex; align-items: center; gap: 6px; color: var(--brand); }
 .metadata-stars svg { width: 13px; height: 13px; }
 .metadata-note { margin: 10px 0 0; color: var(--text-subtle); font-size: 12px; line-height: 20px; }
@@ -210,15 +211,14 @@
 .details-manifest .manifest-code { max-height: none; background: var(--page-bg); }
 .artifact-registry { margin-bottom: 28px; }
 .artifact-registry h2, .artifact-section > h2 { margin: 0 0 12px; font-size: 16px; line-height: 24px; font-weight: 500; }
-.artifact-registry code { color: var(--text-muted); }
 .artifact-section + .artifact-section { margin-top: 28px; }
 .artifact-section > p { margin: 0 0 20px; color: var(--text-muted); font-size: 14px; line-height: 24px; }
 .artifact-section > :last-child { margin-bottom: 0; }
-.artifact-list { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
-.artifact-card { min-width: 0; padding: 18px 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--page-bg); }
-.artifact-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 12px; }
-.artifact-heading h3 { margin: 0; font-size: 14px; line-height: 22px; font-weight: 500; }
-.artifact-reference { display: flex; align-items: flex-start; gap: 16px; }
+.artifact-metadata > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 3fr); align-items: center; }
+.artifact-metadata dt { overflow-wrap: anywhere; }
+.artifact-metadata dd { text-align: left; }
+.artifact-reference { display: flex; align-items: center; gap: 16px; }
+.artifact-reference > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .artifact-reference code { flex: 1; min-width: 0; overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; line-height: 22px; }
 .artifact-copy-status { margin: 12px 0 0; color: var(--text-muted); font-size: 12px; line-height: 20px; }
 .details-compatibility > p { margin: 0 0 20px; color: var(--text-muted); font-size: 14px; line-height: 24px; }
@@ -268,15 +268,14 @@
   .details-identity h1 { font-size: 26px; line-height: 34px; }
   .details-actions { flex-direction: row; flex-wrap: wrap; }
   .details-actions > a { flex: 1; min-width: 230px; }
-  .repository-metadata > div { padding-block: 10px; }
+  .metadata-table > div { padding-block: 10px; }
   .details-categories { margin-top: 22px; }
   .details-support { margin-top: 22px; }
 }
 
 @media (max-width: 399px) {
   .readme-content, .readme-fallback, .readme-loading, .details-manifest, .details-artifacts, .details-compatibility { padding: 20px; }
-  .artifact-card { padding: 14px; }
-  .artifact-reference { flex-direction: column; gap: 10px; }
+  .artifact-metadata > div { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .details-panel-heading { padding-inline: 16px; }
   .details-tabs { gap: 20px; }
 }
