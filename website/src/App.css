@@ -200,6 +200,16 @@
 .readme-content li + li { margin-top: 6px; }
 .readme-content li > p { margin: 8px 0; }
 .readme-content blockquote { margin: 18px 0; padding: 0 18px; border-left: 3px solid var(--brand); color: var(--text-subtle); }
+.readme-content .markdown-alert { margin: 18px 0; padding: 8px 18px; border-left: 4px solid var(--readme-alert-color); }
+.readme-content .markdown-alert-note { --readme-alert-color: var(--readme-alert-note); }
+.readme-content .markdown-alert-tip { --readme-alert-color: var(--readme-alert-tip); }
+.readme-content .markdown-alert-important { --readme-alert-color: var(--readme-alert-important); }
+.readme-content .markdown-alert-warning { --readme-alert-color: var(--readme-alert-warning); }
+.readme-content .markdown-alert-caution { --readme-alert-color: var(--readme-alert-caution); }
+.readme-content .markdown-alert > :first-child { margin-top: 0; }
+.readme-content .markdown-alert > :last-child { margin-bottom: 0; }
+.readme-content .markdown-alert-title { display: flex; align-items: center; gap: 8px; color: var(--readme-alert-color); font-weight: 600; }
+.readme-content .markdown-alert-title svg { width: 16px; height: 16px; fill: currentColor; }
 .readme-content img { display: inline-block; max-width: 100%; height: auto; vertical-align: middle; border-radius: 6px; }
 .readme-content hr { margin: 28px 0; border: none; border-top: 1px solid var(--line); }
 .readme-content .contains-task-list { padding-left: 0; list-style: none; }

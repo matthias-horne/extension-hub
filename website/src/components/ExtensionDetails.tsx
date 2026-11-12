@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Markdown, { defaultUrlTransform } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { remarkAlert } from 'remark-github-blockquote-alert';
 import type { Extension } from '../data/extensions';
 import { withoutHelmValues } from '../data/manifest';
 import { Icon } from './Icon';
@@ -146,7 +147,7 @@ export default function ExtensionDetails({ extension, onCategory }: {
             </div>
             {readme ? (
               <div className="panel-body readme-content">
-                <Markdown remarkPlugins={[remarkGfm]} skipHtml urlTransform={resolveReadmeUrl} components={{
+                <Markdown remarkPlugins={[remarkGfm, remarkAlert]} skipHtml urlTransform={resolveReadmeUrl} components={{
                   h1: ({ node: _node, ...props }) => <h2 {...props} className="readme-title" />,
                   a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
                   img: ({ node: _node, ...props }) => <img {...props} loading="lazy" />,

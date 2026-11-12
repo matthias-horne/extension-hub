@@ -33,6 +33,11 @@
   --on-brand: #ffffff;
   --brand-soft: rgb(6 100 72 / 12%);
   --brand-soft-hover: rgb(6 100 72 / 20%);
+  --readme-alert-note: #0969da;
+  --readme-alert-tip: #1a7f37;
+  --readme-alert-important: #8250df;
+  --readme-alert-warning: #9a6700;
+  --readme-alert-caution: #d1242f;
 }
 
 :root.dark {
@@ -53,6 +58,11 @@
   --on-brand: #132a22;
   --brand-soft: rgb(99 196 156 / 14%);
   --brand-soft-hover: rgb(99 196 156 / 22%);
+  --readme-alert-note: #58a6ff;
+  --readme-alert-tip: #3fb950;
+  --readme-alert-important: #a371f7;
+  --readme-alert-warning: #d29922;
+  --readme-alert-caution: #f85149;
 }
 
 * { box-sizing: border-box; }
