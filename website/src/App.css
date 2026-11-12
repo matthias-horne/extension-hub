@@ -145,6 +145,7 @@
 .site-footer a { display: inline-flex; align-items: center; gap: 9px; transition: color .2s; }
 .site-footer a:hover { color: var(--brand); }
 .site-footer svg { width: 14px; height: 14px; }
+.footer-links { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px; }
 
 .code-block { min-width: 0; }
 .code-block-window { position: relative; border: 1px solid var(--line); border-radius: 8px; background: var(--page-bg); }

@@ -263,7 +263,10 @@ function App() {
 
       <footer className="site-footer content-width">
         <span>Gardener Extension Hub</span>
-        <a href={REPOSITORY_URL + '/issues/new?template=1-Register.yml'}>Contribute an extension <Icon name="arrow" /></a>
+        <div className="footer-links">
+          <a href="https://gardener.cloud/" target="_blank" rel="noopener noreferrer">gardener.cloud <Icon name="external" /></a>
+          <a href={REPOSITORY_URL + '/issues/new?template=1-Register.yml'}>Contribute an extension <Icon name="arrow" /></a>
+        </div>
       </footer>
 
     </div>
