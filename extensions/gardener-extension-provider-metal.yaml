@@ -7,11 +7,12 @@ addedAt: 2026-11-12T14:49:27.840Z
 version: v0.29.0
 github:
   stars: 24
-  lastCommit: 2026-11-12T14:39:55Z
+  lastCommit: 2026-11-12T15:16:11Z
   language: Go
   license:
     name: MIT License
     spdxId: MIT
+  socialPreviewUrl: null
   owner:
     login: metal-stack
     avatarUrl: https://avatars.githubusercontent.com/u/58738008?v=4

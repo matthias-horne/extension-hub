@@ -13,6 +13,7 @@ github:
   license:
     name: Other
     spdxId: NOASSERTION
+  socialPreviewUrl: null
   owner:
     login: stackitcloud
     avatarUrl: https://avatars.githubusercontent.com/u/55577607?v=4

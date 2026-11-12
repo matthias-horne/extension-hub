@@ -12,6 +12,7 @@ github:
   license:
     name: Other
     spdxId: NOASSERTION
+  socialPreviewUrl: null
   owner:
     login: schrodit
     avatarUrl: https://avatars.githubusercontent.com/u/7979201?v=4

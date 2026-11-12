@@ -12,6 +12,7 @@ github:
   license:
     name: Other
     spdxId: NOASSERTION
+  socialPreviewUrl: null
   owner:
     login: gardener
     avatarUrl: https://avatars.githubusercontent.com/u/33683699?v=4

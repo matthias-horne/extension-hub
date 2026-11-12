@@ -12,6 +12,7 @@ github:
   license:
     name: Apache License 2.0
     spdxId: Apache-2.0
+  socialPreviewUrl: null
   owner:
     login: ironcore-dev
     avatarUrl: https://avatars.githubusercontent.com/u/147836484?v=4

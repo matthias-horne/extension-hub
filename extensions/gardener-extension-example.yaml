@@ -110,6 +110,7 @@ github:
   license:
     name: MIT License
     spdxId: MIT
+  socialPreviewUrl: null
   owner:
     login: matthias-horne
     avatarUrl: https://avatars.githubusercontent.com/u/156783516?v=4

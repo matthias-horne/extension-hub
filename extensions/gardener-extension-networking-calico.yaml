@@ -7,11 +7,12 @@ addedAt: 2026-11-12T14:48:54.118Z
 version: v1.60.3
 github:
   stars: 12
-  lastCommit: 2026-11-12T14:35:37Z
+  lastCommit: 2026-11-12T15:18:42Z
   language: Go
   license:
     name: Apache License 2.0
     spdxId: Apache-2.0
+  socialPreviewUrl: null
   owner:
     login: gardener
     avatarUrl: https://avatars.githubusercontent.com/u/33683699?v=4

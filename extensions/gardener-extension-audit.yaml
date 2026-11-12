@@ -97,6 +97,7 @@ github:
   license:
     name: MIT License
     spdxId: MIT
+  socialPreviewUrl: null
   owner:
     login: metal-stack
     avatarUrl: https://avatars.githubusercontent.com/u/58738008?v=4

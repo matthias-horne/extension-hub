@@ -14,6 +14,7 @@ github:
   license:
     name: Apache License 2.0
     spdxId: Apache-2.0
+  socialPreviewUrl: null
   owner:
     login: gardener
     avatarUrl: https://avatars.githubusercontent.com/u/33683699?v=4

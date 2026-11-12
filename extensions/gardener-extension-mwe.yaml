@@ -11,6 +11,7 @@ github:
   license:
     name: Apache License 2.0
     spdxId: Apache-2.0
+  socialPreviewUrl: null
   owner:
     login: 23technologies
     avatarUrl: https://avatars.githubusercontent.com/u/72979859?v=4
