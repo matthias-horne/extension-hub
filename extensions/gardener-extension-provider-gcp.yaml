@@ -5,6 +5,7 @@ tags:
   - Infrastructure
   - DNS
 repository: https://github.com/gardener/gardener-extension-provider-gcp
+icon: https://gardener.cloud/lp/platforms/google-cloud-platform.svg
 addedAt: 2026-11-12T14:49:16.909Z
 version: v1.58.1
 github:

@@ -6,7 +6,7 @@ repository: https://github.com/metal-stack/gardener-extension-provider-metal
 addedAt: 2026-11-12T14:49:27.840Z
 version: v0.29.0
 github:
-  stars: 24
+  stars: 25
   lastCommit: 2026-11-12T15:16:11Z
   language: Go
   license:

@@ -4,6 +4,7 @@ tags:
   - Infrastructure
   - DNS
 repository: https://github.com/gardener/gardener-extension-provider-azure
+icon: https://gardener.cloud/lp/platforms/microsoft-azure.svg
 addedAt: 2026-11-12T14:49:12.470Z
 version: v1.66.0
 github:

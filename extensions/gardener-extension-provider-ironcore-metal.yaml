@@ -3,6 +3,7 @@ description: Provision and manage Gardener clusters on bare metal using IronCore
 tags:
   - Infrastructure
 repository: https://github.com/ironcore-dev/gardener-extension-provider-ironcore-metal
+icon: https://gardener.cloud/lp/platforms/iron_core.svg
 addedAt: 2026-11-12T14:49:21.912Z
 version: v0.2.0
 github:

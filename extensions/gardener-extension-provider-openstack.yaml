@@ -4,6 +4,7 @@ tags:
   - Infrastructure
   - DNS
 repository: https://github.com/gardener/gardener-extension-provider-openstack
+icon: https://gardener.cloud/lp/platforms/openstack.svg
 addedAt: 2026-11-12T14:49:30.169Z
 version: v1.59.1
 github:

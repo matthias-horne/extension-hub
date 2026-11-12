@@ -4,6 +4,7 @@ tags:
   - Infrastructure
   - DNS
 repository: https://github.com/gardener/gardener-extension-provider-alicloud
+icon: https://gardener.cloud/lp/platforms/alibaba-cloud.svg
 addedAt: 2026-11-12T14:49:07.138Z
 version: v1.75.0
 github:
