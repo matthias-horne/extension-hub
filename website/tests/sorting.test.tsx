@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { MemoryRouter } from 'react-router-dom';
 import { stringify } from 'yaml';
 import { Dropdown } from '../src/components/Dropdown';
 import { ExtensionCompatibility } from '../src/components/ExtensionCompatibility';
@@ -44,7 +45,7 @@ describe('catalog sorting', () => {
     expect(markup).toContain('role="listbox" aria-label="Sort extensions" hidden=""');
     expect(markup).toContain('aria-selected="true" data-active="false"><span>Most popular</span>');
     for (const option of SORT_OPTIONS) expect(markup).toContain(option.label);
-    const versionMarkup = renderToStaticMarkup(<ExtensionCompatibility version="v2" compatibility={{ v2: {}, v1: {} }} />);
+    const versionMarkup = renderToStaticMarkup(<MemoryRouter><ExtensionCompatibility version="v2" compatibility={{ v2: {}, v1: {} }} /></MemoryRouter>);
     expect(versionMarkup).toContain('aria-label="Version: v2"');
     expect(versionMarkup).toContain('<span>v2</span><span class="dropdown-badge">Current</span>');
   });

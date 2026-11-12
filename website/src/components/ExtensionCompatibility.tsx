@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { CompatibilityInfo } from '../data/extensions';
 import { Icon } from './Icon';
 import { Dropdown } from './Dropdown';
@@ -32,7 +32,8 @@ export function ExtensionCompatibility({ compatibility, version }: {
 }) {
   const history = compatibility ?? {};
   const versions = [...new Set([...(version ? [version] : []), ...Object.keys(history)])];
-  const [selection, setSelection] = useState(version ?? versions[0] ?? '');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selection = searchParams.get('version') ?? '';
   const selectedVersion = versions.includes(selection) ? selection : versions[0];
   const information = selectedVersion && Object.hasOwn(history, selectedVersion) ? history[selectedVersion] : undefined;
   const groups = [
@@ -42,6 +43,14 @@ export function ExtensionCompatibility({ compatibility, version }: {
   ];
   const features = information?.supportedFeatures ?? [];
   const hasInformation = features.length > 0 || groups.some(({ values }) => values && Object.keys(values).length > 0);
+
+  function setSelection(value: string) {
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      next.set('version', value);
+      return next;
+    });
+  }
 
   return (
     <>

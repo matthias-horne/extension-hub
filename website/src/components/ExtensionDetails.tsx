@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Markdown, { defaultUrlTransform } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Extension } from '../data/extensions';
@@ -28,7 +28,8 @@ export default function ExtensionDetails({ extension, onCategory }: {
 }) {
   const github = extension.github;
   const readme = github?.readme;
-  const [activeTab, setActiveTab] = useState<(typeof detailTabs)[number]['id']>('overview');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = detailTabs.find((tab) => tab.id === searchParams.get('tab'))?.id ?? 'overview';
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'unavailable'>('idle');
   const [showValues, setShowValues] = useState(true);
   const manifestWithoutValues = useMemo(() => withoutHelmValues(extension.manifest), [extension.manifest]);
@@ -38,6 +39,14 @@ export default function ExtensionDetails({ extension, onCategory }: {
   const metadataPlaceholder = '—';
   const license = github?.license;
   const readmeUrl = readme?.htmlUrl ?? extension.repository + '#readme';
+
+  function setActiveTab(tab: (typeof detailTabs)[number]['id']) {
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      next.set('tab', tab);
+      return next;
+    });
+  }
 
   async function copyManifest() {
     try {

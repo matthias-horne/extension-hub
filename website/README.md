@@ -17,7 +17,7 @@ bun run lint
 
 The page uses React, TypeScript, Vite, and CSS. Dark mode is the default; the theme switch saves your preference locally. The layout uses three columns on desktop, two on tablet, and one on mobile.
 
-Navigation uses hash routes so shared links and page refreshes work on GitHub Pages. Extension details use URLs such as `https://matthias-horne.github.io/extension-hub/#/extensions/gardener-extension-example`. The deployment build sets Vite's base path to `/extension-hub/` for assets; route paths live after the hash.
+Navigation uses hash routes so shared links and page refreshes work on GitHub Pages. Extension details use URLs such as `https://matthias-horne.github.io/extension-hub/#/extensions/gardener-extension-example`. Selecting a details tab or compatibility version updates query parameters inside the hash, for example `#/extensions/gardener-extension-example?tab=compatibility&version=v1.2.3`. Shared links, refreshes, and browser Back/Forward restore those selections; missing or unknown selections fall back to Overview and the current version (or the first available compatibility version). The deployment build sets Vite's base path to `/extension-hub/` for assets; route paths live after the hash.
 
 The details page has an Artifacts tab showing the manifest registry and the Helm charts referenced in the published `extension.yaml`: the extension chart and any admission charts for the runtime and virtual clusters. Each chart shows its deployment role and a copyable OCI reference. References support both `ref` and separate `repository` with `tag` or `digest` fields, following Gardener's precedence rules.
 
