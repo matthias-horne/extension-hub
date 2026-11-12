@@ -33,7 +33,15 @@ Theme variables are defined in `src/index.css`; page, component, and responsive 
 
 ## Extension data
 
-Registrations live in `../extensions/*.yaml`. Each entry requires `name`, `description`, and a GitHub `repository`, with optional `tags` and `manifestRegistry`. Add an entry to this directory to include it in the hub. The updater publishes aggregated YAML files and an `index.json` on the `pages` branch; the website fetches them at runtime. `VITE_EXTENSIONS_URL` can override the data directory URL.
+Registrations live in `../extensions/*.yaml`. Each entry requires `name`, `description`, and a GitHub `repository`, with optional `tags`, `manifestRegistry`, and `icon` (an absolute HTTP(S) image URL). Add an entry to this directory to include it in the hub. The updater publishes aggregated YAML files and an `index.json` on the `pages` branch; the website fetches them at runtime. `VITE_EXTENSIONS_URL` can override the data directory URL.
+
+Cards and detail pages choose icons in this order: the registration's `icon`, the
+repository's custom social preview cached as `github.socialPreviewUrl`, the
+GitHub owner's avatar, and the local Gardener logo. GitHub-generated repository
+previews are skipped. When owner metadata is missing, the avatar URL is derived
+from the registered repository owner. Failed image loads advance through the
+remaining sources, stopping at the Gardener logo. Images fit within the existing
+icon dimensions without cropping.
 
 GitHub metadata and README content are cached by the updater. If metadata is missing, stars show an unavailable marker and the repository owner and avatar use the registered GitHub URL. The YAML viewer and download use only the aggregate's optional `extension` resource. Unavailable documentation, manifests, artifacts, and compatibility information show prominent yellow notices in their respective tabs. Manifest preview and download controls are unavailable when there is no Extension resource.
 

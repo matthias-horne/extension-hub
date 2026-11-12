@@ -91,7 +91,7 @@
 .card-details-link:focus-visible::after { outline: 2px solid var(--brand); outline-offset: 4px; }
 .extension-card .extension-owner, .extension-card .extension-stars, .card-actions > * { position: relative; z-index: 2; }
 .card-heading { display: flex; align-items: flex-start; gap: 12px; }
-.extension-icon { display: block; width: 40px; height: 40px; flex-shrink: 0; border-radius: 9px; }
+.extension-icon { display: block; width: 40px; height: 40px; flex-shrink: 0; border-radius: 9px; object-fit: contain; }
 .card-identity { flex: 1; min-width: 0; }
 .extension-card h2 { margin: 0; font-size: 15px; font-weight: 600; line-height: 22px; }
 .extension-card h2 a { transition: color .2s; }
@@ -133,7 +133,7 @@
 .details-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); align-items: start; gap: 48px; }
 .details-sidebar { position: sticky; top: 96px; min-width: 0; }
 .details-identity { display: flex; align-items: flex-start; gap: 14px; }
-.details-icon { display: block; flex-shrink: 0; border-radius: 14px; }
+.details-icon { display: block; flex-shrink: 0; border-radius: 14px; object-fit: contain; }
 .details-identity > div { min-width: 0; }
 .details-identity h1 { margin: 0; font-size: 24px; line-height: 30px; letter-spacing: -.6px; font-weight: 600; overflow-wrap: anywhere; }
 .details-identity .extension-owner { margin-top: 8px; font-size: 12px; line-height: 20px; }
@@ -147,7 +147,7 @@
 .metadata-table dd { min-width: 0; margin: 0; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .metadata-table dd a:hover { text-decoration: underline; }
 .repository-metadata { margin-top: 24px; }
-.metadata-stars a { display: inline-flex; align-items: center; gap: 6px; color: var(--brand); }
+.metadata-stars span { display: inline-flex; align-items: center; gap: 6px; color: var(--brand); }
 .metadata-stars svg { width: 13px; height: 13px; }
 .metadata-note { margin: 10px 0 0; color: var(--text-subtle); font-size: 12px; line-height: 20px; }
 .details-categories { margin-top: 26px; }

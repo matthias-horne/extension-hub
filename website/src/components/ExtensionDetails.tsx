@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 import type { Extension } from '../data/extensions';
 import { withoutHelmValues } from '../data/manifest';
 import { Icon } from './Icon';
+import { ExtensionIcon } from './ExtensionIcon';
 import { ExtensionCompatibility } from './ExtensionCompatibility';
 import { ExtensionArtifacts } from './ExtensionArtifacts';
 import { MissingInformation } from './MissingInformation';
@@ -82,7 +83,7 @@ export default function ExtensionDetails({ extension, onCategory }: {
       <div className="details-layout">
         <aside className="details-sidebar" aria-label="Extension information">
           <div className="details-identity">
-            <img className="details-icon" src={extension.icon} alt="" width="64" height="64" />
+            <ExtensionIcon className="details-icon" extension={extension} size={64} />
             <div>
               <h1>{extension.title}</h1>
               <a className="extension-owner" href={github?.owner.htmlUrl ?? 'https://github.com/' + owner} target="_blank" rel="noopener noreferrer">
@@ -104,7 +105,7 @@ export default function ExtensionDetails({ extension, onCategory }: {
 
           <dl className="metadata-table repository-metadata">
             <div><dt>Latest version</dt><dd>{extension.version ? <a href={extension.repository + '/releases/tag/' + encodeURIComponent(extension.version)} target="_blank" rel="noopener noreferrer">{extension.version}</a> : metadataPlaceholder}</dd></div>
-            <div><dt>Stars</dt><dd className="metadata-stars"><a href={extension.repository + '/stargazers'} target="_blank" rel="noopener noreferrer"><Icon name="star" />{github ? github.stars.toLocaleString('en') : metadataPlaceholder}</a></dd></div>
+            <div><dt>Stars</dt><dd className="metadata-stars"><span><Icon name="star" />{github ? github.stars.toLocaleString('en') : metadataPlaceholder}</span></dd></div>
             <div><dt>Last commit</dt><dd>{formatDate(github?.lastCommit)}</dd></div>
             <div><dt>Language</dt><dd>{github?.language ?? metadataPlaceholder}</dd></div>
             <div><dt>License</dt><dd>{license ? <a href={extension.repository + '?tab=license-1-ov-file'} target="_blank" rel="noopener noreferrer">{license.spdxId === 'NOASSERTION' ? license.name : license.spdxId}</a> : metadataPlaceholder}</dd></div>

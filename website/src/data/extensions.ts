@@ -6,6 +6,7 @@ interface GitHubInfo {
   lastCommit: string | null;
   language: string | null;
   license: { spdxId: string; name: string } | null;
+  socialPreviewUrl?: string | null;
   owner: { login: string; avatarUrl: string; htmlUrl: string };
   readme: { markdown: string; path: string; htmlUrl: string; rawUrl: string } | null;
 }
@@ -56,6 +57,7 @@ export interface Extension {
   description: string;
   tags: string[];
   icon: string;
+  iconFallbacks: string[];
   repository: string;
   repositoryPath: string;
   owner: string;
@@ -74,6 +76,7 @@ interface RegistryEntry {
   addedAt?: string;
   description: string;
   repository: string;
+  icon?: string;
   tags?: string[];
   manifestRegistry?: string;
   extension?: ExtensionManifest;
@@ -82,6 +85,15 @@ interface RegistryEntry {
 }
 
 export const DEFAULT_EXTENSIONS_URL = 'https://raw.githubusercontent.com/matthias-horne/extension-hub/pages/extensions/';
+
+function isIconUrl(value: unknown): value is string {
+  if (typeof value !== 'string' || !value.trim()) return false;
+  try {
+    return ['https:', 'http:'].includes(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+}
 
 function helmReference(repository?: OCIRepository): string | undefined {
   if (typeof repository?.ref === 'string' && repository.ref.trim()) return repository.ref;
@@ -118,6 +130,9 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
   if (entry.tags && (!Array.isArray(entry.tags) || entry.tags.some((tag) => typeof tag !== 'string'))) {
     throw new Error('Expected a list of tags in ' + path);
   }
+  if (entry.icon !== undefined && !isIconUrl(entry.icon)) {
+    throw new Error('Expected icon to be an absolute HTTP(S) URL in ' + path);
+  }
   if (entry.manifestRegistry !== undefined && (typeof entry.manifestRegistry !== 'string' || !entry.manifestRegistry.trim())) {
     throw new Error('Expected a non-empty manifest registry string in ' + path);
   }
@@ -128,6 +143,15 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
     throw new Error('Expected an addedAt date string in ' + path);
   }
   const manifest = entry.extension ? stringify(entry.extension) : undefined;
+  const owner = repositoryPath.split('/')[0];
+  const ownerIcon = isIconUrl(entry.github?.owner?.avatarUrl)
+    ? entry.github.owner.avatarUrl
+    : 'https://avatars.githubusercontent.com/' + owner + '?s=128';
+  const icons = [...new Set([
+    ...[entry.icon, entry.github?.socialPreviewUrl].filter(isIconUrl),
+    ownerIcon,
+    `${siteBase}logo.svg`,
+  ])];
   return {
     id: path.split('/').at(-1)!.replace(/\.ya?ml$/, ''),
     title: entry.name,
@@ -135,10 +159,11 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
     addedAt: entry.addedAt,
     description: entry.description,
     tags: entry.tags?.length ? entry.tags : ['Other'],
-    icon: `${siteBase}logo.svg`,
+    icon: icons[0],
+    iconFallbacks: icons.slice(1),
     repository: 'https://github.com/' + repositoryPath,
     repositoryPath,
-    owner: repositoryPath.split('/')[0],
+    owner,
     manifestRegistry: entry.manifestRegistry,
     manifest,
     manifestUrl: manifest ? 'data:application/yaml;charset=utf-8,' + encodeURIComponent(manifest) : undefined,

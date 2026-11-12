@@ -15,6 +15,14 @@ and release versions, records empty compatibility entries, and skips all OCI and
 Helm requests. These entries are included in the runtime catalog index. Removing
 or adding a registry resets the previous manifest and compatibility history.
 
+Registrations may also specify `icon` as an absolute HTTP(S) image URL. It is
+preserved in the aggregate and takes priority over automatically discovered
+artwork. The updater queries GitHub's GraphQL API for `openGraphImageUrl` and
+`usesCustomOpenGraphImage`, caching configured social previews as
+`github.socialPreviewUrl`. GitHub-generated previews are stored as null so the
+website can use the owner avatar instead. Unavailable or invalid preview
+metadata logs a warning and stores null without blocking the rest of the update.
+
 For the latest published release, it fetches the default Helm values from the OCI
 chart references in the Extension resource (using `ref`, or `repository` with
 `tag` or `digest`). It integrates the runtime admission chart's defaults into
