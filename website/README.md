@@ -25,6 +25,8 @@ The tab also lists copyable container image references from the extension’s `v
 
 Inline search (or Command/Ctrl + K to focus it) finds extensions by name, owner, repository, tags, and description. Category filters show counts for the current search and work together with the search query. The grid defaults to Most popular. The custom sort dropdown supports alphabetical order, Most popular (descending GitHub stars), and Newest (descending `addedAt`, the timestamp when the updater first creates the extension's aggregated manifest in the `pages` branch). Existing aggregates without a date receive one on their next successful update. Missing stars count as zero; missing dates sort last, and ties use alphabetical order. Cards show the GitHub owner and avatar, cached repository stars, category tags, and a repository link. When an Extension resource is available, the extension.yaml button opens the manifest and the download icon saves it with that filename. Escape closes the viewer. The header links to this repository on GitHub.
 
+README previews support GitHub Markdown alerts (`[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, and `[!CAUTION]`) with distinct labels, icons, and border colors in both light and dark mode. Alert bodies support the same Markdown formatting and repository-relative links and images as the rest of the README.
+
 ## Design and assets
 
 The catalog layout follows [Vicinae Extensions](https://www.vicinae.com/extensions), with charcoal surfaces, Inter typography, and green feature icons inspired by [gardener.cloud](https://gardener.cloud/). Logo and icon SVGs come from the official site's `/gardener-logo.svg` and `/highlights/` assets, with green fills adjusted to the reference screenshot. Inter is served locally from the official site's font asset.
@@ -43,7 +45,7 @@ from the registered repository owner. Failed image loads advance through the
 remaining sources, stopping at the Gardener logo. Images fit within the existing
 icon dimensions without cropping.
 
-GitHub metadata and README content are cached by the updater. If metadata is missing, stars show an unavailable marker and the repository owner and avatar use the registered GitHub URL. The YAML viewer and download use only the aggregate's optional `extension` resource. Unavailable documentation, manifests, artifacts, and compatibility information show prominent yellow notices in their respective tabs. Manifest preview and download controls are unavailable when there is no Extension resource.
+GitHub metadata and README content are cached by the updater. If metadata is missing, stars show an unavailable marker and the repository owner and avatar use the registered GitHub URL. The YAML viewer and download use only the aggregate's optional `extension` resource. Unavailable documentation, manifests, and compatibility information show prominent yellow notices in their respective tabs. Manifest and compatibility notices link maintainers to the [contribution guide](https://github.com/matthias-horne/extension-hub#how-to-contribute-my-extension-as-a-maintainer); compatibility notices apply to the selected version, including releases with empty compatibility data. Missing artifacts show explanatory messages. Manifest preview and download controls are unavailable when there is no Extension resource.
 
 Extensions without a manifest registry are shown by default. To hide them, set the build-time environment variable to the literal string `false`:
 

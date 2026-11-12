@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import assert from 'node:assert/strict';
 import { loadExtensions, parseExtension } from '../src/data/extensions';
 
 const directory = 'https://data.example/hub/extensions/';
@@ -115,7 +116,9 @@ repository: https://github.com/example/community
     expect(extensions[0].manifest).not.toContain('markdown:');
     expect(extensions[0].manifest).not.toContain('compatibility:');
     expect(extensions[0].manifest).not.toContain('addedAt:');
-    expect(decodeURIComponent(extensions[0].manifestUrl.split(',')[1])).toBe(extensions[0].manifest);
+    const manifestUrl = extensions[0].manifestUrl;
+    assert(manifestUrl && extensions[0].manifest);
+    expect(decodeURIComponent(manifestUrl.split(',')[1])).toBe(extensions[0].manifest);
     expect(server.requests.map((request) => request.url)).toEqual([directory + 'index.json', directory + 'example.yaml', directory + 'second.yml']);
     expect(server.requests.every((request) => request.options?.cache === 'no-cache')).toBe(true);
   });

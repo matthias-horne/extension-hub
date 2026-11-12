@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Markdown, { defaultUrlTransform } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { remarkAlert } from 'remark-github-blockquote-alert';
 import type { Extension } from '../data/extensions';
 import { withoutHelmValues } from '../data/manifest';
 import { Icon } from './Icon';
@@ -9,6 +10,7 @@ import { ExtensionIcon } from './ExtensionIcon';
 import { ExtensionCompatibility } from './ExtensionCompatibility';
 import { ExtensionArtifacts } from './ExtensionArtifacts';
 import { MissingInformation } from './MissingInformation';
+import { CodeBlock, MarkdownCodeBlock } from './CodeBlock';
 
 const dateFormatter = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' });
 const detailTabs = [
@@ -32,9 +34,8 @@ export default function ExtensionDetails({ extension, onCategory }: {
   const readme = github?.readme?.markdown.trim() ? github.readme : undefined;
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = detailTabs.find((tab) => tab.id === searchParams.get('tab'))?.id ?? 'overview';
-  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'unavailable'>('idle');
   const [showValues, setShowValues] = useState(true);
-  const manifestWithoutValues = useMemo(() => extension.manifest ? withoutHelmValues(extension.manifest) : undefined, [extension.manifest]);
+  const manifestWithoutValues = useMemo(() => extension.manifest ? withoutHelmValues(extension.manifest) : '', [extension.manifest]);
   const hasValues = Boolean(extension.manifest && manifestWithoutValues !== extension.manifest);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const owner = github?.owner.login ?? extension.owner;
@@ -48,22 +49,6 @@ export default function ExtensionDetails({ extension, onCategory }: {
       next.set('tab', tab);
       return next;
     });
-  }
-
-  useEffect(() => {
-    if (copyStatus !== 'copied') return;
-    const timer = setTimeout(() => setCopyStatus('idle'), 2000);
-    return () => clearTimeout(timer);
-  }, [copyStatus]);
-
-  async function copyManifest() {
-    if (!extension.manifest) return;
-    try {
-      await navigator.clipboard.writeText(extension.manifest);
-      setCopyStatus('copied');
-    } catch {
-      setCopyStatus('unavailable');
-    }
   }
 
   function resolveReadmeUrl(value: string, key: string) {
@@ -146,11 +131,12 @@ export default function ExtensionDetails({ extension, onCategory }: {
             </div>
             {readme ? (
               <div className="panel-body readme-content">
-                <Markdown remarkPlugins={[remarkGfm]} skipHtml urlTransform={resolveReadmeUrl} components={{
+                <Markdown remarkPlugins={[remarkGfm, remarkAlert]} skipHtml urlTransform={resolveReadmeUrl} components={{
                   h1: ({ node: _node, ...props }) => <h2 {...props} className="readme-title" />,
                   a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
                   img: ({ node: _node, ...props }) => <img {...props} loading="lazy" />,
                   table: ({ node: _node, ...props }) => <div className="readme-table"><table {...props} /></div>,
+                  pre: MarkdownCodeBlock,
                 }}>{readme.markdown}</Markdown>
               </div>
             ) : (
@@ -178,19 +164,11 @@ export default function ExtensionDetails({ extension, onCategory }: {
             </div>
             <div className="panel-body details-manifest">
               {extension.manifest ? (
-                <>
-                  {!showValues && hasValues && <p className="panel-description">Helm values are hidden in this preview. Copying or downloading includes all values.</p>}
-                  {copyStatus === 'unavailable' && <p className="panel-description" role="status">Copy is unavailable. Select the YAML below or download the file.</p>}
-                  <span className="sr-only" role="status">{copyStatus === 'copied' ? 'YAML copied to clipboard.' : ''}</span>
-                  <div className="manifest-code-window">
-                    <button className="button button-small button-icon" onClick={copyManifest} aria-label="Copy YAML to clipboard" title="Copy to clipboard"><Icon name={copyStatus === 'copied' ? 'check' : 'copy'} /></button>
-                    <pre className="manifest-code" id="manifest-preview" tabIndex={0} aria-label={extension.title + ' YAML definition'}><code>{showValues ? extension.manifest : manifestWithoutValues}</code></pre>
-                  </div>
-                </>
+                <CodeBlock code={showValues ? extension.manifest : manifestWithoutValues} highlightYaml id="manifest-preview" label={extension.title + ' YAML definition'} copyLabel="Copy YAML to clipboard" />
               ) : (
-                <p className="panel-description">
+                <MissingInformation title="Extension manifest unavailable" maintainerGuidance>
                   No extension.yaml is available for this extension. Visit the repository for installation instructions.
-                </p>
+                </MissingInformation>
               )}
             </div>
           </section>
