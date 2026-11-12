@@ -58,7 +58,7 @@ func CompatibilityRange(ctx context.Context, log *slog.Logger, cmd *cli.Command)
 
 	log.Info("figured out extension's dependency versions", "extension", cmd.String("extension-path"), gardenerDep, gardenerVersion.String(), kubernetesDep, kubernetesVersion.String())
 
-	reconciledResources, err := readControllerRegistrationResources(extBaseDir)
+	reconciledResources, err := readResources(extBaseDir)
 	if err != nil {
 		return err
 	}
