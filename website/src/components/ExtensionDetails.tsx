@@ -12,9 +12,9 @@ import { MissingInformation } from './MissingInformation';
 const dateFormatter = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' });
 const detailTabs = [
   { id: 'overview', label: 'Overview', icon: 'book' },
+  { id: 'compatibility', label: 'Compatibility', icon: 'check' },
   { id: 'manifest', label: 'extension.yaml', icon: 'file' },
   { id: 'artifacts', label: 'Artifacts', icon: 'package' },
-  { id: 'compatibility', label: 'Compatibility', icon: 'check' },
 ] as const;
 
 function formatDate(value?: string | null) {
