@@ -1,5 +1,5 @@
 name: "vSphere"
 description: "Provision and manage Gardener clusters on VMware vSphere."
 tags:
-  - "Infrastructure Provider"
+  - Infrastructure
 repository: https://github.com/gardener/gardener-extension-provider-vsphere

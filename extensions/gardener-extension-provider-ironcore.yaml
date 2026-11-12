@@ -1,5 +1,5 @@
 name: "IronCore"
 description: "Provision and manage Gardener clusters using IronCore infrastructure."
 tags:
-  - "Infrastructure Provider"
+  - Infrastructure
 repository: https://github.com/ironcore-dev/gardener-extension-provider-ironcore

@@ -1,5 +1,5 @@
 name: "csi-driver-lvm"
 description: "Provision local persistent volumes using the LVM CSI driver."
 tags:
-  - "Generic Extensions"
+  - Storage
 repository: https://github.com/metal-stack/gardener-extension-csi-driver-lvm

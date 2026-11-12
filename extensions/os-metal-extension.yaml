@@ -1,5 +1,5 @@
 name: "Debian/Ubuntu (metal-stack)"
 description: "Configure Debian and Ubuntu nodes for Gardener clusters on metal-stack."
 tags:
-  - "Operating System"
+  - OS
 repository: https://github.com/metal-stack/os-metal-extension

@@ -1,5 +1,5 @@
 name: "Garden Linux"
 description: "Configure Garden Linux nodes in Gardener clusters."
 tags:
-  - "Operating System"
+  - OS
 repository: https://github.com/gardener/gardener-extension-os-gardenlinux

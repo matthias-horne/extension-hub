@@ -15,12 +15,12 @@ Register an extension by opening a pull request that adds a YAML file to
 name: Example Extension
 description: A minimal Gardener extension example that does nothing
 tags:
-  - example
+  - Example
 repository: https://github.com/matthias-horne/gardener-extension-example
 manifestRegistry: ghcr.io/matthias-horne/manifests/gardener-extension-example
 ```
 
-The catalog includes all known implementations from the [Gardener Extensions Library](https://github.com/gardener/gardener/blob/master/extensions/README.md), with its section headings as tags. Repositories listed in multiple sections have one registration with all applicable tags. Additional tags describe shared capabilities and apply to at least three extensions.
+The catalog includes all known implementations from the [Gardener Extensions Library](https://github.com/gardener/gardener/blob/master/extensions/README.md). Repositories listed in multiple sections have one registration with all applicable tags. Tags use the approved categories: Infrastructure, DNS, OS, Runtime, Network, Security, Observability, Images, Storage, GitOps, and Example. Shared capability tags generally apply to at least three extensions; Storage and GitOps are approved exceptions.
 
 `manifestRegistry` is optional. Extensions without a registry are listed with repository information and release versions; unavailable manifests, artifacts, documentation, and compatibility information show yellow notices. The hub offers an `extension.yaml` download only when an Extension resource is available.
 

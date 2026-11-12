@@ -1,6 +1,5 @@
 name: "RFC2136"
 description: "Manage Gardener DNSRecord resources using RFC2136 dynamic DNS updates."
 tags:
-  - "Primary DNS Provider"
-  - "DNS"
+  - DNS
 repository: https://github.com/Avarei/gardener-extension-dns-rfc2136

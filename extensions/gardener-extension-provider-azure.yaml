@@ -1,7 +1,6 @@
 name: "Azure"
 description: "Provision and manage Gardener clusters and DNS records on Microsoft Azure."
 tags:
-  - "Infrastructure Provider"
-  - "Primary DNS Provider"
-  - "DNS"
+  - Infrastructure
+  - DNS
 repository: https://github.com/gardener/gardener-extension-provider-azure

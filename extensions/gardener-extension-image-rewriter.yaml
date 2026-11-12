@@ -1,6 +1,5 @@
 name: "Image Rewriter"
 description: "Rewrite container image references in Gardener shoot clusters."
 tags:
-  - "Generic Extensions"
-  - "Container Images"
+  - Images
 repository: https://github.com/gardener/gardener-extension-image-rewriter

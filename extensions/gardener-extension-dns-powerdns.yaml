@@ -1,6 +1,5 @@
 name: "PowerDNS"
 description: "Manage Gardener DNSRecord resources using PowerDNS."
 tags:
-  - "Primary DNS Provider"
-  - "DNS"
+  - DNS
 repository: https://github.com/metal-stack/gardener-extension-dns-powerdns

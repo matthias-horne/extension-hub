@@ -1,7 +1,6 @@
 name: "Auditing (Gardener)"
 description: "Configure Kubernetes audit logging for Gardener shoot clusters."
 tags:
-  - "Generic Extensions"
-  - "Security"
-  - "Observability"
+  - Security
+  - Observability
 repository: https://github.com/gardener/gardener-extension-auditing

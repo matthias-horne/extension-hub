@@ -1,7 +1,6 @@
 name: "Shoot Networking Filter"
 description: "Filter network traffic in Gardener shoot clusters."
 tags:
-  - "Generic Extensions"
-  - "Networking"
-  - "Security"
+  - Network
+  - Security
 repository: https://github.com/gardener/gardener-extension-shoot-networking-filter
