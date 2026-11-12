@@ -91,6 +91,8 @@ github:
     path: README.md
     htmlUrl: https://github.com/gardener-attic/gardener-extension-provider-vsphere/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/gardener-attic/gardener-extension-provider-vsphere/main/README.md
+apiCompatibility:
+  v0.33.2: {}
 compatibility:
   v0.33.2: {}
   v0.33.1: {}

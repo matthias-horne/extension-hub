@@ -93,6 +93,18 @@ github:
     path: README.md
     htmlUrl: https://github.com/gardener/gardener-extension-provider-openstack/blob/master/README.md
     rawUrl: https://raw.githubusercontent.com/gardener/gardener-extension-provider-openstack/master/README.md
+apiCompatibility:
+  v1.59.1:
+    gardener:
+      version: 1.154.0
+      from: 1.149.5
+      to: 1.154.5
+      breaking_on_lower:
+        - 1.148.5 removes fields
+          Spec.Pools.KubeletConfig.ImagePullCredentialsVerificationPolicy,
+          Spec.Pools.KubeletConfig.PreloadedImagesVerificationAllowlist from
+          Worker
+      breaking_on_higher: null
 compatibility:
   v1.59.1: {}
   v1.59.0: {}

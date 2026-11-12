@@ -33,4 +33,6 @@ github:
     path: README.md
     htmlUrl: https://github.com/avarei/gardener-extension-dns-rfc2136/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/avarei/gardener-extension-dns-rfc2136/main/README.md
+apiCompatibility:
+  latest: {}
 compatibility: {}

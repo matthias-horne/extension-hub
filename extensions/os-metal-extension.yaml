@@ -47,6 +47,8 @@ github:
     path: README.md
     htmlUrl: https://github.com/metal-stack/os-metal-extension/blob/master/README.md
     rawUrl: https://raw.githubusercontent.com/metal-stack/os-metal-extension/master/README.md
+apiCompatibility:
+  v0.8.11: {}
 compatibility:
   v0.8.11: {}
   v0.8.10: {}

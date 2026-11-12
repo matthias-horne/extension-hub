@@ -9,7 +9,7 @@ addedAt: 2026-11-12T14:49:09.707Z
 version: v1.76.2
 github:
   stars: 26
-  lastCommit: 2026-11-12T15:11:01Z
+  lastCommit: 2026-11-12T22:34:35Z
   language: Go
   license:
     name: Apache License 2.0
@@ -93,6 +93,18 @@ github:
     path: README.md
     htmlUrl: https://github.com/gardener/gardener-extension-provider-aws/blob/master/README.md
     rawUrl: https://raw.githubusercontent.com/gardener/gardener-extension-provider-aws/master/README.md
+apiCompatibility:
+  v1.76.2:
+    gardener:
+      version: 1.154.0
+      from: 1.149.5
+      to: 1.154.5
+      breaking_on_lower:
+        - 1.148.5 removes fields
+          Spec.Pools.KubeletConfig.ImagePullCredentialsVerificationPolicy,
+          Spec.Pools.KubeletConfig.PreloadedImagesVerificationAllowlist from
+          Worker
+      breaking_on_higher: null
 compatibility:
   v1.76.2: {}
   v1.76.1: {}

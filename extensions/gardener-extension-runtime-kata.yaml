@@ -99,5 +99,7 @@ github:
     path: README.md
     htmlUrl: https://github.com/23technologies/gardener-extension-runtime-kata/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/23technologies/gardener-extension-runtime-kata/main/README.md
+apiCompatibility:
+  v0.0.1: {}
 compatibility:
   v0.0.1: {}

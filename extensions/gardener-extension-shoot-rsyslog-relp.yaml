@@ -41,6 +41,14 @@ github:
     path: README.md
     htmlUrl: https://github.com/gardener/gardener-extension-shoot-rsyslog-relp/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/gardener/gardener-extension-shoot-rsyslog-relp/main/README.md
+apiCompatibility:
+  v0.15.1:
+    gardener:
+      version: 1.150.2
+      from: 1.137.7
+      to: 1.154.5
+      breaking_on_lower: null
+      breaking_on_higher: null
 compatibility:
   v0.15.1: {}
   v0.15.0: {}

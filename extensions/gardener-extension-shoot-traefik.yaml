@@ -259,6 +259,8 @@ github:
     path: README.md
     htmlUrl: https://github.com/gardener/gardener-extension-shoot-traefik/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/gardener/gardener-extension-shoot-traefik/main/README.md
+apiCompatibility:
+  v0.12.0: {}
 compatibility:
   v0.12.0: {}
   v0.11.0: {}

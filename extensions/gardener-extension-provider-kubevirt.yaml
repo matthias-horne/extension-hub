@@ -86,6 +86,8 @@ github:
     path: README.md
     htmlUrl: https://github.com/gardener-attic/gardener-extension-provider-kubevirt/blob/master/README.md
     rawUrl: https://raw.githubusercontent.com/gardener-attic/gardener-extension-provider-kubevirt/master/README.md
+apiCompatibility:
+  v0.2.0: {}
 compatibility:
   v0.2.0: {}
   v0.1.0: {}

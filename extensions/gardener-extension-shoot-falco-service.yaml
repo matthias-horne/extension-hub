@@ -87,6 +87,8 @@ github:
     path: README.md
     htmlUrl: https://github.com/gardener/gardener-extension-shoot-falco-service/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/gardener/gardener-extension-shoot-falco-service/main/README.md
+apiCompatibility:
+  v0.99.0: {}
 compatibility:
   v0.99.0: {}
   v0.98.0: {}

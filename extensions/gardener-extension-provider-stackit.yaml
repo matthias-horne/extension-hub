@@ -60,6 +60,8 @@ github:
     path: README.md
     htmlUrl: https://github.com/stackitcloud/gardener-extension-provider-stackit/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/stackitcloud/gardener-extension-provider-stackit/main/README.md
+apiCompatibility:
+  v2.28.0: {}
 compatibility:
   v2.28.0: {}
   v2.27.0: {}

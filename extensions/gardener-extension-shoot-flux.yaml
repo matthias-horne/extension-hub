@@ -242,6 +242,8 @@ github:
     path: README.md
     htmlUrl: https://github.com/stackitcloud/gardener-extension-shoot-flux/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/stackitcloud/gardener-extension-shoot-flux/main/README.md
+apiCompatibility:
+  v0.29.0: {}
 compatibility:
   v0.29.0: {}
   v0.28.0: {}

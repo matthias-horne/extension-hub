@@ -86,6 +86,16 @@ github:
     path: README.md
     htmlUrl: https://github.com/ironcore-dev/gardener-extension-provider-ironcore-metal/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/ironcore-dev/gardener-extension-provider-ironcore-metal/main/README.md
+apiCompatibility:
+  v0.2.0:
+    gardener:
+      version: 1.139.2
+      from: 1.137.7
+      to: 1.140.5
+      breaking_on_lower: null
+      breaking_on_higher:
+        - 1.141.6 removes fields Spec.Pools.KubeletConfig.SystemReserved from
+          Worker
 compatibility:
   v0.2.0: {}
   v0.1.0: {}

@@ -151,6 +151,8 @@ github:
     path: README.md
     htmlUrl: https://github.com/gardener/gardener-extension-envoy-gateway/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/gardener/gardener-extension-envoy-gateway/main/README.md
+apiCompatibility:
+  v0.2.0: {}
 compatibility:
   v0.2.0: {}
   v0.1.0: {}
