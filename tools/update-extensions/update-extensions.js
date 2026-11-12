@@ -282,6 +282,7 @@ export async function fetchGitHubInfo(repository, command = run) {
 }
 
 export async function aggregate(registration, previous, {
+  addedAt = new Date().toISOString(),
   listReleases: fetchReleases = listReleases,
   listArtifactTags: fetchTags = listArtifactTags,
   pullManifest: fetchManifest = pullManifest,
@@ -291,6 +292,8 @@ export async function aggregate(registration, previous, {
   warn = console.warn,
 } = {}) {
   validateRegistration(registration);
+  // Record the first successful discovery in the published aggregates.
+  const firstAddedAt = previous.addedAt ?? addedAt;
   // A new repository/registry identity must not inherit another extension's history.
   if (['repository', 'manifestRegistry'].some((field) => previous[field] !== registration[field])) {
     previous = {};
@@ -324,6 +327,7 @@ export async function aggregate(registration, previous, {
   const tags = new Set([...releases.map((release) => release.tag_name), ...compatibility.keys()]);
   return {
     ...registration,
+    addedAt: firstAddedAt,
     ...(extension ? { version: latest ?? previous.version, extension } : {}),
     github,
     compatibility: Object.fromEntries([...tags].map((tag) => [tag, compatibility.get(tag)])),

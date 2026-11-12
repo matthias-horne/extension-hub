@@ -27,6 +27,7 @@ const GITHUB = {
   readme: { markdown: '# Example 🌱\n', path: 'docs/README.md', htmlUrl: 'https://github.com/example/extension/blob/main/docs/README.md', rawUrl: 'https://raw.githubusercontent.com/example/extension/main/docs/README.md' },
 };
 const HELM_VALUES = { replicaCount: 1, image: { repository: 'example/extension', tag: 'latest' } };
+const ADDED_AT = '2026-11-01T10:00:00.000Z';
 
 function release(tag, publishedAt = '2026-11-11T00:00:00Z', fields = {}) {
   return { tag_name: tag, published_at: publishedAt, draft: false, prerelease: false, ...fields };
@@ -62,6 +63,7 @@ function compatibility() {
 function previousManifest() {
   return {
     ...REGISTRATION,
+    addedAt: ADDED_AT,
     version: 'v1',
     extension: manifestWithValues('v1'),
     github: GITHUB,
@@ -71,6 +73,7 @@ function previousManifest() {
 
 function dependencies(releases, fetchManifest = async (registry, tag) => manifest(tag)) {
   return {
+    addedAt: ADDED_AT,
     listReleases: mock.fn(async () => releases),
     listArtifactTags: mock.fn(async () => releases.map((release) => release.tag_name)),
     pullManifest: mock.fn(fetchManifest),
@@ -103,6 +106,49 @@ test('lists all pages, excludes drafts, includes prereleases, and sorts by publi
   assert.deepEqual(command.mock.calls[0].arguments, [
     'gh', 'api', '--paginate', '--slurp', 'repos/example/extension/releases?per_page=100',
   ]);
+});
+
+test('records the current discovery time and backfills legacy aggregates once, preserving dates on subsequent updates', async (t) => {
+  const { extensions, output, options } = await fixture(t);
+  for (const name of ['new.yaml', 'legacy.yaml']) {
+    await writeFile(join(extensions, name), stringify(REGISTRATION));
+  }
+  const legacy = previousManifest();
+  delete legacy.addedAt;
+  await writeFile(join(output, 'legacy.yaml'), stringify(legacy));
+  const initial = dependencies([release('v1')]);
+  delete initial.addedAt;
+  const start = Date.now();
+  assert.equal(await updateExtensions(extensions, output, { ...options, ...initial }), 0);
+  const end = Date.now();
+  const recordedDates = new Map();
+  for (const name of ['new.yaml', 'legacy.yaml']) {
+    const { addedAt } = parse(await readFile(join(output, name), 'utf8'));
+    assert.ok(Date.parse(addedAt) >= start && Date.parse(addedAt) <= end);
+    recordedDates.set(name, addedAt);
+    await writeFile(join(extensions, name), stringify({ ...REGISTRATION, name: 'Renamed extension', addedAt: '2099-01-01T00:00:00Z' }));
+  }
+  const updated = dependencies([release('v2')]);
+  updated.addedAt = '2026-11-12T00:00:00Z';
+  assert.equal(await updateExtensions(extensions, output, { ...options, ...updated }), 0);
+  for (const name of ['new.yaml', 'legacy.yaml']) {
+    const aggregate = parse(await readFile(join(output, name), 'utf8'));
+    assert.equal(aggregate.addedAt, recordedDates.get(name));
+    assert.equal(aggregate.version, 'v2');
+  }
+});
+
+test('a failed first update creates no aggregate and records the successful retry time', async (t) => {
+  const { extensions, output, options } = await fixture(t);
+  await writeFile(join(extensions, 'new.yaml'), stringify(REGISTRATION));
+  const failed = dependencies([release('v1')]);
+  failed.pullManifest = async () => { throw new Error('manifest unavailable'); };
+  assert.equal(await updateExtensions(extensions, output, { ...options, ...failed }), 1);
+  await assert.rejects(readFile(join(output, 'new.yaml'), 'utf8'), { code: 'ENOENT' });
+  const retry = dependencies([release('v1')]);
+  retry.addedAt = '2026-11-12T00:00:00.000Z';
+  assert.equal(await updateExtensions(extensions, output, { ...options, ...retry }), 0);
+  assert.equal(parse(await readFile(join(output, 'new.yaml'), 'utf8')).addedAt, retry.addedAt);
 });
 
 test('validates GitHub repository URLs', () => {
@@ -504,7 +550,9 @@ test('changing repository or registry resets compatibility history', async () =>
   ]) {
     const deps = dependencies([release('v1')]);
     const registration = { ...REGISTRATION, ...changes };
+    deps.addedAt = '2026-11-12T00:00:00Z';
     const result = await aggregate(registration, previousManifest(), deps);
+    assert.equal(result.addedAt, ADDED_AT);
     assert.deepEqual(deps.pullManifest.mock.calls[0].arguments, [registration.manifestRegistry, 'v1']);
     assert.deepEqual(Object.keys(result.compatibility), ['v1']);
   }
@@ -522,7 +570,7 @@ test('refetches a cached release if it becomes the newest published release', as
 test('updates repository information even without published releases', async () => {
   const deps = dependencies([]);
   assert.deepEqual(await aggregate(REGISTRATION, previousManifest(), deps), previousManifest());
-  assert.deepEqual(await aggregate(REGISTRATION, {}, deps), { ...REGISTRATION, github: GITHUB, compatibility: {} });
+  assert.deepEqual(await aggregate(REGISTRATION, {}, deps), { ...REGISTRATION, addedAt: ADDED_AT, github: GITHUB, compatibility: {} });
   assert.equal(deps.pullManifest.mock.callCount(), 0);
   assert.equal(deps.pullHelmValues.mock.callCount(), 0);
 });

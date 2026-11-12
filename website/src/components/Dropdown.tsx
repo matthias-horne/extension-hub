@@ -1,19 +1,22 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Icon } from './Icon';
 
-export function VersionDropdown({ versions, value, current, onChange }: {
-  versions: string[];
-  value: string;
-  current?: string;
-  onChange: (version: string) => void;
+export function Dropdown<T extends string>({ options, value, onChange, label, listLabel = label, className = '' }: {
+  options: readonly { value: T; label: string; badge?: string }[];
+  value: T;
+  onChange: (value: T) => void;
+  label: string;
+  listLabel?: string;
+  className?: string;
 }) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const container = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
-  const options = useRef<(HTMLButtonElement | null)[]>([]);
+  const optionButtons = useRef<(HTMLButtonElement | null)[]>([]);
   const search = useRef({ value: '', time: 0 });
+  const selected = options.find((option) => option.value === value);
 
   useEffect(() => {
     if (!open) return;
@@ -25,32 +28,32 @@ export function VersionDropdown({ versions, value, current, onChange }: {
   }, [open]);
 
   useEffect(() => {
-    if (open) options.current[activeIndex]?.scrollIntoView({ block: 'nearest' });
+    if (open) optionButtons.current[activeIndex]?.scrollIntoView({ block: 'nearest' });
   }, [open, activeIndex]);
 
-  function openMenu(index = Math.max(versions.indexOf(value), 0)) {
+  function openMenu(index = Math.max(options.findIndex((option) => option.value === value), 0)) {
     search.current = { value: '', time: 0 };
     setActiveIndex(index);
     setOpen(true);
   }
 
   function choose(index: number) {
-    onChange(versions[index]);
+    onChange(options[index].value);
     setOpen(false);
     trigger.current?.focus();
   }
 
   return (
-    <div className="version-dropdown" ref={container} onBlur={(event) => {
+    <div className={'dropdown ' + className} ref={container} onBlur={(event) => {
       if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
     }}>
-      <button className="version-dropdown-trigger" ref={trigger} type="button" role="combobox" aria-label={'Version: ' + value}
-        aria-haspopup="listbox" aria-expanded={open} aria-controls={id + '-versions'}
-        aria-activedescendant={open ? id + '-version-' + activeIndex : undefined}
+      <button className="dropdown-trigger" ref={trigger} type="button" role="combobox" aria-label={label + ': ' + (selected?.label ?? value)}
+        aria-haspopup="listbox" aria-expanded={open} aria-controls={id + '-options'}
+        aria-activedescendant={open ? id + '-option-' + activeIndex : undefined}
         onClick={() => open ? setOpen(false) : openMenu()}
         onKeyDown={(event) => {
           if (event.key === 'Tab') {
-            if (open) { onChange(versions[activeIndex]); setOpen(false); }
+            if (open) { onChange(options[activeIndex].value); setOpen(false); }
             return;
           }
           if (event.key === 'Escape') {
@@ -65,8 +68,8 @@ export function VersionDropdown({ versions, value, current, onChange }: {
           }
           if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
             event.preventDefault();
-            const next = event.key === 'Home' ? 0 : event.key === 'End' ? versions.length - 1
-              : Math.max(0, Math.min(versions.length - 1, activeIndex + (event.key === 'ArrowDown' ? 1 : -1)));
+            const next = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1
+              : Math.max(0, Math.min(options.length - 1, activeIndex + (event.key === 'ArrowDown' ? 1 : -1)));
             if (open) setActiveIndex(next);
             else openMenu(event.key === 'Home' || event.key === 'End' ? next : undefined);
             return;
@@ -76,21 +79,21 @@ export function VersionDropdown({ versions, value, current, onChange }: {
             const now = Date.now();
             const query = (now - search.current.time < 700 ? search.current.value : '') + event.key.toLowerCase();
             search.current = { value: query, time: now };
-            const next = versions.findIndex((tag) => tag.toLowerCase().startsWith(query));
+            const next = options.findIndex((option) => option.label.toLowerCase().startsWith(query));
             if (next !== -1) { setActiveIndex(next); setOpen(true); }
           }
         }}>
-        <span>{value}</span><Icon name="chevron" />
+        <span>{selected?.label ?? value}</span><Icon name="chevron" />
       </button>
-      <ul className="version-dropdown-menu" id={id + '-versions'} role="listbox" aria-label="Versions" hidden={!open}>
-        {versions.map((tag, index) => (
-          <li role="none" key={tag}>
-            <button className="version-dropdown-option" ref={(element) => { options.current[index] = element; }}
-              type="button" id={id + '-version-' + index} role="option" tabIndex={-1}
-              aria-selected={tag === value} data-active={index === activeIndex}
+      <ul className="dropdown-menu" id={id + '-options'} role="listbox" aria-label={listLabel} hidden={!open}>
+        {options.map((option, index) => (
+          <li role="none" key={option.value}>
+            <button className="dropdown-option" ref={(element) => { optionButtons.current[index] = element; }}
+              type="button" id={id + '-option-' + index} role="option" tabIndex={-1}
+              aria-selected={option.value === value} data-active={index === activeIndex}
               onPointerMove={() => setActiveIndex(index)} onPointerDown={(event) => event.preventDefault()} onClick={() => choose(index)}>
-              <span>{tag}</span>{tag === current && <span className="version-current">Current</span>}
-              {tag === value && <Icon name="check" />}
+              <span>{option.label}</span>{option.badge && <span className="dropdown-badge">{option.badge}</span>}
+              {option.value === value && <Icon name="check" />}
             </button>
           </li>
         ))}

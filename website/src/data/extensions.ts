@@ -52,6 +52,7 @@ export interface Extension {
   id: string;
   title: string;
   version?: string;
+  addedAt?: string;
   description: string;
   tags: string[];
   icon: string;
@@ -70,6 +71,7 @@ export interface Extension {
 interface RegistryEntry {
   name: string;
   version?: string;
+  addedAt?: string;
   description: string;
   repository: string;
   tags?: string[];
@@ -122,11 +124,15 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
   if (entry.version !== undefined && (typeof entry.version !== 'string' || !entry.version.trim())) {
     throw new Error('Expected a non-empty version string in ' + path);
   }
+  if (entry.addedAt !== undefined && (typeof entry.addedAt !== 'string' || !Number.isFinite(Date.parse(entry.addedAt)))) {
+    throw new Error('Expected an addedAt date string in ' + path);
+  }
   const manifest = entry.extension ? stringify(entry.extension) : definition;
   return {
     id: path.split('/').at(-1)!.replace(/\.ya?ml$/, ''),
     title: entry.name,
     version: entry.version,
+    addedAt: entry.addedAt,
     description: entry.description,
     tags: entry.tags?.length ? entry.tags : ['Other'],
     icon: `${siteBase}logo.svg`,

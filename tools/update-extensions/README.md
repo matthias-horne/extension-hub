@@ -2,6 +2,13 @@
 
 This script scrapes the [registered extensions](../../extensions/) and generates the metadata used in the website for displaying the extension cards.
 
+When an extension is first aggregated, it stores `addedAt` as an ISO timestamp
+using the current time of the update that first creates its aggregated manifest
+in the `pages` branch. Later updates preserve the timestamp, including release,
+repository, and registry changes. Existing aggregates without this field receive
+the current update's timestamp once. A failed update does not persist a timestamp;
+the first successful retry records it. Git history is not required.
+
 For the latest published release, it fetches the default Helm values from the OCI
 chart references in the Extension resource (using `ref`, or `repository` with
 `tag` or `digest`). It integrates the runtime admission chart's defaults into

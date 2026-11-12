@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { CompatibilityInfo } from '../data/extensions';
 import { Icon } from './Icon';
-import { VersionDropdown } from './VersionDropdown';
+import { Dropdown } from './Dropdown';
 
 function CompatibilityValue({ value }: { value: unknown }) {
   if (Array.isArray(value)) {
@@ -47,7 +47,10 @@ export function ExtensionCompatibility({ compatibility, version }: {
     <>
       <div className="details-panel-heading">
         <span><Icon name="check" />Version compatibility</span>
-        {selectedVersion && <VersionDropdown versions={versions} value={selectedVersion} current={version} onChange={setSelection} />}
+        {selectedVersion && (
+          <Dropdown className="version-dropdown" label="Version" listLabel="Versions" value={selectedVersion} onChange={setSelection}
+            options={versions.map((tag) => ({ value: tag, label: tag, badge: tag === version ? 'Current' : undefined }))} />
+        )}
       </div>
       <div className="details-compatibility">
         <p>{selectedVersion ? <>Compatibility information for version <strong>{selectedVersion}</strong>.</> : 'No version has been published for this extension.'}</p>

@@ -5,6 +5,7 @@ const directory = 'https://data.example/hub/extensions/';
 const definition = `
 name: Example Extension
 version: v0.0.3
+addedAt: '2026-11-01T10:00:00.000Z'
 description: Example
 repository: https://github.com/example/extension
 tags: [example]
@@ -68,6 +69,7 @@ describe('runtime extension catalog', () => {
     const extensions = await loadExtensions(directory, { fetcher: server.fetcher, siteBase: '/hub/' });
     expect(extensions.map((extension) => extension.id)).toEqual(['example', 'second']);
     expect(extensions[0].version).toBe('v0.0.3');
+    expect(extensions[0].addedAt).toBe('2026-11-01T10:00:00.000Z');
     expect(extensions[0].github?.stars).toBe(12);
     expect(extensions[0].github?.readme?.markdown).toBe('# Example 🌱');
     expect(extensions[0].compatibility).toEqual({
@@ -84,6 +86,7 @@ describe('runtime extension catalog', () => {
     expect(extensions[0].manifest).toContain('kind: Extension');
     expect(extensions[0].manifest).not.toContain('markdown:');
     expect(extensions[0].manifest).not.toContain('compatibility:');
+    expect(extensions[0].manifest).not.toContain('addedAt:');
     expect(decodeURIComponent(extensions[0].manifestUrl.split(',')[1])).toBe(extensions[0].manifest);
     expect(server.requests.map((request) => request.url)).toEqual([directory + 'index.json', directory + 'example.yaml', directory + 'second.yml']);
     expect(server.requests.every((request) => request.options?.cache === 'no-cache')).toBe(true);
@@ -101,6 +104,13 @@ describe('runtime extension catalog', () => {
     const withoutCompatibility = definition.split('compatibility:')[0];
     expect(parseExtension(withoutCompatibility, 'example.yaml').compatibility).toBeUndefined();
     expect(parseExtension(withoutCompatibility + 'compatibility: {v0.0.3: {}}', 'example.yaml').compatibility).toEqual({ 'v0.0.3': {} });
+  });
+
+  test('supports legacy entries without an addition date and rejects malformed dates', () => {
+    expect(parseExtension(definition.replace("addedAt: '2026-11-01T10:00:00.000Z'", ''), 'example.yaml').addedAt).toBeUndefined();
+    for (const date of ['invalid', '42', 'null']) {
+      expect(() => parseExtension(definition.replace("'2026-11-01T10:00:00.000Z'", date), 'example.yaml')).toThrow('addedAt date string');
+    }
   });
 
   test('picks up newly published versions and extensions without changing the application', async () => {

@@ -1,14 +1,15 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocation, useMatch, useNavigate } from 'react-router-dom';
 import { ExtensionCard } from './components/ExtensionCard';
+import { Dropdown } from './components/Dropdown';
 import type { Extension } from './data/extensions';
+import { SORT_OPTIONS, sortExtensions, type SortOrder } from './data/sorting';
 import { useExtensions } from './hooks/useExtensions';
 import { Icon } from './components/Icon';
 import './App.css';
 
 const REPOSITORY_URL = 'https://github.com/matthias-horne/extension-hub';
 const ExtensionDetails = lazy(() => import('./components/ExtensionDetails'));
-type SortOrder = 'default' | 'az' | 'za';
 
 function App() {
   const { extensions, status, retry } = useExtensions();
@@ -27,7 +28,7 @@ function App() {
   });
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('default');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('az');
   const [selectedExtension, setSelectedExtension] = useState<Extension | null>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const detailDialog = useRef<HTMLDialogElement>(null);
@@ -38,14 +39,9 @@ function App() {
     [extension.title, extension.description, extension.owner, extension.repositoryPath, ...extension.tags]
       .join(' ').toLowerCase().includes(query.trim().toLowerCase()),
   );
-  const visibleExtensions = matchingExtensions.filter((extension) =>
+  const visibleExtensions = sortExtensions(matchingExtensions.filter((extension) =>
     category === 'All' || extension.tags.includes(category),
-  );
-  if (sortOrder !== 'default') {
-    visibleExtensions.sort((a, b) =>
-      sortOrder === 'az' ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title),
-    );
-  }
+  ), sortOrder);
   const hasFilters = query !== '' || category !== 'All';
 
   useEffect(() => {
@@ -179,14 +175,7 @@ function App() {
                 </button>
               )}
             </div>
-            <div className="sort-field">
-              <select aria-label="Sort extensions" value={sortOrder} onChange={(event) => setSortOrder(event.target.value as SortOrder)}>
-                <option value="default">Default order</option>
-                <option value="az">Name (A–Z)</option>
-                <option value="za">Name (Z–A)</option>
-              </select>
-              <Icon name="chevron" />
-            </div>
+            <Dropdown className="sort-field" label="Sort extensions" options={SORT_OPTIONS} value={sortOrder} onChange={setSortOrder} />
           </div>
 
           <div className="category-filters" role="group" aria-label="Filter by category">
