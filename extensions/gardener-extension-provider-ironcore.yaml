@@ -3,3 +3,4 @@ description: "Provision and manage Gardener clusters using IronCore infrastructu
 tags:
   - Infrastructure
 repository: https://github.com/ironcore-dev/gardener-extension-provider-ironcore
+icon: https://gardener.cloud/lp/platforms/iron_core.svg

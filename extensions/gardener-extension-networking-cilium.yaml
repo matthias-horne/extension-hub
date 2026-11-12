@@ -3,3 +3,4 @@ description: "Provide cluster networking and network policies with Cilium."
 tags:
   - Network
 repository: https://github.com/gardener/gardener-extension-networking-cilium
+icon: https://avatars.githubusercontent.com/u/21054566?s=200&v=4

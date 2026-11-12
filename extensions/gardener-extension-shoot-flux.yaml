@@ -3,3 +3,4 @@ description: "Manage Gardener shoot cluster workloads through GitOps with Flux."
 tags:
   - GitOps
 repository: https://github.com/stackitcloud/gardener-extension-shoot-flux
+icon: https://avatars.githubusercontent.com/u/52158677?s=200&v=4
