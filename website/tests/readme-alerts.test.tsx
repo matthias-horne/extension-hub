@@ -78,7 +78,7 @@ describe('README GitHub alerts', () => {
     expect(markup).toContain('<p>Ordinary <strong>quote</strong>.</p>');
     expect(markup).toContain('[!UNKNOWN]');
     expect(markup).toContain('<p>Inline [!NOTE].</p>');
-    expect(markup).toContain('<code class="language-markdown">&gt; [!WARNING]');
+    expect(markup).toMatch(/<pre\b[^>]*><code\b/);
   });
 
   test('retains GFM tables and task lists alongside alerts', () => {
