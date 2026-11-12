@@ -1,0 +1,7 @@
+name: "GDC air-gapped"
+description: "Provision and manage Gardener clusters and DNS records on Google Distributed Cloud air-gapped infrastructure."
+tags:
+  - Infrastructure
+  - DNS
+repository: https://github.com/Gardener/gardener-extension-provider-gdc
+icon: https://www.gstatic.com/devrel-devsite/prod/v0bdbebc1f01a38de21004f32be4e375582bd633675ce8e19f11ee677174d47b4/clouddocs/images/icons/products/distributed-cloud-color.svg
