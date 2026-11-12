@@ -1,0 +1,6 @@
+name: Power DNS
+description: Reconciles the DNSRecords resources against a PowerDNS server.
+tags:
+  - dns
+repository: https://github.com/metal-stack/gardener-extension-dns-powerdns
+manifestRegistry: ghcr.io/metal-stack/extensions/gardener-extension-dns-powerdns
