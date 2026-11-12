@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
@@ -22,6 +23,7 @@ function extensionWithDeployment(deployment: unknown) {
 describe('extension artifacts', () => {
   test('includes all three Helm charts from the GCP Extension manifest', () => {
     const extension = parseExtension(stringify({ ...registryEntry, extension: gcpManifest }), 'gcp.yaml');
+    assert(extension.manifest);
     const registry = 'europe-docker.pkg.dev/gardener-project/public/charts/gardener/extensions/';
     expect(extension.artifacts).toEqual([
       { type: 'helm-chart', deployment: 'extension', reference: registry + 'provider-gcp:v1.59.0-dev' },
@@ -92,6 +94,7 @@ describe('extension artifacts', () => {
       extension: { values: { image }, runtimeClusterValues: { image } },
       admission: { values: { image: { repository: 'registry.example/admission', tag: 'v2' } } },
     });
+    assert(extension.manifest);
     expect(extension.images).toEqual([
       { reference: 'registry.example:5000/extension:v1', deployments: ['extension', 'extension-runtime'] },
       { reference: 'registry.example/admission:v2', deployments: ['admission'] },

@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import { stringify } from 'yaml';
-import { parseExtension } from '../src/data/extensions';
+import { parseExtension, type Extension } from '../src/data/extensions';
 import ExtensionDetails from '../src/components/ExtensionDetails';
 import { ExtensionCard } from '../src/components/ExtensionCard';
 import { ExtensionArtifacts } from '../src/components/ExtensionArtifacts';
@@ -63,7 +63,8 @@ describe('missing extension information', () => {
   });
 
   test('warns when a release has no compatibility entry or only empty sections', () => {
-    for (const compatibility of [undefined, {}, { v2: { requires: {}, builtWith: {}, testedWith: {}, supportedFeatures: [] } }, { v1: { supportedFeatures: ['ipv6'] } }]) {
+    const cases: Extension['compatibility'][] = [undefined, {}, { v2: { requires: {}, builtWith: {}, testedWith: {}, supportedFeatures: [] } }, { v1: { supportedFeatures: ['ipv6'] } }];
+    for (const compatibility of cases) {
       const markup = renderToStaticMarkup(<MemoryRouter><ExtensionCompatibility version="v2" compatibility={compatibility} /></MemoryRouter>);
       expect(markup).toContain('information-warning');
       expect(markup).toContain('No compatibility information has been published for this version.');
