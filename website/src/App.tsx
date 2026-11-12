@@ -198,10 +198,6 @@ function App() {
                 </button>
               );
             })}
-          </div>
-
-          <div className="results-summary">
-            <p role="status">{visibleExtensions.length} {visibleExtensions.length === 1 ? 'extension' : 'extensions'}{hasFilters ? ' of ' + extensions.length : ''}</p>
             {hasFilters && <button className="clear-filters" onClick={clearFilters}>Clear filters</button>}
           </div>
 
