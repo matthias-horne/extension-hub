@@ -2,6 +2,7 @@ import type { PointerEvent } from 'react';
 import type { Extension } from '../data/extensions';
 import { Link } from 'react-router-dom';
 import { Icon } from './Icon';
+import { ExtensionIcon } from './ExtensionIcon';
 
 interface ExtensionCardProps {
   extension: Extension;
@@ -39,7 +40,7 @@ export function ExtensionCard({ extension }: ExtensionCardProps) {
     <article className="extension-card" onPointerEnter={moveCardGlow} onPointerMove={moveCardGlow} onPointerLeave={hideCardGlow} onPointerCancel={hideCardGlow}>
       <span className="card-glow" aria-hidden="true" />
       <div className="card-heading">
-        <img className="extension-icon" src={extension.icon} alt="" width="40" height="40" />
+        <ExtensionIcon className="extension-icon" extension={extension} size={40} />
         <div className="card-identity">
           <h2><Link className="card-details-link" to={'/extensions/' + encodeURIComponent(extension.id)}>{extension.title}</Link></h2>
           <a className="extension-owner" href={ownerUrl} target="_blank" rel="noopener noreferrer" aria-label={'View ' + owner + ' on GitHub'}>
@@ -50,10 +51,11 @@ export function ExtensionCard({ extension }: ExtensionCardProps) {
             <span>{owner}</span>
           </a>
         </div>
-        <a className="extension-stars" href={extension.repository + '/stargazers'} target="_blank" rel="noopener noreferrer" aria-label={starsLabel} title={starsLabel}>
+        <span className="extension-stars" title={starsLabel}>
           <Icon name="star" />
-          <span>{github ? starFormatter.format(github.stars) : '—'}</span>
-        </a>
+          <span aria-hidden="true">{github ? starFormatter.format(github.stars) : '—'}</span>
+          <span className="sr-only">{starsLabel}</span>
+        </span>
       </div>
       <p className="extension-description">{extension.description}</p>
       <div className="extension-tags" aria-label="Extension categories">

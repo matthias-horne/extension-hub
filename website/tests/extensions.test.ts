@@ -109,7 +109,8 @@ repository: https://github.com/example/community
       'v0.0.2': { builtWith: { 'gardener/gardener': 'v1.150.0' } },
       'v0.0.1': {},
     });
-    expect(extensions[0].icon).toBe('/hub/logo.svg');
+    expect(extensions[0].icon).toBe('https://avatars.githubusercontent.com/example');
+    expect(extensions[0].iconFallbacks).toEqual(['/hub/logo.svg']);
     expect(extensions[0].manifest).toContain('kind: Extension');
     expect(extensions[0].manifest).not.toContain('markdown:');
     expect(extensions[0].manifest).not.toContain('compatibility:');
@@ -137,6 +138,46 @@ repository: https://github.com/example/community
     expect(parseExtension(definition.replace("addedAt: '2026-11-01T10:00:00.000Z'", ''), 'example.yaml').addedAt).toBeUndefined();
     for (const date of ['invalid', '42', 'null']) {
       expect(() => parseExtension(definition.replace("'2026-11-01T10:00:00.000Z'", date), 'example.yaml')).toThrow('addedAt date string');
+    }
+  });
+
+  test('prioritizes explicit icons, social previews, owner avatars, and the local logo', () => {
+    const preview = 'https://images.example/preview.png';
+    const custom = 'https://images.example/icon.svg';
+    const withPreview = definition.replace('github:', 'github:\n  socialPreviewUrl: ' + preview);
+    const explicit = parseExtension(withPreview + 'icon: ' + custom, 'example.yaml', '/hub/');
+    expect([explicit.icon, ...explicit.iconFallbacks]).toEqual([
+      custom, preview, 'https://avatars.githubusercontent.com/example', '/hub/logo.svg',
+    ]);
+    const social = parseExtension(withPreview, 'example.yaml', '/hub/');
+    expect([social.icon, ...social.iconFallbacks]).toEqual([
+      preview, 'https://avatars.githubusercontent.com/example', '/hub/logo.svg',
+    ]);
+    const owner = parseExtension(definition, 'example.yaml', '/hub/');
+    expect([owner.icon, ...owner.iconFallbacks]).toEqual(['https://avatars.githubusercontent.com/example', '/hub/logo.svg']);
+    const uncached = parseExtension(definition.split('github:')[0], 'example.yaml', '/hub/');
+    expect([uncached.icon, ...uncached.iconFallbacks]).toEqual(['https://avatars.githubusercontent.com/example?s=128', '/hub/logo.svg']);
+  });
+
+  test('skips missing or invalid cached image URLs and removes duplicate candidates', () => {
+    for (const preview of ['null', '""', 'javascript:alert(1)', '/relative.png']) {
+      const entry = parseExtension(definition.replace('github:', 'github:\n  socialPreviewUrl: ' + preview), 'example.yaml');
+      expect(entry.icon).toBe('https://avatars.githubusercontent.com/example');
+      expect(entry.iconFallbacks).toEqual(['/logo.svg']);
+    }
+    const invalidOwner = parseExtension(definition.replace('avatarUrl: https://avatars.githubusercontent.com/example', 'avatarUrl: null'), 'example.yaml');
+    expect(invalidOwner.icon).toBe('https://avatars.githubusercontent.com/example?s=128');
+    const sameUrl = definition.replace('github:', 'github:\n  socialPreviewUrl: https://avatars.githubusercontent.com/example')
+      + 'icon: https://avatars.githubusercontent.com/example';
+    expect(parseExtension(sameUrl, 'example.yaml').iconFallbacks).toEqual(['/logo.svg']);
+  });
+
+  test('accepts absolute HTTP(S) icon URLs and rejects malformed explicit icons', () => {
+    for (const icon of ['https://images.example/icon.svg', 'http://images.example/icon.png']) {
+      expect(parseExtension(definition + 'icon: ' + icon, 'example.yaml').icon).toBe(icon);
+    }
+    for (const icon of ['null', '""', '42', '[]', '/relative.svg', 'javascript:alert(1)', 'data:image/png;base64,AAAA']) {
+      expect(() => parseExtension(definition + 'icon: ' + icon, 'example.yaml')).toThrow('absolute HTTP(S) URL');
     }
   });
 

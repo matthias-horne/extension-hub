@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { parse, stringify } from 'yaml';
 import {
-  COMPATIBILITY_MEDIA_TYPE, EXTENSION_MEDIA_TYPE, aggregate, fetchGitHubInfo,
+  COMPATIBILITY_MEDIA_TYPE, EXTENSION_MEDIA_TYPE, aggregate, fetchGitHubInfo, fetchSocialPreview,
   integrateHelmValues, listArtifactTags, listReleases, loadMapping, pullCompatibility, pullHelmValues, pullManifest, repositoryName,
   run, updateExtensions, validateCompatibility, validateManifest, validateRegistration, writeManifest,
 } from './update-extensions.js';
@@ -23,6 +23,7 @@ const REGISTRATION = {
 const GITHUB = {
   stars: 12, lastCommit: '2026-11-11T00:00:00Z', language: 'Go',
   license: { name: 'Apache License 2.0', spdxId: 'Apache-2.0' },
+  socialPreviewUrl: 'https://images.example/social-preview.png',
   owner: { login: 'example', avatarUrl: 'https://avatars.githubusercontent.com/example', htmlUrl: 'https://github.com/example' },
   readme: { markdown: '# Example 🌱\n', path: 'docs/README.md', htmlUrl: 'https://github.com/example/extension/blob/main/docs/README.md', rawUrl: 'https://raw.githubusercontent.com/example/extension/main/docs/README.md' },
 };
@@ -170,7 +171,9 @@ test('lists registry tags to identify releases with published extension artifact
 });
 
 test('stores all displayed GitHub information and decodes UTF-8 README content', async () => {
-  const command = mock.fn(async (...args) => args.at(-1).endsWith('/readme')
+  const command = mock.fn(async (...args) => args[2] === 'graphql'
+    ? JSON.stringify({ data: { repository: { openGraphImageUrl: GITHUB.socialPreviewUrl, usesCustomOpenGraphImage: true } } })
+    : args.at(-1).endsWith('/readme')
     ? 'HTTP/2.0 200 OK\r\nContent-Type: application/json\r\n\r\n' + JSON.stringify({
       encoding: 'base64', content: Buffer.from(GITHUB.readme.markdown).toString('base64'),
       path: GITHUB.readme.path, html_url: GITHUB.readme.htmlUrl, download_url: GITHUB.readme.rawUrl,
@@ -183,6 +186,9 @@ test('stores all displayed GitHub information and decodes UTF-8 README content',
   assert.deepEqual(await fetchGitHubInfo(REGISTRATION.repository, command), GITHUB);
   assert.deepEqual(command.mock.calls.map((call) => call.arguments), [
     ['gh', 'api', 'repos/example/extension'], ['gh', 'api', '--include', 'repos/example/extension/readme'],
+    ['gh', 'api', 'graphql',
+      '-f', 'query=query($owner: String!, $name: String!) { repository(owner: $owner, name: $name) { openGraphImageUrl usesCustomOpenGraphImage } }',
+      '-f', 'owner=example', '-f', 'name=extension'],
   ]);
 });
 
@@ -190,6 +196,7 @@ test('treats README 404 as missing but fails on rate limits and malformed conten
   const repository = JSON.stringify({ stargazers_count: 0, owner: { login: 'example', avatar_url: 'avatar', html_url: 'owner' } });
   const readmeError = (status) => new Error('gh failed', { cause: { stdout: 'HTTP/2.0 ' + status + '\n\n{}' } });
   const command = (readme) => async (...args) => {
+    if (args[2] === 'graphql') return JSON.stringify({ data: { repository: { usesCustomOpenGraphImage: false } } });
     if (!args.at(-1).endsWith('/readme')) return repository;
     if (readme instanceof Error) throw readme;
     return readme;
@@ -202,6 +209,62 @@ test('treats README 404 as missing but fails on rate limits and malformed conten
   await assert.rejects(fetchGitHubInfo(REGISTRATION.repository, command(readmeError(403))), /gh failed/);
   await assert.rejects(fetchGitHubInfo(REGISTRATION.repository, command('HTTP/2.0 200 OK\n\n{}')), /invalid README/);
   await assert.rejects(fetchGitHubInfo(REGISTRATION.repository, async () => '{}'), /invalid repository/);
+});
+
+test('uses configured social previews and skips GitHub-generated repository cards', async () => {
+  for (const custom of [true, false]) {
+    const command = async () => JSON.stringify({ data: { repository: {
+      usesCustomOpenGraphImage: custom, openGraphImageUrl: GITHUB.socialPreviewUrl,
+    } } });
+    assert.equal(await fetchSocialPreview(REGISTRATION.repository, command), custom ? GITHUB.socialPreviewUrl : null);
+  }
+});
+
+test('falls back from unavailable or malformed social previews', async () => {
+  const failures = [
+    new Error('GraphQL rate limit exceeded'),
+    'invalid json',
+    JSON.stringify({ errors: [{ message: 'Forbidden' }], data: { repository: null } }),
+    JSON.stringify({ data: { repository: null } }),
+    JSON.stringify({ data: { repository: { usesCustomOpenGraphImage: true, openGraphImageUrl: '/relative.png' } } }),
+  ];
+  for (const response of failures) {
+    const warn = mock.fn();
+    const command = async () => {
+      if (response instanceof Error) throw response;
+      return response;
+    };
+    assert.equal(await fetchSocialPreview(REGISTRATION.repository, command, warn), null);
+    assert.equal(warn.mock.callCount(), 1);
+  }
+});
+
+test('still updates repository metadata when the social preview request fails', async () => {
+  const warn = mock.fn();
+  const command = async (...args) => {
+    if (args[2] === 'graphql') throw new Error('GraphQL unavailable');
+    if (args.at(-1).endsWith('/readme')) return 'HTTP/2.0 404 Not Found\n\n{}';
+    return JSON.stringify({
+      stargazers_count: 99, pushed_at: GITHUB.lastCommit, language: GITHUB.language,
+      owner: { login: GITHUB.owner.login, avatar_url: GITHUB.owner.avatarUrl, html_url: GITHUB.owner.htmlUrl },
+    });
+  };
+  const info = await fetchGitHubInfo(REGISTRATION.repository, command, warn);
+  assert.equal(info.stars, 99);
+  assert.equal(info.socialPreviewUrl, null);
+  assert.deepEqual(info.owner, GITHUB.owner);
+  assert.equal(warn.mock.callCount(), 1);
+});
+
+test('validates explicit icon URLs and preserves them in aggregated registrations', async () => {
+  for (const icon of ['https://images.example/icon.svg', 'http://images.example/icon.png']) {
+    const registration = { ...REGISTRATION, icon };
+    validateRegistration(registration);
+    assert.equal((await aggregate(registration, {}, dependencies([]))).icon, icon);
+  }
+  for (const icon of [null, '', 42, [], '/relative.svg', 'javascript:alert(1)', 'data:image/png;base64,AAAA']) {
+    assert.throws(() => validateRegistration({ ...REGISTRATION, icon }), /absolute HTTP[(]S[)] URL/);
+  }
 });
 
 function compatibilityCommand(referrers, documents = {}, subject = 'sha256:' + 'e'.repeat(64)) {

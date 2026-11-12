@@ -27,6 +27,15 @@ function isMapping(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+function isIconUrl(value) {
+  if (typeof value !== 'string' || !value.trim()) return false;
+  try {
+    return ['https:', 'http:'].includes(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+}
+
 export function loadMapping(text, source) {
   const data = parse(text);
   if (!isMapping(data)) {
@@ -59,6 +68,9 @@ export function validateRegistration(registration) {
     throw new Error('tags must be a list of strings');
   }
   repositoryName(registration.repository);
+  if (registration.icon !== undefined && !isIconUrl(registration.icon)) {
+    throw new Error('icon must be an absolute HTTP(S) URL');
+  }
   if (registration.manifestRegistry !== undefined &&
       (typeof registration.manifestRegistry !== 'string' ||
        !/^[a-zA-Z0-9.-]+(?::[0-9]+)?\/[a-z0-9]+(?:[._/-][a-z0-9]+)*$/.test(registration.manifestRegistry))) {
@@ -244,7 +256,32 @@ export async function pullCompatibility(registry, tag, command = run) {
   return result;
 }
 
-export async function fetchGitHubInfo(repository, command = run) {
+export async function fetchSocialPreview(repository, command = run, warn = console.warn) {
+  const [owner, name] = repositoryName(repository).split('/');
+  try {
+    const response = JSON.parse(await command(
+      'gh', 'api', 'graphql',
+      '-f', 'query=query($owner: String!, $name: String!) { repository(owner: $owner, name: $name) { openGraphImageUrl usesCustomOpenGraphImage } }',
+      '-f', 'owner=' + owner, '-f', 'name=' + name,
+    ));
+    const preview = response.data?.repository;
+    if (response.errors?.length || typeof preview?.usesCustomOpenGraphImage !== 'boolean') {
+      throw new Error('GitHub returned invalid social preview information');
+    }
+    // GitHub's generated preview is a wide repository card, not a configured icon.
+    if (!preview.usesCustomOpenGraphImage) return null;
+    if (!isIconUrl(preview.openGraphImageUrl)) {
+      throw new Error('GitHub returned an invalid social preview URL');
+    }
+    return preview.openGraphImageUrl;
+  } catch (error) {
+    // Optional artwork must not prevent releases and compatibility from updating.
+    warn(owner + '/' + name + ': could not load social preview; using owner icon (' + error.message + ')');
+    return null;
+  }
+}
+
+export async function fetchGitHubInfo(repository, command = run, warn = console.warn) {
   const endpoint = 'repos/' + repositoryName(repository);
   const data = JSON.parse(await command('gh', 'api', endpoint));
   if (!Number.isFinite(data.stargazers_count) || data.stargazers_count < 0 ||
@@ -278,6 +315,7 @@ export async function fetchGitHubInfo(repository, command = run) {
     stars: data.stargazers_count, lastCommit: data.pushed_at ?? null,
     language: data.language ?? null,
     license: data.license ? { name: data.license.name, spdxId: data.license.spdx_id } : null,
+    socialPreviewUrl: await fetchSocialPreview(repository, command, warn),
     owner: { login: data.owner.login, avatarUrl: data.owner.avatar_url, htmlUrl: data.owner.html_url },
     readme,
   };
