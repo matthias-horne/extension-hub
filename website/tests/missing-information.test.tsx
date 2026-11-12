@@ -28,8 +28,8 @@ describe('missing extension information', () => {
     expect(markup).not.toContain('Copy YAML');
     expect(markup).not.toContain('id="manifest-preview"');
     expect(markup).toContain('Read on GitHub');
-    const card = renderToStaticMarkup(<MemoryRouter><ExtensionCard extension={extension} onSelect={() => {}} /></MemoryRouter>);
-    expect(card).toContain('disabled="" title="No extension.yaml has been published"');
+    const card = renderToStaticMarkup(<MemoryRouter><ExtensionCard extension={extension} /></MemoryRouter>);
+    expect(card).not.toContain('Show extension.yaml');
     expect(card).not.toContain('download="extension.yaml"');
   });
 

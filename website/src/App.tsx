@@ -2,7 +2,6 @@ import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 're
 import { Link, useLocation, useMatch, useNavigate } from 'react-router-dom';
 import { ExtensionCard } from './components/ExtensionCard';
 import { Dropdown } from './components/Dropdown';
-import type { Extension } from './data/extensions';
 import { SORT_OPTIONS, sortExtensions, type SortOrder } from './data/sorting';
 import { useExtensions } from './hooks/useExtensions';
 import { Icon } from './components/Icon';
@@ -43,9 +42,7 @@ function App() {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
   const [sortOrder, setSortOrder] = useState<SortOrder>('az');
-  const [selectedExtension, setSelectedExtension] = useState<Extension | null>(null);
   const searchInput = useRef<HTMLInputElement>(null);
-  const detailDialog = useRef<HTMLDialogElement>(null);
   const catalogScroll = useRef(0);
   const initialNavigation = useRef(true);
   const focusSearchOnNavigation = useRef(false);
@@ -99,7 +96,6 @@ function App() {
     function handleShortcut(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
-        detailDialog.current?.close();
         focusSearchOnNavigation.current = searchInput.current === null;
         searchInput.current?.focus();
         if (pathname !== '/') navigate('/');
@@ -108,10 +104,6 @@ function App() {
     document.addEventListener('keydown', handleShortcut);
     return () => document.removeEventListener('keydown', handleShortcut);
   }, [navigate, pathname]);
-
-  useEffect(() => {
-    if (selectedExtension) detailDialog.current?.showModal();
-  }, [selectedExtension]);
 
   function clearFilters() {
     setQuery('');
@@ -221,7 +213,7 @@ function App() {
           {visibleExtensions.length > 0 ? (
             <div className="extension-grid">
               {visibleExtensions.map((extension) => (
-                <ExtensionCard key={extension.id} extension={extension} onSelect={setSelectedExtension} />
+                <ExtensionCard key={extension.id} extension={extension} />
               ))}
             </div>
           ) : (
@@ -250,24 +242,6 @@ function App() {
         <a href={REPOSITORY_URL + '/issues/new'}>Contribute an extension <Icon name="arrow" /></a>
       </footer>
 
-      <dialog ref={detailDialog} className="manifest-dialog" aria-labelledby="manifest-title" onClose={() => setSelectedExtension(null)}>
-        {selectedExtension?.manifest && (
-          <>
-            <div className="dialog-heading">
-              <div>
-                <h2 id="manifest-title">extension.yaml</h2>
-                <p>{selectedExtension.title}</p>
-              </div>
-              <button className="icon-button" aria-label="Close extension.yaml" onClick={() => detailDialog.current?.close()}><Icon name="close" /></button>
-            </div>
-            <div className="manifest-toolbar">
-              <span>Extension manifest</span>
-              <a href={selectedExtension.manifestUrl} download="extension.yaml"><Icon name="download" />Download extension.yaml</a>
-            </div>
-            <pre className="manifest-code" tabIndex={0} aria-label={selectedExtension.title + ' YAML definition'}><code>{selectedExtension.manifest}</code></pre>
-          </>
-        )}
-      </dialog>
     </div>
   );
 }

@@ -57,7 +57,6 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 88px; }
 body { margin: 0; min-width: 320px; background: var(--page-bg); color: var(--text); }
-body:has(dialog[open]) { overflow: hidden; }
 button, input { font: inherit; }
 button, a, input { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; color: inherit; }
