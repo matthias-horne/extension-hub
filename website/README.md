@@ -29,6 +29,8 @@ Inline search (or Command/Ctrl + K to focus it) finds extensions by name, owner,
 
 The catalog layout follows [Vicinae Extensions](https://www.vicinae.com/extensions), with charcoal surfaces, Inter typography, and green feature icons inspired by [gardener.cloud](https://gardener.cloud/). Logo and icon SVGs come from the official site's `/gardener-logo.svg` and `/highlights/` assets, with green fills adjusted to the reference screenshot. Inter is served locally from the official site's font asset.
 
+README fenced code blocks and the `extension.yaml` preview use [Shiki](https://shiki.style/) with the same `github-light` and `github-dark` themes as gardener.cloud. The highlighter, WASM engine, themes, and language grammars load on demand, so they do not affect the catalog bundle.
+
 Theme variables are defined in `src/index.css`; page, component, and responsive styles are in `src/App.css`.
 
 ## Extension data

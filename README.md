@@ -20,22 +20,11 @@ repository: https://github.com/matthias-horne/gardener-extension-example
 manifestRegistry: ghcr.io/matthias-horne/manifests/gardener-extension-example
 ```
 
-The catalog includes all known implementations from the [Gardener Extensions Library](https://github.com/gardener/gardener/blob/master/extensions/README.md). Repositories listed in multiple sections have one registration with all applicable tags. Tags use the approved categories: Infrastructure, DNS, OS, Runtime, Network, Security, Observability, Images, Storage, GitOps, and Example. Shared capability tags generally apply to at least three extensions; Storage and GitOps are approved exceptions.
-
-`manifestRegistry` is optional. Extensions without a registry are listed with repository information and release versions; unavailable manifests, artifacts, documentation, and compatibility information show yellow notices. The hub offers an `extension.yaml` download only when an Extension resource is available.
-
 To choose an extension icon, add an optional `icon` URL to its registration:
 
 ```yaml
 icon: https://example.com/my-extension-icon.svg
 ```
-
-Icons use this priority: the explicit `icon`, the repository's custom GitHub social
-preview image, the GitHub owner's avatar, then the Gardener logo. GitHub's
-automatically generated repository previews are skipped. Image load failures
-advance to the next source. Explicit icons must use absolute HTTP(S) URLs.
-
-Set `VITE_SHOW_EXTENSIONS_WITHOUT_REGISTRY=false` when building the website to hide entries without a registry. The default is `true`. GitHub Pages builds use the repository Actions variable with the same name. See [the website instructions](website/README.md) for local builds.
 
 When provided, the `manifestRegistry` OCI artifact can contain a referrer pointing to a `compatibility.yaml`.
 This format is used to validate extension compatibility by the gardener-operator.

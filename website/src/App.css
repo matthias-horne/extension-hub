@@ -194,6 +194,9 @@
 .readme-content code { padding: 2px 5px; border-radius: 4px; background: var(--button-bg); color: var(--brand); font-family: var(--font-mono); font-size: 12px; }
 .readme-content pre { margin: 18px 0; padding: 16px 18px; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--page-bg); color: var(--text); font-size: 12px; line-height: 22px; }
 .readme-content pre code { padding: 0; border-radius: 0; background: transparent; color: inherit; font: inherit; }
+/* Shiki highlighting matches gardener.cloud: github-light in light mode, github-dark in dark mode. */
+html:not(.dark) .shiki span { color: var(--shiki-light, inherit); }
+html.dark .shiki span { color: var(--shiki-dark, inherit); }
 .readme-content ul, .readme-content ol { margin: 14px 0; padding-left: 24px; }
 .readme-content ul { list-style: disc; }
 .readme-content ol { list-style: decimal; }
