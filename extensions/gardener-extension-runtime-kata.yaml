@@ -4,6 +4,7 @@ tags:
   - Runtime
   - Security
 repository: https://github.com/23technologies/gardener-extension-runtime-kata
+icon: https://avatars.githubusercontent.com/u/33289952?s=200&v=4
 addedAt: 2026-11-12T14:49:41.322Z
 version: v0.0.1
 github:

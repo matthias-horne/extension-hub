@@ -3,6 +3,7 @@ description: Provision and manage Gardener clusters on VMware vSphere.
 tags:
   - Infrastructure
 repository: https://github.com/gardener/gardener-extension-provider-vsphere
+icon: https://de.wikipedia.org/wiki/VMware_vSphere#/media/Datei:VMware-vSphere-7.jpg
 addedAt: 2026-11-12T14:49:34.767Z
 version: v0.33.2
 github:

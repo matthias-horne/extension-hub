@@ -4,6 +4,7 @@ tags:
   - Runtime
   - Security
 repository: https://github.com/gardener/gardener-extension-runtime-gvisor
+icon: https://avatars.githubusercontent.com/u/51218664?v=4
 addedAt: 2026-11-12T14:49:39.377Z
 version: v0.51.0
 github:

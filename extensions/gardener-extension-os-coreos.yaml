@@ -3,6 +3,7 @@ description: Configure CoreOS and Flatcar Container Linux nodes in Gardener clus
 tags:
   - OS
 repository: https://github.com/gardener/gardener-extension-os-coreos
+icon: https://avatars.githubusercontent.com/u/36193555?s=200&v=4
 addedAt: 2026-11-12T14:48:57.747Z
 version: v1.35.0
 github:

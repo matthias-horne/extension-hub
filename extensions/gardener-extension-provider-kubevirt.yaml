@@ -3,6 +3,7 @@ description: Provision and manage Gardener clusters on virtual machines using Ku
 tags:
   - Infrastructure
 repository: https://github.com/gardener/gardener-extension-provider-kubevirt
+icon: https://avatars.githubusercontent.com/u/18700703?s=200&v=4
 addedAt: 2026-11-12T14:49:25.254Z
 version: v0.2.0
 github:
