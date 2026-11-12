@@ -19,14 +19,15 @@
   --card-bg: #f6f6f7;
   --card-hover: #eeefef;
   --text: #3c3c43;
-  --text-muted: #67676c;
-  --text-subtle: #76767b;
+  --text-muted: #606065;
+  --text-subtle: #626267;
   --line: #e2e2e3;
+  --control-line: #7c7c82;
   --button-bg: #ebebef;
   --button-hover: #e0e0e5;
-  --brand: #087254;
+  --brand: #066448;
   --on-brand: #ffffff;
-  --brand-soft: rgb(8 114 84 / 12%);
+  --brand-soft: rgb(6 100 72 / 12%);
 }
 
 :root.dark {
@@ -35,14 +36,15 @@
   --card-bg: #202127;
   --card-hover: #25272c;
   --text: #dfdfd6;
-  --text-muted: #98989f;
-  --text-subtle: #85858c;
+  --text-muted: #ababb2;
+  --text-subtle: #aaaab1;
   --line: #303036;
+  --control-line: #8d919c;
   --button-bg: #32343e;
   --button-hover: #3c3f4a;
-  --brand: #49a382;
+  --brand: #63c49c;
   --on-brand: #132a22;
-  --brand-soft: rgb(73 163 130 / 14%);
+  --brand-soft: rgb(99 196 156 / 14%);
 }
 
 * { box-sizing: border-box; }
