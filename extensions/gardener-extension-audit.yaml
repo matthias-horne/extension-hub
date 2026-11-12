@@ -1,6 +1,0 @@
-name: "Audit (metal-stack)"
-description: "Configure Kubernetes audit logging for Gardener clusters on metal-stack."
-tags:
-  - Security
-  - Observability
-repository: https://github.com/metal-stack/gardener-extension-audit

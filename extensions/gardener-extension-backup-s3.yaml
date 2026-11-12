@@ -1,5 +1,0 @@
-name: "S3 Compatible Storage"
-description: "Back up Gardener cluster data to S3-compatible object storage."
-tags:
-  - Storage
-repository: https://github.com/metal-stack/gardener-extension-backup-s3

@@ -1,5 +1,0 @@
-name: "PowerDNS"
-description: "Manage Gardener DNSRecord resources using PowerDNS."
-tags:
-  - DNS
-repository: https://github.com/metal-stack/gardener-extension-dns-powerdns
