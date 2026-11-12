@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocation, useMatch, useNavigate } from 'react-router-dom';
 import { ExtensionCard } from './components/ExtensionCard';
+import { ExtensionListItem } from './components/ExtensionListItem';
 import { Dropdown } from './components/Dropdown';
 import { SORT_OPTIONS, sortExtensions, type SortOrder } from './data/sorting';
 import { useExtensions } from './hooks/useExtensions';
@@ -23,6 +24,7 @@ const TAG_DESCRIPTIONS: Record<string, string> = {
   Example: 'Demonstration extensions',
 };
 const ExtensionDetails = lazy(() => import('./components/ExtensionDetails'));
+type ViewMode = 'grid' | 'list';
 
 function App() {
   const { extensions, status, retry } = useExtensions();
@@ -42,6 +44,13 @@ function App() {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
   const [sortOrder, setSortOrder] = useState<SortOrder>('popular');
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    try {
+      return localStorage.getItem('gardener-view') === 'list' ? 'list' : 'grid';
+    } catch {
+      return 'grid';
+    }
+  });
   const searchInput = useRef<HTMLInputElement>(null);
   const catalogScroll = useRef(0);
   const initialNavigation = useRef(true);
@@ -65,6 +74,14 @@ function App() {
   }, [darkMode]);
 
   useEffect(() => {
+    try {
+      localStorage.setItem('gardener-view', viewMode);
+    } catch {
+      // The layout also works when browser storage is unavailable.
+    }
+  }, [viewMode]);
+
+  useEffect(() => {
     const previous = window.history.scrollRestoration;
     window.history.scrollRestoration = 'manual';
     return () => { window.history.scrollRestoration = previous; };
@@ -72,8 +89,8 @@ function App() {
 
   useEffect(() => {
     document.title = extension
-      ? extension.title + ' | Gardener Extensions Hub'
-      : isCatalog || status !== 'ready' ? 'Gardener Extensions Hub' : 'Extension not found | Gardener Extensions Hub';
+      ? extension.title + ' | Gardener Extension Hub'
+      : isCatalog || status !== 'ready' ? 'Gardener Extension Hub' : 'Extension not found | Gardener Extension Hub';
   }, [extension, isCatalog, status]);
 
   useLayoutEffect(() => {
@@ -119,11 +136,11 @@ function App() {
       }}>Skip to content</a>
       <header className="site-header">
         <div className="content-width header-inner">
-          <Link className="brand" to="/" aria-label="Gardener Extensions Hub home">
+          <Link className="brand" to="/" aria-label="Gardener Extension Hub home">
             <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="" width="28" height="28" />
             <span className="brand-project">Gardener</span>
             <span className="brand-divider" aria-hidden="true" />
-            <span>Extensions Hub</span>
+            <span>Extension Hub</span>
           </Link>
           <div className="header-tools">
             <a className="repository-link" href={REPOSITORY_URL} target="_blank" rel="noopener noreferrer" aria-label="Extension Hub on GitHub">
@@ -177,6 +194,14 @@ function App() {
               )}
             </div>
             <Dropdown className="sort-field" label="Sort extensions" listLabel="Sort order" options={SORT_OPTIONS} value={sortOrder} onChange={setSortOrder} />
+            <div className="view-toggle" role="group" aria-label="Layout">
+              <button type="button" aria-label="Grid view" title="Grid view" aria-pressed={viewMode === 'grid'} onClick={() => setViewMode('grid')}>
+                <Icon name="grid" />
+              </button>
+              <button type="button" aria-label="List view" title="List view" aria-pressed={viewMode === 'list'} onClick={() => setViewMode('list')}>
+                <Icon name="list" />
+              </button>
+            </div>
           </div>
 
           <div className="category-filters" role="group" aria-label="Filter by category">
@@ -202,11 +227,19 @@ function App() {
           </div>
 
           {visibleExtensions.length > 0 ? (
-            <div className="extension-grid">
-              {visibleExtensions.map((extension) => (
-                <ExtensionCard key={extension.id} extension={extension} />
-              ))}
-            </div>
+            viewMode === 'grid' ? (
+              <div className="extension-grid">
+                {visibleExtensions.map((extension) => (
+                  <ExtensionCard key={extension.id} extension={extension} />
+                ))}
+              </div>
+            ) : (
+              <div className="extension-list">
+                {visibleExtensions.map((extension) => (
+                  <ExtensionListItem key={extension.id} extension={extension} />
+                ))}
+              </div>
+            )
           ) : (
             <div className="empty-state">
               <Icon name="search" />
@@ -229,7 +262,7 @@ function App() {
       )}
 
       <footer className="site-footer content-width">
-        <span>Gardener Extensions Hub</span>
+        <span>Gardener Extension Hub</span>
         <a href={REPOSITORY_URL + '/issues/new?template=1-Register.yml'}>Contribute an extension <Icon name="arrow" /></a>
       </footer>
 

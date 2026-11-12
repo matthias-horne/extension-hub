@@ -7,10 +7,10 @@ import { ExtensionCompatibility } from '../src/components/ExtensionCompatibility
 import { parseExtension } from '../src/data/extensions';
 import { SORT_OPTIONS, sortExtensions } from '../src/data/sorting';
 
-function extension(name: string, stars?: number, addedAt?: string, version = 'v1') {
+function extension(name: string, stars?: number, addedAt?: string, version = 'v1', lastCommit: string | null = null) {
   return parseExtension(stringify({
     name, description: 'Example', repository: 'https://github.com/example/' + name.toLowerCase(),
-    version, addedAt, github: stars === undefined ? undefined : { stars },
+    version, addedAt, github: stars === undefined ? undefined : { stars, lastCommit },
   }), name.toLowerCase() + '.yaml');
 }
 
@@ -37,6 +37,17 @@ describe('catalog sorting', () => {
     expect(names(sortExtensions(entries, 'za'))).toEqual(['Echo', 'Delta', 'Charlie', 'Bravo', 'Alpha']);
     expect(names(entries)).toEqual(['Charlie', 'Delta', 'Bravo', 'Alpha', 'Echo']);
     expect(sortExtensions([], 'newest')).toEqual([]);
+  });
+
+  test('sorts by recent commit activity, placing missing commits last', () => {
+    const commits = [
+      extension('Bravo', 0, undefined, 'v1', '2026-11-10T12:00:00Z'),
+      extension('Alpha', 0, undefined, 'v1', '2026-11-12T12:00:00Z'),
+      extension('Missing', 0),
+      extension('Charlie', 0, undefined, 'v1', '2026-11-11T12:00:00Z'),
+      extension('Invalid', 0, undefined, 'v1', 'not-a-date'),
+    ];
+    expect(names(sortExtensions(commits, 'activity'))).toEqual(['Alpha', 'Charlie', 'Bravo', 'Invalid', 'Missing']);
   });
 
   test('uses the custom combobox for sort labels and preserves version badges', () => {

@@ -1,4 +1,4 @@
-# Gardener Extensions Hub
+# Gardener Extension Hub
 
 A searchable catalog of the Gardener extensions registered in the repository, with Gardener styling and a compact card layout.
 
@@ -15,7 +15,7 @@ bun run build
 bun run lint
 ```
 
-The page uses React, TypeScript, Vite, and CSS. Dark mode is the default; the theme switch saves your preference locally. The layout uses three columns on desktop, two on tablet, and one on mobile.
+The page uses React, TypeScript, Vite, and CSS. Dark mode is the default; the theme switch saves your preference locally. The catalog can be shown as a card grid or a compact list; the layout switch saves your preference locally. The grid uses three columns on desktop, two on tablet, and one on mobile.
 
 Navigation uses hash routes so shared links and page refreshes work on GitHub Pages. Extension details use URLs such as `https://matthias-horne.github.io/extension-hub/#/extensions/gardener-extension-example`. Selecting a details tab or compatibility version updates query parameters inside the hash, for example `#/extensions/gardener-extension-example?tab=compatibility&version=v1.2.3`. Shared links, refreshes, and browser Back/Forward restore those selections; missing or unknown selections fall back to Overview and the current version (or the first available compatibility version). The deployment build sets Vite's base path to `/extension-hub/` for assets; route paths live after the hash.
 
@@ -23,7 +23,7 @@ The details page has an Artifacts tab showing the manifest registry and the Helm
 
 The tab also lists copyable container image references from the extension’s `values`, `runtimeClusterValues`, and shared admission `values`. It recognizes direct image strings and image mappings with `ref` or `repository` plus `tag` or `digest`, including nested components and `images` collections. Identical references appear once with all deployment roles. Incomplete image mappings and unresolved Helm templates are omitted; this list reflects configured Helm values rather than a rendered workload inventory.
 
-Inline search (or Command/Ctrl + K to focus it) finds extensions by name, owner, repository, tags, and description. Category filters show counts for the current search and work together with the search query. The grid defaults to Most popular. The custom sort dropdown supports alphabetical order, Most popular (descending GitHub stars), and Newest (descending `addedAt`, the timestamp when the updater first creates the extension's aggregated manifest in the `pages` branch). Existing aggregates without a date receive one on their next successful update. Missing stars count as zero; missing dates sort last, and ties use alphabetical order. Cards show the GitHub owner and avatar, cached repository stars, category tags, and a repository link. When an Extension resource is available, the extension.yaml button opens the manifest and the download icon saves it with that filename. Escape closes the viewer. The header links to this repository on GitHub.
+Inline search (or Command/Ctrl + K to focus it) finds extensions by name, owner, repository, tags, and description. Category filters show counts for the current search and work together with the search query. The grid defaults to Most popular. The custom sort dropdown supports alphabetical order, Most popular (descending GitHub stars), Newest (descending `addedAt`, the timestamp when the updater first creates the extension's aggregated manifest in the `pages` branch), and Recent activity (descending last commit date). Existing aggregates without a date receive one on their next successful update. Missing stars count as zero; missing dates and commits sort last, and ties use alphabetical order. Cards and list rows show the GitHub owner and avatar, cached repository stars, category tags, and a repository link. When an Extension resource is available, the extension.yaml button opens the manifest and the download icon saves it with that filename. Escape closes the viewer. The header links to this repository on GitHub.
 
 README previews support GitHub Markdown alerts (`[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, and `[!CAUTION]`) with distinct labels, icons, and border colors in both light and dark mode. Alert bodies support the same Markdown formatting and repository-relative links and images as the rest of the README.
 

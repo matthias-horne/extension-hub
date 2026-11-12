@@ -1,4 +1,4 @@
-type IconName = 'search' | 'arrow' | 'back' | 'moon' | 'sun' | 'close' | 'github' | 'chevron' | 'star' | 'download' | 'file' | 'book' | 'external' | 'copy' | 'check' | 'package' | 'warning';
+type IconName = 'search' | 'arrow' | 'back' | 'moon' | 'sun' | 'close' | 'github' | 'chevron' | 'star' | 'download' | 'file' | 'book' | 'external' | 'copy' | 'check' | 'package' | 'warning' | 'grid' | 'list';
 
 export function Icon({ name }: { name: IconName }) {
   if (name === 'github') return (
@@ -22,6 +22,8 @@ export function Icon({ name }: { name: IconName }) {
       {name === 'file' && <><path d="M14 3H6v18h12V7l-4-4Z" /><path d="M14 3v5h4M9 12h6M9 16h6" /></>}
       {name === 'package' && <><path d="m12 3 9 5v8l-9 5-9-5V8l9-5Zm0 10v8M3 8l9 5 9-5M7.5 5.5l9 5" /></>}
       {name === 'warning' && <><path d="m12 3 10 18H2L12 3Z" /><path d="M12 9v5m0 3h.01" /></>}
+      {name === 'grid' && <><rect x="4" y="4" width="6" height="6" rx="1" /><rect x="14" y="4" width="6" height="6" rx="1" /><rect x="4" y="14" width="6" height="6" rx="1" /><rect x="14" y="14" width="6" height="6" rx="1" /></>}
+      {name === 'list' && <><path d="M9 6h11M9 12h11M9 18h11" /><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" /></>}
     </svg>
   );
 }
