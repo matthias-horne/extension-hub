@@ -24,10 +24,14 @@
   --line: #e2e2e3;
   --control-line: #7c7c82;
   --button-bg: #ebebef;
-  --button-hover: #e0e0e5;
+  --button-hover: #d2d2d8;
   --brand: #066448;
+  --primary-bg: var(--brand);
+  --primary-hover: #087c58;
+  --on-primary: #ffffff;
   --on-brand: #ffffff;
   --brand-soft: rgb(6 100 72 / 12%);
+  --brand-soft-hover: rgb(6 100 72 / 20%);
 }
 
 :root.dark {
@@ -41,10 +45,13 @@
   --line: #303036;
   --control-line: #8d919c;
   --button-bg: #32343e;
-  --button-hover: #3c3f4a;
+  --button-hover: #484b57;
   --brand: #63c49c;
+  --primary-bg: #166347;
+  --primary-hover: #277f5b;
   --on-brand: #132a22;
   --brand-soft: rgb(99 196 156 / 14%);
+  --brand-soft-hover: rgb(99 196 156 / 22%);
 }
 
 * { box-sizing: border-box; }
