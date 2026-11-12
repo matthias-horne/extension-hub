@@ -10,7 +10,7 @@ function CompatibilityValue({ value }: { value: unknown }) {
   if (value !== null && typeof value === 'object') {
     return <CompatibilityValues values={value as Record<string, unknown>} />;
   }
-  return <code>{value == null ? '—' : String(value)}</code>;
+  return <span className="compatibility-value">{value == null ? '—' : String(value)}</span>;
 }
 
 function CompatibilityValues({ values }: { values: Record<string, unknown> }) {

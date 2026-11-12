@@ -159,10 +159,6 @@ function App() {
         </Suspense>
       ) : isCatalog ? (
         <main className="content-width catalog" id="main-content" tabIndex={-1}>
-          <div className="catalog-heading">
-            <h1>Extensions</h1>
-          </div>
-
           <div className="catalog-toolbar">
             <div className="search-field">
               <Icon name="search" />

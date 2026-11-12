@@ -191,7 +191,7 @@
 .readme-content p { margin: 14px 0; }
 .readme-content a { color: var(--brand); text-decoration: underline; text-underline-offset: 3px; }
 .readme-content a:hover { text-decoration-thickness: 2px; }
-.readme-content code { padding: 2px 5px; border-radius: 4px; background: var(--button-bg); color: var(--text); font-family: var(--font-mono); font-size: 12px; }
+.readme-content code { padding: 2px 5px; border-radius: 4px; background: var(--button-bg); color: var(--brand); font-family: var(--font-mono); font-size: 12px; }
 .readme-content pre { margin: 18px 0; padding: 16px 18px; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--page-bg); color: var(--text); font-size: 12px; line-height: 22px; }
 .readme-content pre code { padding: 0; border-radius: 0; background: transparent; color: inherit; font: inherit; }
 .readme-content ul, .readme-content ol { margin: 14px 0; padding-left: 24px; }
@@ -274,12 +274,12 @@
 .compatibility-values > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .compatibility-values dt { color: var(--text-muted); overflow-wrap: anywhere; }
 .compatibility-values dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
-.compatibility-values code { font-family: var(--font-mono); font-size: 12px; }
 .compatibility-values .compatibility-values > div:first-child { padding-top: 0; }
 .compatibility-values .compatibility-values > div:last-child { padding-bottom: 0; border-bottom: none; }
-.compatibility-list { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; padding: 0; list-style: none; }
+.compatibility-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .compatibility-features { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.compatibility-features li { padding: 4px 10px; border-radius: 5px; background: var(--brand-soft); color: var(--brand); font-size: 12px; line-height: 20px; overflow-wrap: anywhere; }
+.compatibility-value, .compatibility-features li { max-width: 100%; padding: 4px 10px; border-radius: 5px; background: var(--brand-soft); color: var(--brand); font-size: 12px; line-height: 20px; overflow-wrap: anywhere; }
+.compatibility-value { display: inline-flex; align-items: center; }
 
 /* Small grey text; headings keep their own weights. */
 .catalog-heading p,
