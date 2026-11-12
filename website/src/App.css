@@ -118,9 +118,13 @@
 .details-identity .owner-avatar { width: 20px; height: 20px; font-size: 10px; }
 .details-description { margin: 22px 0; color: var(--text-muted); font-size: 14px; line-height: 24px; overflow-wrap: anywhere; }
 .details-actions { display: flex; flex-direction: column; gap: 8px; }
-.button-primary { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 42px; padding: 10px 12px; border-radius: 8px; background: var(--primary-bg); color: var(--on-primary); font-size: 13px; line-height: 20px; font-weight: 500; transition: background-color .2s; }
-.button-primary:hover { background: var(--primary-hover); }
+.button-primary { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 42px; padding: 10px 12px; border-radius: 8px; background: var(--primary-bg); color: var(--on-primary); font-size: 13px; line-height: 20px; font-weight: 500; transition: background-color .2s, box-shadow .2s, transform .2s; }
+.button-primary:hover { background: var(--primary-hover); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 25%), 0 4px 12px rgb(0 0 0 / 20%); transform: translateY(-1px); }
+.button-primary:active { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 25%); transform: translateY(0); }
 .button-primary svg { width: 16px; height: 16px; }
+@media (prefers-reduced-motion: reduce) {
+  .button-primary:hover { transform: none; }
+}
 .details-actions .button-secondary { min-height: 40px; margin: 0; background: var(--card-bg); }
 .details-actions .button-secondary:hover { background: var(--button-hover); }
 .details-actions .button-secondary svg { color: var(--text-muted); }
