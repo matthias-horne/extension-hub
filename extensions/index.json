@@ -1,4 +1,6 @@
 [
   "gardener-extension-audit.yaml",
+  "gardener-extension-backup-s3.yaml",
+  "gardener-extension-dns-powerdns.yaml",
   "gardener-extension-example.yaml"
 ]

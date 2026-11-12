@@ -1,0 +1,182 @@
+name: Backup S3
+description: Reconciles the BackupBucket and BackupEntry resources against any
+  S3 compatible object store (e.g. AWS S3, MinIO, Ceph RGW, ONTAP...).
+tags:
+  - Storage
+repository: https://github.com/metal-stack/gardener-extension-backup-s3
+manifestRegistry: ghcr.io/metal-stack/extensions/gardener-extension-backup-s3
+addedAt: 2026-11-12T14:47:34.499Z
+version: v0.9.0
+extension:
+  apiVersion: operator.gardener.cloud/v1alpha1
+  kind: Extension
+  metadata:
+    name: backup-s3
+    annotations:
+      extension.garden.cloud/manifest: ghcr.io/metal-stack/extensions/gardener-extension-backup-s3:v0.9.0
+  spec:
+    deployment:
+      extension:
+        helm:
+          ociRepository:
+            ref: ghcr.io/metal-stack/charts/gardener-extension-backup-s3:v0.9.0
+        policy: Always
+        runtimeClusterValues:
+          nameOverride: ""
+          fullnameOverride: ""
+          image:
+            repository: ghcr.io/metal-stack/gardener-extension-backup-s3
+            tag: v0.9.0
+            pullPolicy: Always
+          replicaCount: 1
+          maxUnavailable: 1
+          maxSurge: 50%
+          resources: {}
+          metricsPort: 8080
+          healthPort: 8081
+          controllers:
+            backupbucket:
+              concurrentSyncs: 5
+            backupentry:
+              concurrentSyncs: 5
+            heartbeat:
+              renewIntervalSeconds: 30
+            ignoreOperationAnnotation: false
+          disableControllers: []
+          disableWebhooks: []
+          ignoreResources: false
+          metrics:
+            enableScraping: true
+          config:
+            clientConnection:
+              acceptContentTypes: application/json
+              contentType: application/json
+              qps: 100
+              burst: 130
+          gardener:
+            version: ""
+            gardenlet:
+              featureGates: {}
+          networkPolicies:
+            enabled: true
+            ingressController:
+              namespace: envoy-gateway-system
+              podSelector:
+                app.kubernetes.io/name: envoy
+        values:
+          nameOverride: ""
+          fullnameOverride: ""
+          image:
+            repository: ghcr.io/metal-stack/gardener-extension-backup-s3
+            tag: v0.9.0
+            pullPolicy: Always
+          replicaCount: 1
+          maxUnavailable: 1
+          maxSurge: 50%
+          resources: {}
+          metricsPort: 8080
+          healthPort: 8081
+          controllers:
+            backupbucket:
+              concurrentSyncs: 5
+            backupentry:
+              concurrentSyncs: 5
+            heartbeat:
+              renewIntervalSeconds: 30
+            ignoreOperationAnnotation: false
+          disableControllers: []
+          disableWebhooks: []
+          ignoreResources: false
+          metrics:
+            enableScraping: true
+          config:
+            clientConnection:
+              acceptContentTypes: application/json
+              contentType: application/json
+              qps: 100
+              burst: 130
+          gardener:
+            version: ""
+            gardenlet:
+              featureGates: {}
+          networkPolicies:
+            enabled: true
+            ingressController:
+              namespace: envoy-gateway-system
+              podSelector:
+                app.kubernetes.io/name: envoy
+    resources:
+      - kind: BackupBucket
+        primary: true
+        type: S3
+      - kind: BackupEntry
+        primary: true
+        type: S3
+github:
+  stars: 4
+  lastCommit: 2026-11-12T14:16:19Z
+  language: Go
+  license:
+    name: Apache License 2.0
+    spdxId: Apache-2.0
+  owner:
+    login: metal-stack
+    avatarUrl: https://avatars.githubusercontent.com/u/58738008?v=4
+    htmlUrl: https://github.com/metal-stack
+  readme:
+    markdown: |
+      # Gardener Extension for S3 Compatible Storage
+
+      [![GitHub License](https://img.shields.io/github/license/metal-stack/gardener-extension-backup-s3)](https://github.com/metal-stack/gardener-extension-backup-s3/blob/main/LICENSE)
+      [![Build](https://github.com/metal-stack/gardener-extension-backup-s3/actions/workflows/build.yaml/badge.svg)](https://github.com/metal-stack/gardener-extension-backup-s3/actions/workflows/build.yaml)
+
+      [Project Gardener](https://gardener.cloud/) implements the automated management and operation of [Kubernetes](https://kubernetes.io/) clusters as a service. This controller implements Gardener's extension contract for **S3 compatible storage**.
+
+      It reconciles the `BackupBucket` and `BackupEntry` resources of `type: S3` against any [S3](https://aws.amazon.com/s3/) compatible object store (e.g. AWS S3, MinIO, Ceph RGW, ONTAP...).
+
+      For more detailed documentation about the extension contract, please refer to the [Gardener docs](https://github.com/gardener/gardener/blob/master/docs/extensions/overview.md).
+
+      ## Example
+
+      An example `ControllerRegistration` resource that can be used to register this controller to Gardener can be found [here](example/controller-registration.yaml).
+
+      ## Development
+
+      The extension can be developed locally in the [mini-lab](https://github.com/metal-stack/mini-lab), which contains a working deployment of Minio.
+
+      ## Feedback and Support
+
+      Feedback and contributions are always welcome! Please report bugs or suggestions as [GitHub issues](https://github.com/metal-stack/gardener-extension-backup-s3/issues) or reach out to our [community](https://metal-stack.io/community).
+    path: README.md
+    htmlUrl: https://github.com/metal-stack/gardener-extension-backup-s3/blob/main/README.md
+    rawUrl: https://raw.githubusercontent.com/metal-stack/gardener-extension-backup-s3/main/README.md
+compatibility:
+  v0.9.0:
+    requires: {}
+    supportedFeatures: []
+    builtWith:
+      gardener/gardener: v1.148.5
+    testedWith:
+      gardener/gardener: v1.148.5
+      kubernetesVersions:
+        - 1.36
+        - 1.32
+  v0.8.7: {}
+  v0.8.6: {}
+  v0.8.5: {}
+  v0.8.4: {}
+  v0.8.3: {}
+  v0.8.2: {}
+  v0.8.1: {}
+  v0.8.0: {}
+  v0.7.3: {}
+  v0.7.2: {}
+  v0.7.1: {}
+  v0.7.0: {}
+  v0.6.0: {}
+  v0.5.0: {}
+  v0.4.1: {}
+  v0.4.0: {}
+  v0.3.0: {}
+  v0.2.0: {}
+  v0.1.0: {}
