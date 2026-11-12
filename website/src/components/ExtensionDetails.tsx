@@ -179,7 +179,7 @@ export default function ExtensionDetails({ extension, onCategory }: {
           </section>
 
           <section className="details-panel compatibility-panel" id="compatibility-panel" role="tabpanel" aria-labelledby="compatibility-tab" tabIndex={0} hidden={activeTab !== 'compatibility'}>
-            <ExtensionCompatibility compatibility={extension.compatibility} version={extension.version} />
+            <ExtensionCompatibility compatibility={extension.compatibility} apiCompatibility={extension.apiCompatibility} version={extension.version} />
             <GiscusComments term={extension.id} />
           </section>
         </div>
