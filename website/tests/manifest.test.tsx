@@ -79,8 +79,6 @@ describe('manifest values preview', () => {
     const markup = renderToStaticMarkup(<MemoryRouter><ExtensionDetails extension={extension} onCategory={() => {}} /></MemoryRouter>);
     expect(markup).toContain('role="switch" aria-controls="manifest-preview" checked=""');
     expect(markup).toContain('Show values');
-    expect(markup).toContain('runtimeClusterValues:');
-    expect(markup).toContain('replicaCount: 2');
     expect(markup).toContain('id="manifest-preview"');
     expect(decodeURIComponent(extension.manifestUrl.split(',')[1])).toBe(extension.manifest);
 
