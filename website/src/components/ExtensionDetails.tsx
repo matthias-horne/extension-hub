@@ -178,7 +178,6 @@ export default function ExtensionDetails({ extension, onCategory }: {
             <div className="details-manifest">
               {extension.manifest ? (
                 <>
-                  <p>The extension manifest for the latest published release.</p>
                   {!showValues && hasValues && <p>Helm values are hidden in this preview. Copying or downloading includes all values.</p>}
                   {copyStatus === 'unavailable' && <p role="status">Copy is unavailable. Select the YAML below or download the file.</p>}
                   <span className="sr-only" role="status">{copyStatus === 'copied' ? 'YAML copied to clipboard.' : ''}</span>
