@@ -159,10 +159,6 @@ function App() {
         </Suspense>
       ) : isCatalog ? (
         <main className="content-width catalog" id="main-content" tabIndex={-1}>
-          <div className="catalog-heading">
-            <h1>Extensions</h1>
-          </div>
-
           <div className="catalog-toolbar">
             <div className="search-field">
               <Icon name="search" />
@@ -202,10 +198,6 @@ function App() {
                 </button>
               );
             })}
-          </div>
-
-          <div className="results-summary">
-            <p role="status">{visibleExtensions.length} {visibleExtensions.length === 1 ? 'extension' : 'extensions'}{hasFilters ? ' of ' + extensions.length : ''}</p>
             {hasFilters && <button className="clear-filters" onClick={clearFilters}>Clear filters</button>}
           </div>
 

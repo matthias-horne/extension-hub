@@ -11,7 +11,11 @@ const extension = parseExtension(stringify({
   repository: 'https://github.com/example/extension',
   version: 'v2',
   compatibility: {
-    v2: { supportedFeatures: ['current-feature'] },
+    v2: {
+      supportedFeatures: ['current-feature'],
+      builtWith: { 'gardener/gardener': 'v1.153.0' },
+      testedWith: { kubernetesVersions: ['1.36', '1.32'] },
+    },
     v1: { supportedFeatures: ['historical-feature'] },
     'v1+build/123': { supportedFeatures: ['encoded-version-feature'] },
   },
@@ -48,6 +52,14 @@ describe('details URL navigation', () => {
     expect(markup).toContain('<li>historical-feature</li>');
     expect(markup).not.toContain('<li>current-feature</li>');
     expect(markup).toContain('<span>v2</span><span class="dropdown-badge">Current</span>');
+  });
+
+  test('renders compatibility versions as pills', () => {
+    const markup = renderDetails('?tab=compatibility&version=v2');
+    expect(markup).toContain('<span class="compatibility-value">v1.153.0</span>');
+    expect(markup).toContain('<li><span class="compatibility-value">1.36</span></li>');
+    expect(markup).toContain('<li><span class="compatibility-value">1.32</span></li>');
+    expect(markup).not.toContain('<code>v1.153.0</code>');
   });
 
   test('decodes version tags with reserved URL characters', () => {
