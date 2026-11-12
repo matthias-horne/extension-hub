@@ -150,7 +150,7 @@ function App() {
           <div className="empty-state" role="alert">
             <h1>Extensions could not be loaded</h1>
             <p>Please try again.</p>
-            <button className="button-secondary" onClick={retry}>Retry</button>
+            <button className="button" onClick={retry}>Retry</button>
           </div>
         </main>
       ) : extension ? (
@@ -175,7 +175,7 @@ function App() {
                 onChange={(event) => setQuery(event.target.value)}
               />
               {query && (
-                <button className="clear-search" aria-label="Clear search" onClick={() => { setQuery(''); searchInput.current?.focus(); }}>
+                <button className="button button-icon clear-search" aria-label="Clear search" onClick={() => { setQuery(''); searchInput.current?.focus(); }}>
                   <Icon name="close" />
                 </button>
               )}
@@ -220,7 +220,7 @@ function App() {
               <Icon name="search" />
               <h2>No extensions found</h2>
               <p>Try another search or category.</p>
-              <button className="button-secondary" onClick={clearFilters}>Reset search and filters</button>
+              <button className="button" onClick={clearFilters}>Reset search and filters</button>
             </div>
           )}
         </main>
@@ -231,7 +231,7 @@ function App() {
             <Icon name="search" />
             <h1>Extension not found</h1>
             <p>This extension is not registered in the hub.</p>
-            <Link className="button-secondary" to="/">Browse extensions<Icon name="arrow" /></Link>
+            <Link className="button" to="/">Browse extensions<Icon name="arrow" /></Link>
           </div>
         </main>
       )}

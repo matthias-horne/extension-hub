@@ -15,6 +15,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color-scheme: light;
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
   --page-bg: #ffffff;
   --card-bg: #f6f6f7;
   --card-hover: #eeefef;

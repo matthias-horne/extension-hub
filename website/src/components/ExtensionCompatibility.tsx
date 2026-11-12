@@ -61,24 +61,24 @@ export function ExtensionCompatibility({ compatibility, version }: {
             options={versions.map((tag) => ({ value: tag, label: tag, badge: tag === version ? 'Current' : undefined }))} />
         )}
       </div>
-      <div className="details-compatibility">
-        <p>{selectedVersion ? <>Compatibility information for version <strong>{selectedVersion}</strong>.</> : 'No version has been published for this extension.'}</p>
+      <div className="panel-body details-compatibility">
+        <p className="panel-description">{selectedVersion ? <>Compatibility information for version <strong>{selectedVersion}</strong>.</> : 'No version has been published for this extension.'}</p>
         {hasInformation ? (
           <>
             {groups.map(({ title, values }) => values && Object.keys(values).length > 0 && (
-              <section className="compatibility-section" key={title}>
-                <h2>{title}</h2>
+              <section className="content-section" key={title}>
+                <h2 className="section-title">{title}</h2>
                 <CompatibilityValues values={values} />
               </section>
             ))}
             {features.length > 0 && (
-              <section className="compatibility-section">
-                <h2>Supported features</h2>
+              <section className="content-section">
+                <h2 className="section-title">Supported features</h2>
                 <ul className="compatibility-features">{features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
               </section>
             )}
           </>
-        ) : selectedVersion && <p>No compatibility information has been published for this version.</p>}
+        ) : selectedVersion && <p className="panel-description">No compatibility information has been published for this version.</p>}
       </div>
     </>
   );

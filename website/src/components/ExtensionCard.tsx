@@ -60,10 +60,10 @@ export function ExtensionCard({ extension }: ExtensionCardProps) {
         {extension.tags.map((tag) => <span className="extension-tag" key={tag}>{tag}</span>)}
       </div>
       <div className="card-actions">
-        {extension.manifestUrl && <a className="card-action-link card-download-link" href={extension.manifestUrl} download="extension.yaml" aria-label={'Download extension.yaml for ' + extension.title} title="Download extension.yaml">
+        {extension.manifestUrl && <a className="button button-small button-primary" href={extension.manifestUrl} download="extension.yaml" aria-label={'Download extension.yaml for ' + extension.title} title="Download extension.yaml">
           <Icon name="download" /><span>Download</span>
         </a>}
-        <a className="card-action-link card-github-link" href={extension.repository} target="_blank" rel="noopener noreferrer" aria-label={'Open ' + extension.title + ' on GitHub'} title="Open on GitHub">
+        <a className="button button-small" href={extension.repository} target="_blank" rel="noopener noreferrer" aria-label={'Open ' + extension.title + ' on GitHub'} title="Open on GitHub">
           <Icon name="github" /><span>Open on GitHub</span>
         </a>
       </div>

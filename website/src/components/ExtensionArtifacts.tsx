@@ -39,8 +39,8 @@ function ArtifactRow({ label, reference, type }: { label: string; reference: str
       <dt>{label}</dt>
       <dd>
         <div className="artifact-reference">
-          <code>{reference}</code>
-          <button className="copy-manifest" onClick={copyReference} aria-label={'Copy ' + referenceLabel + ' for ' + label} title="Copy to clipboard">
+          <code className="artifact-value">{reference}</code>
+          <button className="button button-small button-icon" onClick={copyReference} aria-label={'Copy ' + referenceLabel + ' for ' + label} title="Copy to clipboard">
             <Icon name={copyStatus === 'copied' ? 'check' : 'copy'} />
           </button>
         </div>
@@ -62,36 +62,36 @@ export function ExtensionArtifacts({ artifacts, images = [], manifestRegistry }:
       <div className="details-panel-heading">
         <span><Icon name="package" />Extension artifacts</span>
       </div>
-      <div className="details-artifacts">
-        {manifestRegistry && <section className="artifact-registry">
-          <h2>Manifest registry</h2>
+      <div className="panel-body">
+        {manifestRegistry && <section className="content-section">
+          <h2 className="section-title">Manifest registry</h2>
           <dl className="metadata-table artifact-metadata">
             <div>
               <dt>Registry</dt>
               <dd><div className="artifact-reference">
-                <span>{manifestRegistry}</span>
-                <a className="card-action-link artifact-registry-link" href={registryUrl} target="_blank" rel="noopener noreferrer" aria-label="Open manifest registry" title="Open registry">
+                <span className="artifact-value">{manifestRegistry}</span>
+                <a className="button button-small button-icon" href={registryUrl} target="_blank" rel="noopener noreferrer" aria-label="Open manifest registry" title="Open registry">
                   <Icon name="external" />
                 </a>
               </div></dd>
             </div>
           </dl>
         </section>}
-        <section className="artifact-section">
-          <h2>Helm charts</h2>
+        <section className="content-section">
+          <h2 className="section-title">Helm charts</h2>
           {artifacts.length > 0 ? (
             <dl className="metadata-table artifact-metadata">
               {artifacts.map((artifact) => <ArtifactRow key={artifact.deployment} label={deploymentLabels[artifact.deployment]} reference={artifact.reference} type="Helm chart" />)}
             </dl>
-          ) : <p>No Helm charts are referenced in this extension.yaml.</p>}
+          ) : <p className="panel-description">No Helm charts are referenced in this extension.yaml.</p>}
         </section>
-        <section className="artifact-section">
-          <h2>Container images</h2>
+        <section className="content-section">
+          <h2 className="section-title">Container images</h2>
           {images.length > 0 ? (
             <dl className="metadata-table artifact-metadata">
               {images.map((image) => <ArtifactRow key={image.reference} label={image.deployments.map((deployment) => imageDeploymentLabels[deployment]).join(', ')} reference={image.reference} type="Container image" />)}
             </dl>
-          ) : <p>No container images are configured in this extension's Helm values.</p>}
+          ) : <p className="panel-description">No container images are configured in this extension's Helm values.</p>}
         </section>
       </div>
     </>
