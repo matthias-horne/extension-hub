@@ -41,7 +41,7 @@ function App() {
   });
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('az');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('popular');
   const searchInput = useRef<HTMLInputElement>(null);
   const catalogScroll = useRef(0);
   const initialNavigation = useRef(true);
