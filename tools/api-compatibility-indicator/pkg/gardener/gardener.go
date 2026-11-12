@@ -282,6 +282,7 @@ func getBreakingChanges(base, current map[string]string, version string) []strin
 
 	type resourceChange struct {
 		removed []string
+		added   []string
 		changed []string
 	}
 
@@ -304,10 +305,24 @@ func getBreakingChanges(base, current map[string]string, version string) []strin
 		}
 	}
 
+	for f := range current {
+		if _, exists := base[f]; !exists {
+			resource := getResourceName(f)
+			if _, ok := resourceChanges[resource]; !ok {
+				resourceChanges[resource] = &resourceChange{}
+			}
+			resourceChanges[resource].added = append(resourceChanges[resource].added, getRelativeField(f))
+		}
+	}
+
 	for resource, ch := range resourceChanges {
 		if len(ch.removed) > 0 {
 			slices.Sort(ch.removed)
 			changes = append(changes, fmt.Sprintf("%s removes fields %s from %s", version, strings.Join(ch.removed, ", "), resource))
+		}
+		if len(ch.added) > 0 {
+			slices.Sort(ch.added)
+			changes = append(changes, fmt.Sprintf("%s adds fields %s to %s", version, strings.Join(ch.added, ", "), resource))
 		}
 		if len(ch.changed) > 0 {
 			slices.Sort(ch.changed)
