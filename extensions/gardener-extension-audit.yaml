@@ -1,0 +1,199 @@
+name: Audit
+description: Adds buffered shipping of kube-apiserver audit logs by spinning up
+  a fluent-bit-based audit sink in the seed's shoot namespace, which then
+  distributes the logs to configurable backends.
+tags:
+  - Observability
+  - Security
+repository: https://github.com/metal-stack/gardener-extension-audit
+manifestRegistry: ghcr.io/metal-stack/extensions/gardener-extension-audit
+addedAt: 2026-11-12T14:47:02.748Z
+version: v0.7.1
+extension:
+  apiVersion: operator.gardener.cloud/v1alpha1
+  kind: Extension
+  metadata:
+    name: audit
+    annotations:
+      extension.garden.cloud/manifest: ghcr.io/metal-stack/extensions/gardener-extension-audit:v0.7.1
+  spec:
+    deployment:
+      extension:
+        helm:
+          ociRepository:
+            ref: ghcr.io/metal-stack/charts/gardener-extension-audit:v0.7.1
+        runtimeClusterValues:
+          image:
+            repository: ghcr.io/metal-stack/gardener-extension-audit
+            tag: v0.7.1
+            pullPolicy: IfNotPresent
+          replicaCount: 1
+          resources: {}
+          controllers:
+            concurrentSyncs: 5
+            healthcheck:
+              concurrentSyncs: 5
+            heartbeat:
+              renewIntervalSeconds: 30
+            ignoreOperationAnnotation: false
+          disableControllers: []
+          disableWebhooks: []
+          webhookConfig:
+            servicePort: 443
+            serverPort: 10443
+          config:
+            clientConnection:
+              acceptContentTypes: application/json
+              contentType: application/json
+              qps: 100
+              burst: 130
+            defaultBackends: null
+            defaultWebhookMode: null
+            defaultBackendSecrets: null
+          gardener:
+            version: ""
+        values:
+          image:
+            repository: ghcr.io/metal-stack/gardener-extension-audit
+            tag: v0.7.1
+            pullPolicy: IfNotPresent
+          replicaCount: 1
+          resources: {}
+          controllers:
+            concurrentSyncs: 5
+            healthcheck:
+              concurrentSyncs: 5
+            heartbeat:
+              renewIntervalSeconds: 30
+            ignoreOperationAnnotation: false
+          disableControllers: []
+          disableWebhooks: []
+          webhookConfig:
+            servicePort: 443
+            serverPort: 10443
+          config:
+            clientConnection:
+              acceptContentTypes: application/json
+              contentType: application/json
+              qps: 100
+              burst: 130
+            defaultBackends: null
+            defaultWebhookMode: null
+            defaultBackendSecrets: null
+          gardener:
+            version: ""
+    resources:
+      - kind: Extension
+        lifecycle:
+          delete: BeforeKubeAPIServer
+          migrate: BeforeKubeAPIServer
+          reconcile: BeforeKubeAPIServer
+        primary: true
+        type: audit
+github:
+  stars: 3
+  lastCommit: 2026-11-12T14:17:46Z
+  language: Go
+  license:
+    name: MIT License
+    spdxId: MIT
+  owner:
+    login: metal-stack
+    avatarUrl: https://avatars.githubusercontent.com/u/58738008?v=4
+    htmlUrl: https://github.com/metal-stack
+  readme:
+    markdown: |
+      # Gardener Extension Audit
+
+      [![GitHub License](https://img.shields.io/github/license/metal-stack/gardener-extension-audit)](https://github.com/metal-stack/gardener-extension-audit/blob/main/LICENSE)
+      [![Build](https://github.com/metal-stack/gardener-extension-audit/actions/workflows/build.yaml/badge.svg)](https://github.com/metal-stack/gardener-extension-audit/actions/workflows/build.yaml)
+
+      [Project Gardener](https://gardener.cloud/) implements the automated management and operation of [Kubernetes](https://kubernetes.io/) clusters as a service. This controller implements Gardener's extension contract to manage kube-apiserver audit logs for a shoot cluster.
+
+      The extension spins up a fluent-bit-based audit sink in the seed's shoot namespace prior to starting the shoot's API server. Therefore, it is required to run this extension with the reconcile lifecycle policy `BeforeKubeAPIServer`. Also the deletion has to happen `BeforeKubeAPIServer` as otherwise the managed resources of this extension block the shoot deletion flow.
+
+      This sink has the ability to buffer audit logs to a persistent volume and send them to the supported backends.
+
+      It reconciles the `Extension` resources of `type: audit`.
+
+      For more detailed documentation about the extension contract, please refer to the [Gardener docs](https://github.com/gardener/gardener/blob/master/docs/extensions/overview.md).
+
+      ## Specifying An Audit Policy
+
+      A custom audit policy can be natively configured by Gardener in the shoot spec's API server configuration under `.spec.kubernetes.kubeAPIServer.auditConfig.auditPolicy.configMapRef.name`.
+
+      ## Supported Backends
+
+      - Splunk
+      - S3
+      - Log (just logs to the container, only for devel-purposes)
+      - Cluster Forwarding (forwards audit logs into a pod in the shoot cluster)
+
+      > [!IMPORTANT]
+      > The Cluster Forwarding backend is mainly intended for showcasing and not for production purposes. It is known not to work with Gardener HA VPN Control Planes. If required, this feature can be disabled using the annotation `alpha.control-plane.shoot.gardener.cloud/high-availability-vpn: "false"`. In addition to that, there were issues reported when using it in combination with the Cilium CNI configured kubeproxyless with Native-Routing (audit entries do not arrive at the `audittailer` pod).
+
+      ## Example
+
+      An example `ControllerRegistration` resource that can be used to register this controller to Gardener can be found [here](example/controller-registration.yaml).
+
+      ## Development
+
+      This extension can be developed in the gardener-local devel environment.
+
+      1. Start up the local devel environment
+      1. The extension's docker image can be pushed into Kind using `make push-to-gardener-local`
+      1. Install the extension `kubectl apply -k example/`
+      1. Parametrize the `example/shoot.yaml` and apply with `kubectl -f example/shoot.yaml`
+
+      ## Feedback and Support
+
+      Feedback and contributions are always welcome! Please report bugs or suggestions as [GitHub issues](https://github.com/metal-stack/gardener-extension-audit/issues) or reach out to our [community](https://metal-stack.io/community).
+    path: README.md
+    htmlUrl: https://github.com/metal-stack/gardener-extension-audit/blob/main/README.md
+    rawUrl: https://raw.githubusercontent.com/metal-stack/gardener-extension-audit/main/README.md
+compatibility:
+  v0.7.1:
+    requires: {}
+    supportedFeatures: []
+    builtWith:
+      gardener/gardener: v1.146.6
+    testedWith:
+      gardener/gardener: v1.148.5
+      kubernetesVersions:
+        - 1.36
+        - 1.32
+  v0.7.0: {}
+  v0.6.2: {}
+  v0.6.1: {}
+  v0.6.0: {}
+  v0.5.6: {}
+  v0.5.5: {}
+  v0.5.4: {}
+  v0.5.3: {}
+  v0.5.2: {}
+  v0.5.1: {}
+  v0.5.0: {}
+  v0.4.2: {}
+  v0.4.1: {}
+  v0.4.0: {}
+  v0.3.0: {}
+  v0.2.3: {}
+  v0.2.2: {}
+  v0.2.1: {}
+  v0.2.0: {}
+  v0.1.15: {}
+  v0.1.14: {}
+  v0.1.13: {}
+  v0.1.12: {}
+  v0.1.11: {}
+  v0.1.10: {}
+  v0.1.9: {}
+  v0.1.8: {}
+  v0.1.7: {}
+  v0.1.6: {}
+  v0.1.5: {}
+  v0.1.4: {}
+  v0.1.3: {}
+  v0.1.2: {}
+  v0.1.1: {}
+  v0.1.0: {}
