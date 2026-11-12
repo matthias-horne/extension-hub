@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Markdown, { defaultUrlTransform } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -48,6 +48,12 @@ export default function ExtensionDetails({ extension, onCategory }: {
       return next;
     });
   }
+
+  useEffect(() => {
+    if (copyStatus !== 'copied') return;
+    const timer = setTimeout(() => setCopyStatus('idle'), 2000);
+    return () => clearTimeout(timer);
+  }, [copyStatus]);
 
   async function copyManifest() {
     if (!extension.manifest) return;

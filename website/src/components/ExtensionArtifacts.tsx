@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ExtensionArtifact } from '../data/extensions';
 import type { ExtensionImage } from '../data/images';
 import { Icon } from './Icon';
@@ -19,6 +19,12 @@ const imageDeploymentLabels = {
 function ArtifactCard({ label, reference, type }: { label: string; reference: string; type: 'Helm chart' | 'Container image' }) {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'unavailable'>('idle');
   const referenceLabel = type === 'Helm chart' ? 'OCI reference' : 'image reference';
+
+  useEffect(() => {
+    if (copyStatus !== 'copied') return;
+    const timer = setTimeout(() => setCopyStatus('idle'), 2000);
+    return () => clearTimeout(timer);
+  }, [copyStatus]);
 
   async function copyReference() {
     try {
