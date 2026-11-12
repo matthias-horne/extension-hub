@@ -15,18 +15,24 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color-scheme: light;
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
   --page-bg: #ffffff;
   --card-bg: #f6f6f7;
   --card-hover: #eeefef;
   --text: #3c3c43;
-  --text-muted: #67676c;
-  --text-subtle: #76767b;
+  --text-muted: #606065;
+  --text-subtle: #626267;
   --line: #e2e2e3;
+  --control-line: var(--line);
   --button-bg: #ebebef;
-  --button-hover: #e0e0e5;
-  --brand: #087254;
+  --button-hover: #d2d2d8;
+  --brand: #066448;
+  --primary-bg: var(--brand);
+  --primary-hover: #087c58;
+  --on-primary: #ffffff;
   --on-brand: #ffffff;
-  --brand-soft: rgb(8 114 84 / 12%);
+  --brand-soft: rgb(6 100 72 / 12%);
+  --brand-soft-hover: rgb(6 100 72 / 20%);
 }
 
 :root.dark {
@@ -35,20 +41,23 @@
   --card-bg: #202127;
   --card-hover: #25272c;
   --text: #dfdfd6;
-  --text-muted: #98989f;
-  --text-subtle: #85858c;
+  --text-muted: #ababb2;
+  --text-subtle: #aaaab1;
   --line: #303036;
+  --control-line: #8d919c;
   --button-bg: #32343e;
-  --button-hover: #3c3f4a;
-  --brand: #49a382;
+  --button-hover: #484b57;
+  --brand: #63c49c;
+  --primary-bg: #166347;
+  --primary-hover: #277f5b;
   --on-brand: #132a22;
-  --brand-soft: rgb(73 163 130 / 14%);
+  --brand-soft: rgb(99 196 156 / 14%);
+  --brand-soft-hover: rgb(99 196 156 / 22%);
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 88px; }
 body { margin: 0; min-width: 320px; background: var(--page-bg); color: var(--text); }
-body:has(dialog[open]) { overflow: hidden; }
 button, input { font: inherit; }
 button, a, input { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; color: inherit; }

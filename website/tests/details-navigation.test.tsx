@@ -75,8 +75,7 @@ describe('details URL navigation', () => {
   test('handles a shared version URL when the extension has no versions', () => {
     const markup = renderDetails('?tab=compatibility&version=v1', { ...extension, version: undefined, compatibility: undefined });
     expectTab(markup, 'compatibility');
-    expect(markup).toContain('Compatibility information unavailable');
-    expect(markup).toContain('No compatibility information is available for this extension.');
+    expect(markup).toContain('No version has been published for this extension.');
     expect(markup).not.toContain('role="combobox"');
   });
 });

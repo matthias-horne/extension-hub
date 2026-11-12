@@ -32,8 +32,9 @@ describe('extension artifacts', () => {
     const markup = renderToStaticMarkup(<MemoryRouter><ExtensionDetails extension={extension} onCategory={() => {}} /></MemoryRouter>);
     expect(markup).toContain('id="artifacts-tab" role="tab"');
     expect(markup).toContain('id="artifacts-panel" role="tabpanel" aria-labelledby="artifacts-tab"');
-    expect(markup).toContain('Helm charts (3)');
-    for (const artifact of extension.artifacts) expect(markup).toContain('<code>' + artifact.reference + '</code>');
+    expect(markup).toMatch(/<h2\b[^>]*>Helm charts<\/h2>/);
+    const references = [...markup.matchAll(/<code\b[^>]*>(.*?)<\/code>/gs)].map(([, reference]) => reference);
+    for (const artifact of extension.artifacts) expect(references).toContain(artifact.reference);
     expect(markup).toContain('Admission (runtime cluster)');
     expect(markup).toContain('Admission (virtual cluster)');
     expect(markup).toContain('Copy OCI reference for Extension');
@@ -78,10 +79,11 @@ describe('extension artifacts', () => {
       expect(extensionWithDeployment({ extension: { helm: { ociRepository } } }).artifacts).toEqual([]);
     }
     const markup = renderToStaticMarkup(<ExtensionArtifacts artifacts={[]} />);
-    expect(markup).toContain('information-warning');
-    expect(markup).toContain('Artifact information unavailable');
-    expect(markup).toContain('No manifest registry, Helm charts, or container images are available');
-    expect(markup).not.toContain('artifact-card');
+    expect(markup).not.toContain('information-warning');
+    expect(markup).toContain('No Helm charts are referenced in this extension.yaml.');
+    expect(markup).toMatch(/<h2\b[^>]*>Container images<\/h2>/);
+    expect(markup).toContain('No container images are configured in this extension&#x27;s Helm values.');
+    expect(markup).not.toContain('<dl');
   });
 
   test('displays images from all Helm value contexts, grouping shared references with their deployments', () => {
@@ -96,9 +98,10 @@ describe('extension artifacts', () => {
     ]);
     const markup = renderToStaticMarkup(<MemoryRouter><ExtensionDetails extension={extension} onCategory={() => {}} /></MemoryRouter>);
     const artifactsMarkup = markup.split('id="artifacts-panel"')[1].split('id="compatibility-panel"')[0];
-    expect(artifactsMarkup).toContain('Container images (2)');
+    expect(artifactsMarkup).toMatch(/<h2\b[^>]*>Container images<\/h2>/);
+    const references = [...artifactsMarkup.matchAll(/<code\b[^>]*>(.*?)<\/code>/gs)].map(([, reference]) => reference);
     for (const { reference } of extension.images) {
-      expect(artifactsMarkup.split('<code>' + reference + '</code>')).toHaveLength(2);
+      expect(references.filter((value) => value === reference)).toHaveLength(1);
     }
     expect(artifactsMarkup).toContain('Extension (seed clusters), Extension (runtime cluster)');
     expect(artifactsMarkup).toContain('Admission (runtime and virtual clusters)');

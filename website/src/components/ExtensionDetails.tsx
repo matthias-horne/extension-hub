@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Markdown, { defaultUrlTransform } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -12,9 +12,9 @@ import { MissingInformation } from './MissingInformation';
 const dateFormatter = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' });
 const detailTabs = [
   { id: 'overview', label: 'Overview', icon: 'book' },
+  { id: 'compatibility', label: 'Compatibility', icon: 'check' },
   { id: 'manifest', label: 'extension.yaml', icon: 'file' },
   { id: 'artifacts', label: 'Artifacts', icon: 'package' },
-  { id: 'compatibility', label: 'Compatibility', icon: 'check' },
 ] as const;
 
 function formatDate(value?: string | null) {
@@ -48,6 +48,12 @@ export default function ExtensionDetails({ extension, onCategory }: {
       return next;
     });
   }
+
+  useEffect(() => {
+    if (copyStatus !== 'copied') return;
+    const timer = setTimeout(() => setCopyStatus('idle'), 2000);
+    return () => clearTimeout(timer);
+  }, [copyStatus]);
 
   async function copyManifest() {
     if (!extension.manifest) return;
@@ -92,11 +98,11 @@ export default function ExtensionDetails({ extension, onCategory }: {
           <p className="details-description">{extension.description}</p>
 
           <div className="details-actions">
-            {extension.manifestUrl && <a className="button-primary" href={extension.manifestUrl} download="extension.yaml"><Icon name="download" />Download extension.yaml</a>}
-            <a className="button-secondary" href={extension.repository} target="_blank" rel="noopener noreferrer"><Icon name="github" />View source<Icon name="external" /></a>
+            {extension.manifestUrl && <a className="button button-large button-primary" href={extension.manifestUrl} download="extension.yaml"><Icon name="download" />Download extension.yaml</a>}
+            <a className="button button-large" href={extension.repository} target="_blank" rel="noopener noreferrer"><Icon name="github" />View source</a>
           </div>
 
-          <dl className="repository-metadata">
+          <dl className="metadata-table repository-metadata">
             <div><dt>Latest version</dt><dd>{extension.version ? <a href={extension.repository + '/releases/tag/' + encodeURIComponent(extension.version)} target="_blank" rel="noopener noreferrer">{extension.version}</a> : metadataPlaceholder}</dd></div>
             <div><dt>Stars</dt><dd className="metadata-stars"><a href={extension.repository + '/stargazers'} target="_blank" rel="noopener noreferrer"><Icon name="star" />{github ? github.stars.toLocaleString('en') : metadataPlaceholder}</a></dd></div>
             <div><dt>Last commit</dt><dd>{formatDate(github?.lastCommit)}</dd></div>
@@ -138,7 +144,7 @@ export default function ExtensionDetails({ extension, onCategory }: {
               <a href={readmeUrl} target="_blank" rel="noopener noreferrer" aria-label="Read documentation on GitHub" title="Read on GitHub"><Icon name="external" /></a>
             </div>
             {readme ? (
-              <div className="readme-content">
+              <div className="panel-body readme-content">
                 <Markdown remarkPlugins={[remarkGfm]} skipHtml urlTransform={resolveReadmeUrl} components={{
                   h1: ({ node: _node, ...props }) => <h2 {...props} className="readme-title" />,
                   a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
@@ -147,13 +153,13 @@ export default function ExtensionDetails({ extension, onCategory }: {
                 }}>{readme.markdown}</Markdown>
               </div>
             ) : (
-              <div className="readme-fallback">
+              <div className="panel-body readme-fallback">
                 <MissingInformation title="Documentation unavailable">
                   {github ? 'No public README was found for this repository.' : 'Documentation is currently unavailable.'} Visit the repository for documentation and setup instructions.
                 </MissingInformation>
                 <h2>About this extension</h2>
-                <p>{extension.description}</p>
-                <a className="button-secondary" href={readmeUrl} target="_blank" rel="noopener noreferrer">Read on GitHub<Icon name="external" /></a>
+                <p className="panel-description">{extension.description}</p>
+                <a className="button" href={readmeUrl} target="_blank" rel="noopener noreferrer">Read on GitHub<Icon name="external" /></a>
               </div>
             )}
           </section>
@@ -167,22 +173,23 @@ export default function ExtensionDetails({ extension, onCategory }: {
                   <span className="manifest-values-switch" aria-hidden="true" />
                   Show values
                 </label>
-                <button className="copy-manifest" onClick={copyManifest}><Icon name={copyStatus === 'copied' ? 'check' : 'copy'} />{copyStatus === 'copied' ? 'Copied' : 'Copy YAML'}</button>
               </div>}
             </div>
-            <div className="details-manifest">
+            <div className="panel-body details-manifest">
               {extension.manifest ? (
                 <>
-                  <p>The extension manifest for the latest published release.</p>
-                  {!showValues && hasValues && <p>Helm values are hidden in this preview. Copying or downloading includes all values.</p>}
-                  {copyStatus === 'unavailable' && <p role="status">Copy is unavailable. Select the YAML below or download the file.</p>}
+                  {!showValues && hasValues && <p className="panel-description">Helm values are hidden in this preview. Copying or downloading includes all values.</p>}
+                  {copyStatus === 'unavailable' && <p className="panel-description" role="status">Copy is unavailable. Select the YAML below or download the file.</p>}
                   <span className="sr-only" role="status">{copyStatus === 'copied' ? 'YAML copied to clipboard.' : ''}</span>
-                  <pre className="manifest-code" id="manifest-preview" tabIndex={0} aria-label={extension.title + ' YAML definition'}><code>{showValues ? extension.manifest : manifestWithoutValues}</code></pre>
+                  <div className="manifest-code-window">
+                    <button className="button button-small button-icon" onClick={copyManifest} aria-label="Copy YAML to clipboard" title="Copy to clipboard"><Icon name={copyStatus === 'copied' ? 'check' : 'copy'} /></button>
+                    <pre className="manifest-code" id="manifest-preview" tabIndex={0} aria-label={extension.title + ' YAML definition'}><code>{showValues ? extension.manifest : manifestWithoutValues}</code></pre>
+                  </div>
                 </>
               ) : (
-                <MissingInformation title="Extension manifest unavailable">
+                <p className="panel-description">
                   No extension.yaml is available for this extension. Visit the repository for installation instructions.
-                </MissingInformation>
+                </p>
               )}
             </div>
           </section>

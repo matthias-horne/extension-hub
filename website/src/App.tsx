@@ -2,7 +2,6 @@ import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 're
 import { Link, useLocation, useMatch, useNavigate } from 'react-router-dom';
 import { ExtensionCard } from './components/ExtensionCard';
 import { Dropdown } from './components/Dropdown';
-import type { Extension } from './data/extensions';
 import { SORT_OPTIONS, sortExtensions, type SortOrder } from './data/sorting';
 import { useExtensions } from './hooks/useExtensions';
 import { Icon } from './components/Icon';
@@ -43,9 +42,7 @@ function App() {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
   const [sortOrder, setSortOrder] = useState<SortOrder>('az');
-  const [selectedExtension, setSelectedExtension] = useState<Extension | null>(null);
   const searchInput = useRef<HTMLInputElement>(null);
-  const detailDialog = useRef<HTMLDialogElement>(null);
   const catalogScroll = useRef(0);
   const initialNavigation = useRef(true);
   const focusSearchOnNavigation = useRef(false);
@@ -99,7 +96,6 @@ function App() {
     function handleShortcut(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
-        detailDialog.current?.close();
         focusSearchOnNavigation.current = searchInput.current === null;
         searchInput.current?.focus();
         if (pathname !== '/') navigate('/');
@@ -108,10 +104,6 @@ function App() {
     document.addEventListener('keydown', handleShortcut);
     return () => document.removeEventListener('keydown', handleShortcut);
   }, [navigate, pathname]);
-
-  useEffect(() => {
-    if (selectedExtension) detailDialog.current?.showModal();
-  }, [selectedExtension]);
 
   function clearFilters() {
     setQuery('');
@@ -158,7 +150,7 @@ function App() {
           <div className="empty-state" role="alert">
             <h1>Extensions could not be loaded</h1>
             <p>Please try again.</p>
-            <button className="button-secondary" onClick={retry}>Retry</button>
+            <button className="button" onClick={retry}>Retry</button>
           </div>
         </main>
       ) : extension ? (
@@ -169,7 +161,6 @@ function App() {
         <main className="content-width catalog" id="main-content" tabIndex={-1}>
           <div className="catalog-heading">
             <h1>Extensions</h1>
-            <p>{extensions.length} community-built {extensions.length === 1 ? 'extension' : 'extensions'} for Gardener.</p>
           </div>
 
           <div className="catalog-toolbar">
@@ -184,12 +175,12 @@ function App() {
                 onChange={(event) => setQuery(event.target.value)}
               />
               {query && (
-                <button className="clear-search" aria-label="Clear search" onClick={() => { setQuery(''); searchInput.current?.focus(); }}>
+                <button className="button button-icon clear-search" aria-label="Clear search" onClick={() => { setQuery(''); searchInput.current?.focus(); }}>
                   <Icon name="close" />
                 </button>
               )}
             </div>
-            <Dropdown className="sort-field" label="Sort extensions" options={SORT_OPTIONS} value={sortOrder} onChange={setSortOrder} />
+            <Dropdown className="sort-field" label="Sort extensions" listLabel="Sort order" options={SORT_OPTIONS} value={sortOrder} onChange={setSortOrder} />
           </div>
 
           <div className="category-filters" role="group" aria-label="Filter by category">
@@ -221,7 +212,7 @@ function App() {
           {visibleExtensions.length > 0 ? (
             <div className="extension-grid">
               {visibleExtensions.map((extension) => (
-                <ExtensionCard key={extension.id} extension={extension} onSelect={setSelectedExtension} />
+                <ExtensionCard key={extension.id} extension={extension} />
               ))}
             </div>
           ) : (
@@ -229,7 +220,7 @@ function App() {
               <Icon name="search" />
               <h2>No extensions found</h2>
               <p>Try another search or category.</p>
-              <button className="button-secondary" onClick={clearFilters}>Reset search and filters</button>
+              <button className="button" onClick={clearFilters}>Reset search and filters</button>
             </div>
           )}
         </main>
@@ -240,7 +231,7 @@ function App() {
             <Icon name="search" />
             <h1>Extension not found</h1>
             <p>This extension is not registered in the hub.</p>
-            <Link className="button-secondary" to="/">Browse extensions<Icon name="arrow" /></Link>
+            <Link className="button" to="/">Browse extensions<Icon name="arrow" /></Link>
           </div>
         </main>
       )}
@@ -250,24 +241,6 @@ function App() {
         <a href={REPOSITORY_URL + '/issues/new'}>Contribute an extension <Icon name="arrow" /></a>
       </footer>
 
-      <dialog ref={detailDialog} className="manifest-dialog" aria-labelledby="manifest-title" onClose={() => setSelectedExtension(null)}>
-        {selectedExtension?.manifest && (
-          <>
-            <div className="dialog-heading">
-              <div>
-                <h2 id="manifest-title">extension.yaml</h2>
-                <p>{selectedExtension.title}</p>
-              </div>
-              <button className="icon-button" aria-label="Close extension.yaml" onClick={() => detailDialog.current?.close()}><Icon name="close" /></button>
-            </div>
-            <div className="manifest-toolbar">
-              <span>Extension manifest</span>
-              <a href={selectedExtension.manifestUrl} download="extension.yaml"><Icon name="download" />Download extension.yaml</a>
-            </div>
-            <pre className="manifest-code" tabIndex={0} aria-label={selectedExtension.title + ' YAML definition'}><code>{selectedExtension.manifest}</code></pre>
-          </>
-        )}
-      </dialog>
     </div>
   );
 }

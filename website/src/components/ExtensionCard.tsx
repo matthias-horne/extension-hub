@@ -5,7 +5,6 @@ import { Icon } from './Icon';
 
 interface ExtensionCardProps {
   extension: Extension;
-  onSelect: (extension: Extension) => void;
 }
 
 const starFormatter = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
@@ -25,7 +24,7 @@ function hideCardGlow(event: PointerEvent<HTMLElement>) {
   delete event.currentTarget.dataset.glowActive;
 }
 
-export function ExtensionCard({ extension, onSelect }: ExtensionCardProps) {
+export function ExtensionCard({ extension }: ExtensionCardProps) {
   const github = extension.github;
   const owner = github?.owner.login ?? extension.owner;
   const ownerUrl = github?.owner.htmlUrl ?? 'https://github.com/' + extension.owner;
@@ -61,14 +60,11 @@ export function ExtensionCard({ extension, onSelect }: ExtensionCardProps) {
         {extension.tags.map((tag) => <span className="extension-tag" key={tag}>{tag}</span>)}
       </div>
       <div className="card-actions">
-        <button className="manifest-button" disabled={!extension.manifest} title={extension.manifest ? 'Show extension.yaml' : 'No extension.yaml has been published'} onClick={() => onSelect(extension)} aria-label={'Show extension.yaml for ' + extension.title}>
-          <Icon name="file" />extension.yaml
-        </button>
-        {extension.manifestUrl && <a className="card-action-link" href={extension.manifestUrl} download="extension.yaml" aria-label={'Download extension.yaml for ' + extension.title} title="Download extension.yaml">
-          <Icon name="download" />
+        {extension.manifestUrl && <a className="button button-small button-primary" href={extension.manifestUrl} download="extension.yaml" aria-label={'Download extension.yaml for ' + extension.title} title="Download extension.yaml">
+          <Icon name="download" /><span>Download</span>
         </a>}
-        <a className="card-action-link" href={extension.repository} target="_blank" rel="noopener noreferrer" aria-label={'View ' + extension.title + ' on GitHub'} title="View repository on GitHub">
-          <Icon name="github" />
+        <a className="button button-small" href={extension.repository} target="_blank" rel="noopener noreferrer" aria-label={'Open ' + extension.title + ' on GitHub'} title="Open on GitHub">
+          <Icon name="github" /><span>Open on GitHub</span>
         </a>
       </div>
     </article>
