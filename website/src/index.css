@@ -22,7 +22,7 @@
   --text-muted: #606065;
   --text-subtle: #626267;
   --line: #e2e2e3;
-  --control-line: #7c7c82;
+  --control-line: var(--line);
   --button-bg: #ebebef;
   --button-hover: #d2d2d8;
   --brand: #066448;

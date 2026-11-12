@@ -80,18 +80,19 @@
 .extension-description { flex: 1; margin: 16px 0 0; color: var(--text-muted); font-size: 13px; line-height: 22px; }
 .extension-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
 .extension-tag { display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 4px; background: var(--brand-soft); color: var(--brand); font-size: 10px; line-height: 16px; }
-.card-actions { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
-.card-action-link { display: flex; align-items: center; justify-content: center; width: 30px; height: 32px; flex-shrink: 0; border-radius: 6px; color: var(--text-muted); transition: color .2s, background-color .2s; }
-.card-action-link:hover { background: var(--button-hover); color: var(--text); }
-.card-action-link svg { width: 16px; height: 16px; }
-.card-download-link, .card-github-link { width: auto; gap: 7px; padding-inline: 10px; font-size: 12px; }
+.button-primary, .button-secondary, .card-action-link, .copy-manifest { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 38px; padding: 8px 12px; border: 1px solid var(--control-line); border-radius: 8px; background: var(--button-bg); color: var(--text); font-size: 13px; line-height: 20px; font-weight: 500; transition: background-color .2s; }
+.button-primary, .card-download-link { border-color: transparent; background: var(--primary-bg); color: var(--on-primary); }
+.button-primary:hover, .button-secondary:hover, .card-action-link:hover, .copy-manifest:hover { background: var(--button-hover); }
+.button-primary:hover, .card-download-link:hover { background: var(--primary-hover); }
+.button-primary svg, .button-secondary svg, .card-action-link svg, .copy-manifest svg { width: 16px; height: 16px; }
+.card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.card-action-link, .copy-manifest { min-height: 32px; padding: 5px 10px; flex-shrink: 0; font-size: 12px; }
+.copy-manifest { border-color: transparent; }
 .empty-state { display: flex; flex-direction: column; align-items: center; padding: 56px 20px; border: 1px dashed var(--line); border-radius: 12px; color: var(--text-muted); text-align: center; }
 .empty-state > svg { width: 28px; height: 28px; margin-bottom: 18px; }
 .empty-state h1, .empty-state h2 { margin: 0; color: var(--text); font-size: 18px; line-height: 26px; font-weight: 600; }
 .empty-state p { margin: 8px 0 0; font-size: 14px; line-height: 24px; }
-.button-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 38px; margin-top: 24px; padding: 8px 16px; border: 1px solid var(--control-line); border-radius: 8px; background: var(--button-bg); color: var(--text); font-size: 13px; line-height: 20px; font-weight: 500; transition: background-color .2s; }
-.button-secondary:hover { border-color: var(--brand); background: var(--button-hover); }
-.button-secondary svg { width: 16px; height: 16px; color: var(--brand); }
+.button-secondary { margin-top: 24px; }
 
 .site-footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px 0; border-top: 1px solid var(--line); color: var(--text-subtle); font-size: 12px; }
 .site-footer a { display: inline-flex; align-items: center; gap: 9px; transition: color .2s; }
@@ -118,18 +119,7 @@
 .details-identity .owner-avatar { width: 20px; height: 20px; font-size: 10px; }
 .details-description { margin: 22px 0; color: var(--text-muted); font-size: 14px; line-height: 24px; overflow-wrap: anywhere; }
 .details-actions { display: flex; flex-direction: column; gap: 8px; }
-.button-primary { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 42px; padding: 10px 12px; border-radius: 8px; background: var(--primary-bg); color: var(--on-primary); font-size: 13px; line-height: 20px; font-weight: 500; transition: background-color .2s, box-shadow .2s, transform .2s; }
-.button-primary:hover { background: var(--primary-hover); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 25%), 0 4px 12px rgb(0 0 0 / 20%); transform: translateY(-1px); }
-.button-primary:active { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 25%); transform: translateY(0); }
-.button-primary svg { width: 16px; height: 16px; }
-@media (prefers-reduced-motion: reduce) {
-  .button-primary:hover { transform: none; }
-}
-.details-actions .button-secondary { min-height: 40px; margin: 0; background: var(--card-bg); }
-.details-actions .button-secondary:hover { background: var(--button-hover); }
-.details-actions .button-secondary svg { color: var(--text-muted); }
-.details-actions .button-secondary svg:last-child { width: 13px; height: 13px; margin-left: auto; }
-.details-actions .button-secondary svg:first-child { margin-right: auto; }
+.details-actions .button-primary, .details-actions .button-secondary { min-height: 42px; margin: 0; padding: 10px 12px; }
 .repository-metadata { margin: 24px 0 0; overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: var(--card-bg); }
 .repository-metadata > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 14px; font-size: 12px; line-height: 18px; }
 .repository-metadata > div + div { border-top: 1px solid var(--line); }
@@ -202,8 +192,6 @@
 .skeleton { height: 12px; margin-top: 14px; border-radius: 4px; background: var(--button-bg); }
 .skeleton-heading { width: 62%; height: 24px; margin-block: 28px 24px; }
 .skeleton-short { width: 78%; }
-.copy-manifest { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; padding: 2px 0; border: none; background: transparent; color: var(--text-muted); font-size: 12px; }
-.copy-manifest:hover { color: var(--brand); }
 .manifest-panel-heading { flex-wrap: wrap; }
 .manifest-panel-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
 .manifest-values-toggle { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }

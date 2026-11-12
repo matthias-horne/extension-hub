@@ -99,7 +99,7 @@ export default function ExtensionDetails({ extension, onCategory }: {
 
           <div className="details-actions">
             {extension.manifestUrl && <a className="button-primary" href={extension.manifestUrl} download="extension.yaml"><Icon name="download" />Download extension.yaml</a>}
-            <a className="button-secondary" href={extension.repository} target="_blank" rel="noopener noreferrer"><Icon name="github" />View source<Icon name="external" /></a>
+            <a className="button-secondary" href={extension.repository} target="_blank" rel="noopener noreferrer"><Icon name="github" />View source</a>
           </div>
 
           <dl className="repository-metadata">
