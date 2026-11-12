@@ -161,7 +161,6 @@ function App() {
         <main className="content-width catalog" id="main-content" tabIndex={-1}>
           <div className="catalog-heading">
             <h1>Extensions</h1>
-            <p>{extensions.length} community-built {extensions.length === 1 ? 'extension' : 'extensions'} for Gardener.</p>
           </div>
 
           <div className="catalog-toolbar">

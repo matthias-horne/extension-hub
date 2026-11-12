@@ -218,7 +218,6 @@
 .artifact-card { min-width: 0; padding: 18px 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--page-bg); }
 .artifact-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 12px; }
 .artifact-heading h3 { margin: 0; font-size: 14px; line-height: 22px; font-weight: 500; }
-.artifact-type { padding: 3px 8px; border-radius: 5px; background: var(--brand-soft); color: var(--brand); font-size: 11px; line-height: 18px; }
 .artifact-reference { display: flex; align-items: flex-start; gap: 16px; }
 .artifact-reference code { flex: 1; min-width: 0; overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; line-height: 22px; }
 .artifact-copy-status { margin: 12px 0 0; color: var(--text-muted); font-size: 12px; line-height: 20px; }

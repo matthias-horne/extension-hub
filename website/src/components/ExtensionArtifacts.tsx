@@ -38,7 +38,6 @@ function ArtifactCard({ label, reference, type }: { label: string; reference: st
     <li className="artifact-card">
       <div className="artifact-heading">
         <h3>{label}</h3>
-        <span className="artifact-type">{type}</span>
       </div>
       <div className="artifact-reference">
         <code>{reference}</code>
@@ -93,10 +92,9 @@ export function ExtensionArtifacts({ artifacts, images = [], manifestRegistry }:
           </div>
         </section>}
         <section className="artifact-section">
-          <h2>Helm charts ({artifacts.length})</h2>
+          <h2>Helm charts</h2>
           {artifacts.length > 0 ? (
             <>
-              <p>Helm charts referenced in this extension.yaml.</p>
               <ul className="artifact-list">
                 {artifacts.map((artifact) => <ArtifactCard key={artifact.deployment} label={deploymentLabels[artifact.deployment]} reference={artifact.reference} type="Helm chart" />)}
               </ul>
@@ -104,15 +102,14 @@ export function ExtensionArtifacts({ artifacts, images = [], manifestRegistry }:
           ) : <p>No Helm charts are referenced in this extension.yaml.</p>}
         </section>
         <section className="artifact-section">
-          <h2>Container images ({images.length})</h2>
+          <h2>Container images</h2>
           {images.length > 0 ? (
             <>
-              <p>Container images configured in this extension’s Helm values.</p>
               <ul className="artifact-list">
                 {images.map((image) => <ArtifactCard key={image.reference} label={image.deployments.map((deployment) => imageDeploymentLabels[deployment]).join(', ')} reference={image.reference} type="Container image" />)}
               </ul>
             </>
-          ) : <p>No container images are configured in this extension’s Helm values.</p>}
+          ) : <p>No container images are configured in this extension's Helm values.</p>}
         </section>
       </div>
     </>
