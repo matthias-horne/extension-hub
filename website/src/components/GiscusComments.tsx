@@ -3,8 +3,8 @@ import { useEffect, useRef } from 'react';
 const GISCUS_ORIGIN = 'https://giscus.app';
 const DEFAULT_REPO = 'matthias-horne/extension-hub';
 const DEFAULT_REPO_ID = 'R_kgDOVqenPA';
-const DEFAULT_CATEGORY = 'General';
-const DEFAULT_CATEGORY_ID = 'DIC_kwDOVqenPM4DK_cg';
+const DEFAULT_CATEGORY = 'Compatibility';
+const DEFAULT_CATEGORY_ID = 'DIC_kwDOVqenPM4DK_fH';
 
 function giscusTheme() {
   return document.documentElement.classList.contains('dark') ? 'dark_dimmed' : 'light';
@@ -64,7 +64,7 @@ export function GiscusComments({ term }: { term: string }) {
   return (
     <div className="extension-discussion" role="region" aria-labelledby={headingId}>
       <h2 className="section-title" id={headingId}>Add compatibility feedback for this extension</h2>
-      <p className="panel-description">Have you encountered a compatibility problem? Ask the community below.</p>
+      <p className="panel-description">Have you encountered a compatibility problem? Ask the community below. If you want to contact the extension's maintainers raise an issue in the corresponding repository.</p>
       <div ref={container} className="giscus-comments" />
     </div>
   );
