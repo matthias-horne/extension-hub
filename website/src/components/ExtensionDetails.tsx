@@ -8,6 +8,7 @@ import { withoutHelmValues } from '../data/manifest';
 import { Icon } from './Icon';
 import { ExtensionIcon } from './ExtensionIcon';
 import { ExtensionCompatibility } from './ExtensionCompatibility';
+import { GiscusComments } from './GiscusComments';
 import { ExtensionArtifacts } from './ExtensionArtifacts';
 import { MissingInformation } from './MissingInformation';
 import { CodeBlock, MarkdownCodeBlock } from './CodeBlock';
@@ -179,6 +180,7 @@ export default function ExtensionDetails({ extension, onCategory }: {
 
           <section className="details-panel compatibility-panel" id="compatibility-panel" role="tabpanel" aria-labelledby="compatibility-tab" tabIndex={0} hidden={activeTab !== 'compatibility'}>
             <ExtensionCompatibility compatibility={extension.compatibility} version={extension.version} />
+            <GiscusComments term={extension.id} />
           </section>
         </div>
       </div>

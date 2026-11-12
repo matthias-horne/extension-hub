@@ -301,6 +301,11 @@
 .compatibility-features { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .compatibility-features li { padding: 4px 10px; border-radius: 5px; background: var(--brand-soft); color: var(--brand); font-size: 12px; line-height: 20px; overflow-wrap: anywhere; }
 
+/* Community discussion below the compatibility information. */
+.extension-discussion { padding: 28px 32px 32px; border-top: 1px solid var(--line); }
+.extension-discussion .section-title { margin-bottom: 6px; }
+.extension-discussion .panel-description { margin-bottom: 20px; }
+
 /* Small grey text; headings keep their own weights. */
 .catalog-heading p,
 .search-field input,
@@ -337,6 +342,7 @@
 @media (max-width: 959px) {
   .details-layout { grid-template-columns: 250px minmax(0, 1fr); gap: 28px; }
   .panel-body { padding: 24px; }
+  .extension-discussion { padding: 24px; }
   .extension-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -379,6 +385,7 @@
 
 @media (max-width: 399px) {
   .panel-body { padding: 20px; }
+  .extension-discussion { padding: 20px; }
   .artifact-metadata > div { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .details-panel-heading { padding-inline: 16px; }
   .details-tabs { gap: 20px; }
