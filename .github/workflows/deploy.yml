@@ -45,6 +45,10 @@ jobs:
       - name: Build
         env:
           VITE_SHOW_EXTENSIONS_WITHOUT_REGISTRY: ${{ vars.VITE_SHOW_EXTENSIONS_WITHOUT_REGISTRY || 'true' }}
+          VITE_GISCUS_REPO: ${{ vars.VITE_GISCUS_REPO }}
+          VITE_GISCUS_REPO_ID: ${{ vars.VITE_GISCUS_REPO_ID }}
+          VITE_GISCUS_CATEGORY: ${{ vars.VITE_GISCUS_CATEGORY }}
+          VITE_GISCUS_CATEGORY_ID: ${{ vars.VITE_GISCUS_CATEGORY_ID }}
         run: bun run build --base "/${GITHUB_REPOSITORY#*/}/"
         working-directory: website
 
