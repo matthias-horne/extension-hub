@@ -17,6 +17,7 @@ func readControllerRegistrationResources(extBaseDir string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error to open controller-registration.yaml: %w", err)
 	}
+	defer f.Close()
 
 	decoder := yaml.NewYAMLOrJSONDecoder(f, 4096)
 
@@ -35,6 +36,9 @@ func readControllerRegistrationResources(extBaseDir string) ([]string, error) {
 		err := decoder.Decode(&res)
 		if errors.Is(err, io.EOF) {
 			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("error decoding controller-registration.yaml: %w", err)
 		}
 
 		if res.Kind == "ControllerRegistration" {

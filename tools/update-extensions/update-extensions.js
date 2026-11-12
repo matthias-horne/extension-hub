@@ -11,10 +11,14 @@ export const EXTENSION_MEDIA_TYPE = 'application/gardener.extension+yaml';
 export const COMPATIBILITY_MEDIA_TYPE = 'application/gardener.compatibility+yaml';
 
 export async function run(command, ...args) {
+  return runWithTimeout(120_000, command, ...args);
+}
+
+async function runWithTimeout(timeout, command, ...args) {
   try {
     const { stdout } = await executeFile(command, args, {
       encoding: 'utf8',
-      timeout: 120_000,
+      timeout,
       maxBuffer: 16 * 1024 * 1024,
     });
     return stdout;
@@ -256,6 +260,37 @@ export async function pullCompatibility(registry, tag, command = run) {
   return result;
 }
 
+export async function checkApiCompatibility(repository, tag, extension, previous = {}, {
+  indicator = 'api-compatibility-indicator',
+  command = (...args) => runWithTimeout(600_000, ...args),
+  warn = console.warn,
+} = {}) {
+  const module = 'github.com/' + repositoryName(repository) + '@' + (tag ?? 'latest');
+  const checks = [{ name: 'gardener', subcommand: 'extension-with-gardener', args: [] }];
+  const chart = extension?.spec?.deployment?.extension?.helm?.ociRepository;
+  if (chart) {
+    checks.push({ name: 'kubernetes', subcommand: 'extension-with-helm', args: ['--chart-oci-path', helmReference(chart)] });
+  }
+  const results = {};
+  for (const { name, subcommand, args } of checks) {
+    try {
+      const result = JSON.parse(await command(indicator, subcommand, '--extension-path', module, ...args));
+      if (!isMapping(result) || ['version', 'from', 'to'].some((field) =>
+        typeof result[field] !== 'string' || !result[field].trim(),
+      ) || ['breaking_on_lower', 'breaking_on_higher'].some((field) =>
+        result[field] !== null && (!Array.isArray(result[field]) || result[field].some((change) => typeof change !== 'string')),
+      )) {
+        throw new Error('indicator returned an invalid compatibility range');
+      }
+      results[name] = result;
+    } catch (error) {
+      warn(repository + '@' + (tag ?? 'latest') + ': ' + name + ' API compatibility check failed: ' + error.message);
+      if (Object.hasOwn(previous, name)) results[name] = structuredClone(previous[name]);
+    }
+  }
+  return results;
+}
+
 export async function fetchSocialPreview(repository, command = run, warn = console.warn) {
   const [owner, name] = repositoryName(repository).split('/');
   try {
@@ -328,6 +363,8 @@ export async function aggregate(registration, previous, {
   pullManifest: fetchManifest = pullManifest,
   pullHelmValues: fetchValues = pullHelmValues,
   pullCompatibility: fetchCompatibility = pullCompatibility,
+  checkApiCompatibility: checkApi = checkApiCompatibility,
+  apiCompatibilityIndicator = 'api-compatibility-indicator',
   fetchGitHubInfo: fetchInfo = fetchGitHubInfo,
   warn = console.warn,
 } = {}) {
@@ -346,12 +383,26 @@ export async function aggregate(registration, previous, {
   const releases = await fetchReleases(registration.repository);
   const github = await fetchInfo(registration.repository);
   const latest = releases[0]?.tag_name;
+  const apiDetails = previous.apiCompatibility ?? {};
+  if (!isMapping(apiDetails) || Object.values(apiDetails).some((details) => !isMapping(details))) {
+    throw new Error('existing API compatibility must map release tags to mappings');
+  }
+  const apiHistory = new Map(Object.entries(apiDetails));
+  async function refreshApiCompatibility(extension) {
+    const tag = latest ?? 'latest';
+    const result = await checkApi(registration.repository, latest, extension, apiHistory.get(tag) ?? {}, {
+      indicator: apiCompatibilityIndicator, warn,
+    });
+    apiHistory.set(tag, result);
+    return Object.fromEntries([[tag, result], ...[...apiHistory].filter(([version]) => version !== tag)]);
+  }
   if (!registration.manifestRegistry) {
     return {
       ...registration,
       addedAt: firstAddedAt,
       ...(latest ? { version: latest } : {}),
       github,
+      apiCompatibility: await refreshApiCompatibility(),
       compatibility: Object.fromEntries([...new Set([
         ...releases.map((release) => release.tag_name), ...compatibility.keys(),
       ])].map((tag) => [tag, {}])),
@@ -381,6 +432,7 @@ export async function aggregate(registration, previous, {
     addedAt: firstAddedAt,
     ...(extension ? { version: latest ?? previous.version, extension } : {}),
     github,
+    apiCompatibility: await refreshApiCompatibility(latest ? extension : undefined),
     compatibility: Object.fromEntries([...tags].map((tag) => [tag, compatibility.get(tag)])),
   };
 }
@@ -467,14 +519,17 @@ export async function main(args = process.argv.slice(2)) {
     const { values } = parseArgs({ args, options: {
       'extensions-dir': { type: 'string', default: fileURLToPath(new URL('../../extensions/', import.meta.url)) },
       'output-dir': { type: 'string' },
+      'api-compatibility-indicator': { type: 'string', default: 'api-compatibility-indicator' },
       help: { type: 'boolean', short: 'h' },
     } });
     if (values.help) {
-      console.log('Usage: node tools/update-extensions/update-extensions.js [--extensions-dir <path>] --output-dir <pages/extensions>');
+      console.log('Usage: node tools/update-extensions/update-extensions.js [--extensions-dir <path>] --output-dir <pages/extensions> [--api-compatibility-indicator <path>]');
       return 0;
     }
     if (!values['output-dir']) throw new Error('--output-dir is required');
-    return await updateExtensions(values['extensions-dir'], values['output-dir']);
+    return await updateExtensions(values['extensions-dir'], values['output-dir'], {
+      apiCompatibilityIndicator: values['api-compatibility-indicator'],
+    });
   } catch (error) {
     console.error(error.message);
     return 1;

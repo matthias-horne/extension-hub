@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	var log *slog.Logger
+	log := slog.New(slog.NewTextHandler(os.Stderr, nil))
 
 	cmd := &cli.Command{
 		Name: "api-check",
@@ -74,7 +74,7 @@ func main() {
 				return nil, fmt.Errorf("unable to parse log-level: %w", err)
 			}
 
-			log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			log = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 				Level: level,
 			}))
 

@@ -75,25 +75,28 @@ func DownloadAndGetModuleDir(module string) (string, error) {
 
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "go", "mod", "download", module)
+	// Explicit versions work outside a module and reuse Go's shared module cache.
+	if !strings.Contains(module, "@") {
+		module += "@latest"
+	}
+	cmd := exec.CommandContext(ctx, "go", "mod", "download", "-json", module)
 	var stderr strings.Builder
 	cmd.Stderr = &stderr
-	err := cmd.Run()
-	if err != nil {
-		return "", fmt.Errorf("failed to download %s: %w (stderr: %s)", module, err, stderr.String())
-	}
-
-	out, err := exec.CommandContext(ctx, "go", "list", "-m", "-json", module).Output()
-	if err != nil {
-		return "", fmt.Errorf("failed to list module %s: %w", module, err)
-	}
-
+	out, downloadErr := cmd.Output()
 	var m struct {
-		Dir string `json:"Dir"`
+		Dir   string `json:"Dir"`
+		Error string `json:"Error"`
 	}
-
-	if err := json.Unmarshal([]byte(out), &m); err != nil {
-		return "", fmt.Errorf("failed to unmarshal module json: %w", err)
+	parseErr := json.Unmarshal(out, &m)
+	if downloadErr != nil {
+		detail := stderr.String()
+		if m.Error != "" {
+			detail = m.Error
+		}
+		return "", fmt.Errorf("failed to download %s: %w (%s)", module, downloadErr, detail)
+	}
+	if parseErr != nil {
+		return "", fmt.Errorf("failed to unmarshal module json: %w", parseErr)
 	}
 	if m.Dir == "" {
 		return "", fmt.Errorf("could not find Dir field in JSON")
