@@ -1,7 +1,7 @@
 name: Audit
 description: Adds buffered shipping of kube-apiserver audit logs by spinning up a fluent-bit-based audit sink in the seed's shoot namespace, which then distributes the logs to configurable backends.
 tags:
-  - auditing
-  - compliance
+  - Observability
+  - Security
 repository: https://github.com/metal-stack/gardener-extension-audit
 manifestRegistry: ghcr.io/metal-stack/extensions/gardener-extension-audit
