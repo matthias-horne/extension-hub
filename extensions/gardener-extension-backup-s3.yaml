@@ -1,0 +1,6 @@
+name: Backup S3
+description: Reconciles the BackupBucket and BackupEntry resources against any S3 compatible object store (e.g. AWS S3, MinIO, Ceph RGW, ONTAP...).
+tags:
+  - Storage
+repository: https://github.com/metal-stack/gardener-extension-backup-s3
+manifestRegistry: ghcr.io/metal-stack/extensions/gardener-extension-backup-s3
