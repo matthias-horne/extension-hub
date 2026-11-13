@@ -3,3 +3,4 @@ description: "Provide ingress traffic routing with Traefik in Gardener shoot clu
 tags:
   - Network
 repository: https://github.com/gardener/gardener-extension-shoot-traefik
+icon: https://avatars.githubusercontent.com/u/14280338?s=200&v=4

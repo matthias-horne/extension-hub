@@ -3,3 +3,4 @@ description: "Provide Gateway API traffic management using Envoy Gateway."
 tags:
   - Network
 repository: https://github.com/gardener/gardener-extension-envoy-gateway
+icon: https://avatars.githubusercontent.com/u/30125649?s=200&v=4
