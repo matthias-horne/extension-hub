@@ -3,11 +3,12 @@ description: Provide ingress traffic routing with Traefik in Gardener shoot clus
 tags:
   - Network
 repository: https://github.com/gardener/gardener-extension-shoot-traefik
+icon: https://avatars.githubusercontent.com/u/14280338?s=200&v=4
 addedAt: 2026-11-12T14:50:00.384Z
 version: v0.12.0
 github:
   stars: 0
-  lastCommit: 2026-11-12T14:15:38Z
+  lastCommit: 2026-11-13T06:01:42Z
   language: Go
   license:
     name: Apache License 2.0

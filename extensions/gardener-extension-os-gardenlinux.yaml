@@ -3,6 +3,7 @@ description: Configure Garden Linux nodes in Gardener clusters.
 tags:
   - OS
 repository: https://github.com/gardener/gardener-extension-os-gardenlinux
+icon: https://avatars.githubusercontent.com/u/61944014?s=200&v=4
 addedAt: 2026-11-12T14:48:59.527Z
 version: v0.51.0
 github:

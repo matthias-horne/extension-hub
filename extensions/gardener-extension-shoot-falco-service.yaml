@@ -4,6 +4,7 @@ tags:
   - Security
   - Observability
 repository: https://github.com/gardener/gardener-extension-shoot-falco-service
+icon: https://avatars.githubusercontent.com/u/42391047?s=200&v=4
 addedAt: 2026-11-12T14:49:47.187Z
 version: v0.99.0
 github:
