@@ -5,10 +5,10 @@ tags:
 repository: https://github.com/gardener/gardener-extension-os-suse-chost
 icon: https://avatars.githubusercontent.com/u/1067733?s=200&v=4
 addedAt: 2026-11-12T14:49:03.155Z
-version: v1.47.0
+version: v1.48.0
 github:
   stars: 5
-  lastCommit: 2026-11-12T15:44:30Z
+  lastCommit: 2026-11-13T16:19:48Z
   language: Go
   license:
     name: Apache License 2.0
@@ -96,6 +96,15 @@ github:
     htmlUrl: https://github.com/gardener/gardener-extension-os-suse-chost/blob/master/README.md
     rawUrl: https://raw.githubusercontent.com/gardener/gardener-extension-os-suse-chost/master/README.md
 apiCompatibility:
+  v1.48.0:
+    gardener:
+      version: 1.155.1
+      from: 1.155.1
+      to: 1.155.1
+      breaking_on_lower:
+        - "1.154.5 changes fields in OperatingSystemConfig:
+          Spec.Files.Permissions: *int32 -> *uint32"
+      breaking_on_higher: null
   v1.47.0:
     gardener:
       version: 1.154.0
@@ -104,6 +113,7 @@ apiCompatibility:
       breaking_on_lower: null
       breaking_on_higher: null
 compatibility:
+  v1.48.0: {}
   v1.47.0: {}
   v1.46.0: {}
   v1.45.0: {}

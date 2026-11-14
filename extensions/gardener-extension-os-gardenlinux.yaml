@@ -5,10 +5,10 @@ tags:
 repository: https://github.com/gardener/gardener-extension-os-gardenlinux
 icon: https://avatars.githubusercontent.com/u/61944014?s=200&v=4
 addedAt: 2026-11-12T14:48:59.527Z
-version: v0.51.0
+version: v0.52.0
 github:
   stars: 9
-  lastCommit: 2026-11-12T21:56:32Z
+  lastCommit: 2026-11-13T16:16:51Z
   language: Go
   license:
     name: Apache License 2.0
@@ -122,6 +122,15 @@ github:
     htmlUrl: https://github.com/gardener/gardener-extension-os-gardenlinux/blob/master/README.md
     rawUrl: https://raw.githubusercontent.com/gardener/gardener-extension-os-gardenlinux/master/README.md
 apiCompatibility:
+  v0.52.0:
+    gardener:
+      version: 1.155.1
+      from: 1.155.1
+      to: 1.155.1
+      breaking_on_lower:
+        - "1.154.5 changes fields in OperatingSystemConfig:
+          Spec.Files.Permissions: *int32 -> *uint32"
+      breaking_on_higher: null
   v0.51.0:
     gardener:
       version: 1.154.0
@@ -130,6 +139,7 @@ apiCompatibility:
       breaking_on_lower: null
       breaking_on_higher: null
 compatibility:
+  v0.52.0: {}
   v0.51.0: {}
   v0.50.0: {}
   v0.49.0: {}
