@@ -59,6 +59,7 @@ interface ExtensionManifest {
       extension?: HelmDeployment;
       admission?: { runtimeCluster?: HelmDeployment; virtualCluster?: HelmDeployment; values?: unknown };
     };
+    resources?: { kind: string; type: string }[];
   };
 }
 
@@ -78,6 +79,8 @@ export interface Extension {
   manifest?: string;
   manifestUrl?: string;
   artifacts: ExtensionArtifact[];
+  apiResources: string[];
+  hasAdmissionController: boolean;
   images: ExtensionImage[];
   github?: GitHubInfo;
   compatibility?: Record<string, CompatibilityInfo>;
@@ -132,6 +135,19 @@ function extensionArtifacts(manifest?: ExtensionManifest): ExtensionArtifact[] {
   });
 }
 
+function extensionApiResources(manifest?: ExtensionManifest): string[] {
+  const resources = manifest?.spec?.resources;
+  if (!Array.isArray(resources)) return [];
+  return [...new Set(resources.flatMap((resource) =>
+    typeof resource?.kind === 'string' && resource.kind.trim() ? [resource.kind] : []))];
+}
+
+function hasAdmissionController(manifest?: ExtensionManifest): boolean {
+  const admission = manifest?.spec?.deployment?.admission;
+  return Boolean(helmReference(admission?.runtimeCluster?.helm?.ociRepository)
+    || helmReference(admission?.virtualCluster?.helm?.ociRepository));
+}
+
 export function parseExtension(definition: string, path: string, siteBase = '/'): Extension {
   const entry: RegistryEntry = parse(definition);
   if (!entry || typeof entry.name !== 'string' || typeof entry.description !== 'string' || typeof entry.repository !== 'string') {
@@ -183,6 +199,8 @@ export function parseExtension(definition: string, path: string, siteBase = '/')
     manifest,
     manifestUrl: manifest ? 'data:application/yaml;charset=utf-8,' + encodeURIComponent(manifest) : undefined,
     artifacts: extensionArtifacts(entry.extension),
+    apiResources: extensionApiResources(entry.extension),
+    hasAdmissionController: hasAdmissionController(entry.extension),
     images: extensionImages([
       { deployment: 'extension', values: entry.extension?.spec?.deployment?.extension?.values },
       { deployment: 'extension-runtime', values: entry.extension?.spec?.deployment?.extension?.runtimeClusterValues },
