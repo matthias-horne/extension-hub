@@ -105,6 +105,27 @@ export default function ExtensionDetails({ extension, onCategory }: {
             </div>
           </div>
 
+          <div className="details-api-resources">
+            <h2>API resources</h2>
+            {extension.manifest ? (
+              <>
+                {extension.apiResources.length > 0 ? (
+                  <ul className="api-resource-list">
+                    {extension.apiResources.map((kind) => <li className="api-resource" key={kind}>{kind}</li>)}
+                  </ul>
+                ) : <p className="metadata-note">No API resources declared.</p>}
+                <dl className="metadata-table api-admission">
+                  <div>
+                    <dt>Admission controller</dt>
+                    <dd>{extension.hasAdmissionController
+                      ? <span className="api-admission-yes"><Icon name="check" />Yes</span>
+                      : 'No'}</dd>
+                  </div>
+                </dl>
+              </>
+            ) : <p className="metadata-note">API resources are unavailable.</p>}
+          </div>
+
           <a className="details-support" href={extension.repository + '/issues'} target="_blank" rel="noopener noreferrer">Report an issue<Icon name="external" /></a>
         </aside>
 

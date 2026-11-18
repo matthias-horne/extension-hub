@@ -192,6 +192,12 @@
 .details-categories .extension-tags { margin: 0; }
 .details-categories .extension-tag { padding: 4px 9px; font-size: 11px; }
 .details-categories .extension-tag:hover { background: var(--button-hover); color: var(--text); }
+.details-api-resources { margin-top: 26px; }
+.api-resource-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.api-resource { display: inline-flex; align-items: center; padding: 4px 9px; border-radius: 4px; background: var(--brand-soft); color: var(--brand); font-family: var(--font-mono); font-size: 11px; line-height: 16px; }
+.api-admission { margin-top: 12px; }
+.api-admission-yes { display: inline-flex; align-items: center; gap: 4px; color: var(--brand); }
+.api-admission-yes svg { width: 13px; height: 13px; }
 .details-support { display: flex; align-items: center; justify-content: space-between; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--text-muted); font-size: 12px; line-height: 20px; }
 .details-support:hover { color: var(--brand); }
 .details-support svg { width: 13px; height: 13px; }
@@ -396,6 +402,7 @@
   .details-actions > a { flex: 1; min-width: 230px; }
   .metadata-table > div { padding-block: 10px; }
   .details-categories { margin-top: 22px; }
+  .details-api-resources { margin-top: 22px; }
   .details-support { margin-top: 22px; }
 }
 
