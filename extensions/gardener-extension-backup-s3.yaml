@@ -6,27 +6,27 @@ tags:
 repository: https://github.com/metal-stack/gardener-extension-backup-s3
 manifestRegistry: ghcr.io/metal-stack/extensions/gardener-extension-backup-s3
 addedAt: 2026-11-12T14:47:34.499Z
-version: v0.9.1
+version: v0.9.2
 extension:
   apiVersion: operator.gardener.cloud/v1alpha1
   kind: Extension
   metadata:
     name: backup-s3
     annotations:
-      extension.garden.cloud/manifest: ghcr.io/metal-stack/extensions/gardener-extension-backup-s3:v0.9.1
+      extension.garden.cloud/manifest: ghcr.io/metal-stack/extensions/gardener-extension-backup-s3:v0.9.2
   spec:
     deployment:
       extension:
         helm:
           ociRepository:
-            ref: ghcr.io/metal-stack/charts/gardener-extension-backup-s3:v0.9.1
+            ref: ghcr.io/metal-stack/charts/gardener-extension-backup-s3:v0.9.2
         policy: Always
         runtimeClusterValues:
           nameOverride: ""
           fullnameOverride: ""
           image:
             repository: ghcr.io/metal-stack/gardener-extension-backup-s3
-            tag: v0.9.1
+            tag: v0.9.2
             pullPolicy: Always
           replicaCount: 1
           maxUnavailable: 1
@@ -68,7 +68,7 @@ extension:
           fullnameOverride: ""
           image:
             repository: ghcr.io/metal-stack/gardener-extension-backup-s3
-            tag: v0.9.1
+            tag: v0.9.2
             pullPolicy: Always
           replicaCount: 1
           maxUnavailable: 1
@@ -114,7 +114,7 @@ extension:
         type: S3
 github:
   stars: 4
-  lastCommit: 2026-11-17T09:47:47Z
+  lastCommit: 2026-11-18T10:34:20Z
   language: Go
   license:
     name: Apache License 2.0
@@ -152,6 +152,19 @@ github:
     htmlUrl: https://github.com/metal-stack/gardener-extension-backup-s3/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/metal-stack/gardener-extension-backup-s3/main/README.md
 apiCompatibility:
+  v0.9.2:
+    gardener:
+      version: 1.148.5
+      from: 1.137.7
+      to: 1.154.5
+      breaking_on_lower: null
+      breaking_on_higher: null
+    kubernetes:
+      version: 0.37.2
+      from: 0.34.13
+      to: 0.37.2
+      breaking_on_lower: null
+      breaking_on_higher: null
   v0.9.1:
     gardener:
       version: 1.148.5
@@ -179,6 +192,16 @@ apiCompatibility:
       breaking_on_lower: null
       breaking_on_higher: null
 compatibility:
+  v0.9.2:
+    requires: {}
+    supportedFeatures: []
+    builtWith:
+      gardener/gardener: v1.148.5
+    testedWith:
+      gardener/gardener: v1.148.5
+      kubernetesVersions:
+        - 1.36
+        - 1.32
   v0.9.1:
     requires: {}
     supportedFeatures: []
