@@ -10,7 +10,7 @@ addedAt: 2026-11-12T22:25:43.062Z
 version: v0.5.10
 github:
   stars: 1
-  lastCommit: 2026-11-18T03:32:50Z
+  lastCommit: 2026-11-19T01:16:32Z
   language: Go
   license:
     name: Apache License 2.0
