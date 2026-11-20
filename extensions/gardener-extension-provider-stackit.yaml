@@ -4,10 +4,10 @@ tags:
   - Infrastructure
 repository: https://github.com/stackitcloud/gardener-extension-provider-stackit
 addedAt: 2026-11-12T14:49:32.821Z
-version: v2.28.0
+version: v2.30.0
 github:
   stars: 23
-  lastCommit: 2026-11-19T09:49:14Z
+  lastCommit: 2026-11-20T11:39:36Z
   language: Go
   license:
     name: Apache License 2.0
@@ -61,8 +61,11 @@ github:
     htmlUrl: https://github.com/stackitcloud/gardener-extension-provider-stackit/blob/main/README.md
     rawUrl: https://raw.githubusercontent.com/stackitcloud/gardener-extension-provider-stackit/main/README.md
 apiCompatibility:
+  v2.30.0: {}
   v2.28.0: {}
 compatibility:
+  v2.30.0: {}
+  v2.29.0: {}
   v2.28.0: {}
   v2.27.0: {}
   v2.26.0: {}
