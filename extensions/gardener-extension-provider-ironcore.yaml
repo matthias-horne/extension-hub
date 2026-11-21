@@ -89,7 +89,7 @@ apiCompatibility:
     gardener:
       version: 1.153.0
       from: 1.149.5
-      to: 1.154.5
+      to: 1.154.6
       breaking_on_lower:
         - 1.148.5 removes fields
           Spec.Pools.KubeletConfig.ImagePullCredentialsVerificationPolicy,

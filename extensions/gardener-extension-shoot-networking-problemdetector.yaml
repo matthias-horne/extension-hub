@@ -8,7 +8,7 @@ addedAt: 2026-11-12T14:49:54.881Z
 version: v0.34.1
 github:
   stars: 4
-  lastCommit: 2026-11-17T12:45:56Z
+  lastCommit: 2026-11-21T00:16:55Z
   language: Go
   license:
     name: Apache License 2.0
@@ -95,7 +95,7 @@ apiCompatibility:
     gardener:
       version: 1.151.0
       from: 1.137.7
-      to: 1.154.5
+      to: 1.154.6
       breaking_on_lower: null
       breaking_on_higher: null
 compatibility:

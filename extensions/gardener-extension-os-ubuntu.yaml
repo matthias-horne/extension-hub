@@ -8,7 +8,7 @@ addedAt: 2026-11-12T14:49:04.937Z
 version: v1.43.0
 github:
   stars: 3
-  lastCommit: 2026-11-18T07:33:00Z
+  lastCommit: 2026-11-20T23:18:06Z
   language: Go
   license:
     name: Apache License 2.0
@@ -100,7 +100,7 @@ apiCompatibility:
       from: 1.155.0
       to: 1.155.0
       breaking_on_lower:
-        - "1.154.5 changes fields in OperatingSystemConfig:
+        - "1.154.6 changes fields in OperatingSystemConfig:
           Spec.Files.Permissions: *int32 -> *uint32"
       breaking_on_higher: null
   v1.42.0:

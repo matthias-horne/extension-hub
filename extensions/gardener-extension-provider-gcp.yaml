@@ -10,7 +10,7 @@ addedAt: 2026-11-12T14:49:16.909Z
 version: v1.58.2
 github:
   stars: 17
-  lastCommit: 2026-11-20T05:13:36Z
+  lastCommit: 2026-11-20T23:51:55Z
   language: Go
   license:
     name: Apache License 2.0
@@ -99,7 +99,7 @@ apiCompatibility:
     gardener:
       version: 1.154.0
       from: 1.149.5
-      to: 1.154.5
+      to: 1.154.6
       breaking_on_lower:
         - 1.148.5 removes fields
           Spec.Pools.KubeletConfig.ImagePullCredentialsVerificationPolicy,
