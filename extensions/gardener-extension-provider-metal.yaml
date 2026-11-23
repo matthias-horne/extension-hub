@@ -4,10 +4,10 @@ tags:
   - Infrastructure
 repository: https://github.com/metal-stack/gardener-extension-provider-metal
 addedAt: 2026-11-12T14:49:27.840Z
-version: v0.29.0
+version: v0.30.0
 github:
   stars: 25
-  lastCommit: 2026-11-22T08:53:30Z
+  lastCommit: 2026-11-23T09:01:38Z
   language: Go
   license:
     name: MIT License
@@ -47,6 +47,21 @@ github:
     htmlUrl: https://github.com/metal-stack/gardener-extension-provider-metal/blob/master/README.md
     rawUrl: https://raw.githubusercontent.com/metal-stack/gardener-extension-provider-metal/master/README.md
 apiCompatibility:
+  v0.30.0:
+    gardener:
+      version: 1.147.5
+      from: 1.147.5
+      to: 1.148.5
+      breaking_on_lower:
+        - 1.146.6 removes fields
+          Spec.Pools.MachineControllerManagerSettings.AutoPreserveFailedMachineMax,
+          Spec.Pools.MachineControllerManagerSettings.MachinePreserveTimeout,
+          Status.MachineDeployments.AutoPreserveFailedMachineMax from Worker
+      breaking_on_higher:
+        - 1.149.5 adds fields
+          Spec.Pools.KubeletConfig.ImagePullCredentialsVerificationPolicy,
+          Spec.Pools.KubeletConfig.PreloadedImagesVerificationAllowlist to
+          Worker
   v0.29.0:
     gardener:
       version: 1.147.5
@@ -63,6 +78,7 @@ apiCompatibility:
           Spec.Pools.KubeletConfig.PreloadedImagesVerificationAllowlist to
           Worker
 compatibility:
+  v0.30.0: {}
   v0.29.0: {}
   v0.28.1: {}
   v0.28.0: {}
