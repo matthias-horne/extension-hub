@@ -8,7 +8,7 @@ addedAt: 2026-11-12T14:48:54.118Z
 version: v1.61.0
 github:
   stars: 12
-  lastCommit: 2026-11-23T01:54:59Z
+  lastCommit: 2026-11-24T08:57:17Z
   language: Go
   license:
     name: Apache License 2.0
